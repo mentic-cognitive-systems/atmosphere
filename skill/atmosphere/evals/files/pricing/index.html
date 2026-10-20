@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plans</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray">
+  <div class="container">
+    <div class="title-big text-center mb-8">Pick a plan</div>
+    <div class="grid grid-cols-3 gap-6">
+      <div class="card card--light p-6 shadow-lg rounded-xl">
+        <div class="text-xl font-bold">Solo</div>
+        <div class="price text-blue">$5</div>
+        <div class="text-sm text-muted mt-2">One seat, three projects.</div>
+        <div class="btn btn-primary mt-4" onclick="choose(this)">Choose</div>
+      </div>
+      <div class="card card--dark card--featured p-6 shadow-lg rounded-xl" style="transform: scale(1.05)">
+        <div class="badge" style="background:#f59e0b;color:#fff">Popular</div>
+        <div class="text-xl font-bold">Team</div>
+        <div class="price text-blue">$12</div>
+        <div class="text-sm text-muted mt-2">Ten seats, unlimited projects.</div>
+        <div class="btn btn-primary mt-4" onclick="choose(this)">Choose</div>
+      </div>
+      <div class="card card--light p-6 shadow-lg rounded-xl">
+        <div class="text-xl font-bold">Company</div>
+        <div class="price text-blue">$40</div>
+        <div class="text-sm text-muted mt-2">Unlimited seats, audit log.</div>
+        <div class="btn btn-primary mt-4" onclick="choose(this)">Choose</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function choose(el) {
+      document.querySelectorAll('.btn').forEach(function (b) {
+        b.style.background = '#2563eb';
+        b.textContent = 'Choose';
+      });
+      el.style.background = '#16a34a';
+      el.textContent = 'Chosen';
+    }
+  </script>
+</body>
+</html>

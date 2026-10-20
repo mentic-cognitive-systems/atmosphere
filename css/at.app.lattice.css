@@ -1,0 +1,27 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Workspace lattice: semantic place/part consumers; tokens preserve the existing design. */
+
+html, body {
+  overflow: hidden;
+}
+
+[data-place="scope"], [data-place="breadcrumbs"], [data-place="toolbar"], [data-place="navigator"], [data-place="stage"],
+        [data-place="compass"], [data-place="outline"], [data-place="inspector"], [data-place="telemetry"], [data-place="context"] {
+  overflow: hidden;
+}
+
+.tree-list {
+  overflow-y: auto;
+}
+
+.editor-container {
+  overflow: hidden;
+}
+
+:where(.source-document) > [data-part="controls"] {
+  overflow-x: auto;
+}
+
+:where(.source-document) > [data-part="demonstration"] {
+  overflow-y: auto;
+}

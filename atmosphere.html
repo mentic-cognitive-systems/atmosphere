@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<!---
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */
+-->
+
+<html lang="en" data-layout="default" data-lattice="continuous" data-layer="inline" data-look="blueprint" data-theme="blueprint" data-life="pulse" data-scroll-flow="reveal" data-inout-flow="slide" data-header-fold="false" data-heartbeat="false" data-flap="true" data-density="cozy" data-size="m" data-tabs="classic" data-lens="none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Compose how people encounter the same semantic content. Explore Atmosphere's Layout, Layer, Lattice, Look, Life, and Lens.">
+    <meta name="theme-color" content="#0d1b3e" id="theme-color-meta">
+    <title>Atmosphere &mdash; Meaning, responsibility, presentation</title>
+
+    <!-- ONE DOCUMENT, SEVERAL ENCOUNTERS.
+         Meaning -> responsibility -> presentation.
+
+         data-identity names the semantic subject: guide, document, brand.
+         data-place names its job in this host: navigator, stage, inspector.
+         Layout binds the job to a slot through --place-* custom properties.
+         Layer governs its presence; Lattice governs traversal in its frame.
+         Look paints it, Life responds to change, and Lens seeds an experience.
+
+         Keep native HTML semantics, reference IDs, nodes and working state.
+         Publish dependencies through tokens or explicit state. The lab's
+         contract resolves Guide and Axes presence independently. Its computed
+         values feed the existing renderer and compact URL through a boundary
+         adapter. simple.html is the smaller, direct-CSS starting example. -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Monoton&amp;family=Permanent+Marker&amp;family=Playwrite+DK+Uloopet+Guides&amp;family=Press+Start+2P&amp;family=Mea+Culpa&amp;family=Ballet&amp;family=Rye&amp;family=Sedgwick+Ave&amp;family=VT323&amp;family=Montserrat&amp;family=Fredericka+the+Great&amp;family=Caveat&amp;family=Share+Tech+Mono&amp;family=Waterfall&amp;family=Bonheur+Royale&amp;family=Cinzel:wght@400;600;700;900&amp;family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700&amp;family=Noto+Sans:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400;1,600&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&amp;display=swap" rel="stylesheet">
+
+    <!-- The three platform looks, separately, because they are the one case
+         where the FACE is the argument. Apple, Android and Microsoft each ship
+         a house sans, and "use whatever system-ui resolves to" means at most
+         one of the three is ever right: on a Mac, `Roboto, system-ui` and
+         `"Segoe UI", system-ui` both land on SF Pro, and all three looks
+         render as the same page in three accent colours.
+
+         So each gets a real fallback for the platforms it is not native to.
+         Roboto IS Android's face. Inter is the SF Pro stand-in everywhere that
+         is not an Apple device (-apple-system still wins where it exists), and
+         Open Sans is the humanist stand-in for Segoe UI off Windows -- same
+         Frutiger-descended skeleton, and unmistakably not SF. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Open+Sans:wght@400;600;700&amp;family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./css/at.components.css">
+    <link rel="stylesheet" href="./css/at.docs.components.css">
+    <link rel="stylesheet" href="./css/at.layout.css">
+    <link rel="stylesheet" href="./css/at.docs.layout.css">
+    <link rel="stylesheet" href="./css/at.lattice.css">
+    <link rel="stylesheet" href="./css/at.layer.css">
+    <link rel="stylesheet" href="./css/at.docs.layer.css">
+    <link rel="stylesheet" href="./css/at.look.css">
+    <link rel="stylesheet" href="./css/at.docs.look.css">
+    <link rel="stylesheet" href="./css/at.life.css">
+    <link rel="stylesheet" href="./css/at.docs.life.css">
+    <link rel="stylesheet" href="./css/at.lens.css">
+    <link rel="stylesheet" href="./css/at.local.css">
+    <link rel="stylesheet" href="./css/at.contract.css">
+</head>
+<body class="Layout SemanticLab" data-experience="manual" data-primary="document" data-layout="default" data-lattice="continuous" data-layer="inline" data-look="blueprint" data-theme="blueprint" data-life="pulse" data-scroll-flow="reveal" data-inout-flow="slide" data-header-fold="false" data-heartbeat="false" data-flap="true" data-drawer-intro="true" data-density="cozy" data-size="m" data-tabs="classic" data-lens="none">
+
+<header class="Header" data-identity="masthead" data-place="toolbar" data-role="masthead">
+    <div class="brand-block theme-box">
+        <div class="brand-line">
+            <span class="brand-kicker" data-role="voice">Layout &middot; Lattice &middot; Layer &middot; Look &middot; Life &middot; Lens</span>
+            <span class="viewport-label">phone / tablet / desk / TV</span>
+        </div>
+        <div class="BrandSlot" data-brand-slot>
+            <div class="BrandSpacer" aria-hidden="true"></div>
+            <div class="Brand" data-region="brand" aria-label="Brand">
+                <h1 class="title-text" data-identity="brand" data-relation="identifies" data-target="experience" data-role="voice" data-breathe="land">Atmosphere</h1>
+            </div>
+        </div>
+        <p data-role="description">
+            Describe the meaning once. Compose how people encounter it.
+            Start with an experience, then adjust its presentation.
+        </p>
+        <nav class="contract-experiences" aria-label="Experience" hidden>
+            <button class="chip" type="button" data-contract-experience="reading" aria-pressed="false">Reading</button>
+            <button class="chip" type="button" data-contract-experience="workspace" aria-pressed="false">Workspace</button>
+            <button class="chip" type="button" data-contract-experience="presentation" aria-pressed="false">Presentation</button>
+        </nav>
+        <div class="masthead-controls">
+            <nav class="site-nav" aria-label="Atmosphere documentation">
+                <a href="simple.html">Start simply</a>
+                <a href="tutorial.html">Tutorial</a>
+                <a href="atmosphere.html" aria-current="page">Laboratory</a>
+                <a href="app.html">Case study</a>
+                <a href="live-object.html">Live object</a>
+                <a href="README.md">README</a>
+            </nav>
+            <p class="composition-readout" aria-live="polite">
+                <span class="dim"><span class="dim-key">Layout</span><b data-readout="layout">default</b></span>
+                <span class="sep">&times;</span>
+                <span class="dim"><span class="dim-key">Lattice</span><b data-readout="lattice">continuous</b></span>
+                <span class="sep">&times;</span>
+                <span class="dim"><span class="dim-key">Layer</span><b data-readout="layer">inline</b></span>
+                <span class="sep">&times;</span>
+                <span class="dim"><span class="dim-key">Look</span><b data-readout="look">blueprint</b></span>
+                <span class="sep">&times;</span>
+                <span class="dim"><span class="dim-key">Life</span><b data-readout="life">pulse</b></span>
+                <span class="sep">&times;</span>
+                <span class="dim dim-lens"><span class="dim-key">Lens</span><b data-readout="lens">none</b></span>
+                <span class="sep">&times;</span>
+                <span class="dim"><span class="dim-key">Spacing</span><b data-readout="density">cozy</b></span>
+                <span class="dim"><span class="dim-key">Size</span><b data-readout="size">m</b></span>
+            </p>
+        </div>
+    </div>
+</header>
+
+<!-- Authored inline, promoted to native popovers by the controller when the
+     Layer value asks for a projection. Hidden until then, because a control
+     for a capability the page does not have is a dead control. -->
+<nav class="LayerControls" data-layer-controls aria-label="Supplementary panels" hidden>
+    <button id="layer-trigger-reference" type="button" data-layer-trigger="reference"
+            aria-controls="layer-reference" aria-expanded="false">Guide</button>
+    <button id="layer-trigger-composition" type="button" data-layer-trigger="composition"
+            aria-controls="layer-composition" aria-expanded="false">Axes</button>
+</nav>
+
+<!-- =====================================================================
+     THE GUIDE. A frame that carries its own Lattice.
+
+     It pages. It pages while it is a column on Layout's plane, and it pages
+     while it is a drawer lifted into the top layer, because Layer answers
+     which level it stands at and Lattice answers how you travel through it,
+     and neither question is the other's to answer. Try it: set Layer to any
+     projection and open the Guide -- same sheet, same rules, different level.
+     ===================================================================== -->
+<aside id="layer-reference" class="Sidebar" data-identity="guide" data-relation="navigates" data-target="document" data-place="navigator" data-region="reference" data-layer-panel
+       data-frame data-lattice="pages"
+       aria-label="Guide">
+    <button class="LayerClose" type="button" data-layer-close aria-label="Close the guide" hidden>&times;</button>
+    <div class="panel-track" data-track>
+
+        <section data-view data-role="reading">
+            <h2>Six questions</h2>
+            <ul class="note-list">
+                <li><strong>Layout</strong> &mdash; where does each responsibility belong?</li>
+                <li><strong>Layer</strong> &mdash; what stays, floats, or appears on demand?</li>
+                <li><strong>Lattice</strong> &mdash; how do I move through the content?</li>
+                <li><strong>Look</strong> &mdash; what does it look like?</li>
+                <li><strong>Life</strong> &mdash; how does it respond and change?</li>
+                <li><strong>Lens</strong> &mdash; what experience should these choices serve?</li>
+            </ul>
+            <p class="hint-text">Start with a useful composition. Adjust one decision at a time.</p>
+        </section>
+
+        <section data-view data-role="reading">
+            <h2>Meaning &rarr; responsibility &rarr; presentation</h2>
+            <p>This panel is the <strong>Guide</strong>. Its job here is <strong>Navigator</strong>.
+               Layout gives that job a slot; Layer can make it a drawer.</p>
+            <dl class="contract-list">
+                <dt><code>data-identity="guide"</code></dt><dd>the stable semantic subject</dd>
+                <dt><code>data-place="navigator"</code></dt><dd>its responsibility in this host</dd>
+                <dt><code>--place-navigator</code></dt><dd>the binding to its layout slot</dd>
+            </dl>
+            <p class="hint-text">The same guide keeps its own paged path whether it is inline
+               or opens on demand. Native HTML still supplies its accessibility semantics.</p>
+        </section>
+
+        <section data-view data-role="reading">
+            <h2>The markup</h2>
+            <dl class="contract-list">
+                <dt><code>data-frame="root"</code></dt>
+                <dd>the page's own frame; takes the root Lattice</dd>
+                <dt><code>data-frame</code></dt>
+                <dd>any other frame; takes its <em>own</em> Lattice, or is continuous</dd>
+                <dt><code>data-track</code></dt>
+                <dd>the sequence inside a frame</dd>
+                <dt><code>data-view</code></dt>
+                <dd>one view in that sequence</dd>
+                <dt><code>data-view="stage"</code></dt>
+                <dd>the view a panel path promotes</dd>
+            </dl>
+        </section>
+
+        <section data-view data-role="reading">
+            <h2>Getting around</h2>
+            <ul class="note-list">
+                <li>Arrow keys, Page Up / Down, Home / End move through a paced frame.</li>
+                <li>Every composition is in the URL. Copy the address bar to send this exact page.</li>
+                <li><kbd>Esc</kbd> closes any projected panel.</li>
+                <li>Print at any setting &mdash; the whole document returns, in order.</li>
+            </ul>
+        </section>
+
+    </div>
+</aside>
+
+<!-- The look's canvas. It occupies the Main grid area but sits OUTSIDE the
+     scroll container, so a painted texture stays put while content travels
+     past it in pages, slides and ribbon. at.look.css paints this and its
+     ::before / ::after; nothing else ever touches it. -->
+<div class="Surface" aria-hidden="true"></div>
+
+<!-- =====================================================================
+     THE ROOT FRAME. Ten views, one track. Every path below traverses this
+     exact markup; none of them was written for it.
+     ===================================================================== -->
+<main class="Main" data-identity="document" data-place="stage" data-frame="root" tabindex="-1" aria-label="Demo content">
+<div class="main-shell" data-track>
+
+    <!-- ============================== 1. OVERTURE ==================== -->
+    <section class="hero-demo concept" data-view="stage" aria-labelledby="overture-title" style="--lattice-index: 1">
+        <div class="hero-copy" data-part="explanation">
+            <span class="section-kicker" data-role="voice">One document</span>
+            <h2 id="overture-title" class="header-text" data-role="voice">Keep the meaning. Compose the encounter.</h2>
+            <p class="body-text">The guide, document and controls keep their identity while their
+               responsibilities are presented as reading, a workspace, or a slide deck.</p>
+        </div>
+
+        <aside class="tour-card" data-role="surface" aria-labelledby="first-visit-title">
+            <span class="section-kicker">First visit?</span>
+            <strong id="first-visit-title">Start small, then use this laboratory to explore.</strong>
+            <ol>
+                <li>Try the simple example: write a note and switch presentations.</li>
+                <li>Choose a composition below, then adjust one decision.</li>
+                <li>Compare Structures with Layer set to Inline.</li>
+                <li>Project the Guide and follow the same content by its own path.</li>
+            </ol>
+            <div class="button-row">
+                <a class="action-link" href="simple.html">Start simply →</a>
+                <a class="text-link" href="tutorial.html">Continue with the tutorial</a>
+            </div>
+            <p class="hint-text" data-structure-feedback role="status">Choose Inline to compare the rail structures.</p>
+            <button class="chip" type="button" data-compose="layer:inline" data-structure-inline hidden>Show structure inline</button>
+        </aside>
+
+        <details class="contract-editor" data-role="surface">
+            <summary>Explore the CSS composition contract</summary>
+            <p>Choose an experience above, then adjust a policy. Explicit policies stay in effect
+               across experience changes. The full theme drawer remains available for individual dimensions.</p>
+            <div class="contract-fields" hidden>
+                <div><label for="lab-arrangement">Arrangement</label><select id="lab-arrangement" data-contract-policy="arrangement">
+                    <option value="">Experience default</option><option value="adaptive">Adaptive</option><option value="stack">Stack</option><option value="alongside">Alongside</option><option value="aside">Supporting rail after content</option><option value="focus">Focus</option>
+                </select></div>
+                <div><label for="lab-navigation">Guide</label><select id="lab-navigation" data-contract-policy="navigation">
+                    <option value="">Experience default</option><option value="auto">Auto</option><option value="embedded">Keep in the layout</option><option value="on-demand">Open on demand</option>
+                </select></div>
+                <div><label for="lab-controls">Axes</label><select id="lab-controls" data-contract-policy="controls">
+                    <option value="">Experience default</option><option value="auto">Auto</option><option value="embedded">Keep in the layout</option><option value="on-demand">Open on demand</option>
+                </select></div>
+                <div><label for="lab-path">Path</label><select id="lab-path" data-contract-policy="path">
+                    <option value="">Experience default</option><option value="continuous">Continuous</option><option value="pages">Pages</option><option value="slides">Slides</option><option value="ribbon">Ribbon</option><option value="card-stack">Card stack</option><option value="spotlight">Spotlight</option><option value="control">Control</option><option value="app">App</option>
+                </select></div>
+                <div><label for="lab-rhythm">Rhythm</label><select id="lab-rhythm" data-contract-policy="rhythm">
+                    <option value="">Experience default</option><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="spacious">Spacious</option>
+                </select></div>
+                <div><label for="lab-identity">Identity</label><select id="lab-identity" data-contract-policy="identity">
+                    <option value="">Experience default</option><option value="persistent">Keep Brand available</option><option value="flowing">Move with the header</option>
+                </select></div>
+                <button class="chip" type="button" data-contract-reset>Use experience defaults</button>
+            </div>
+            <pre data-contract-state>Loading the CSS contract. The dimension controls remain available.</pre>
+            <p class="hint-text">Guide navigates document. Axes controls experience. Brand identifies experience.
+               Saved links include these policies as well as the existing composition.</p>
+        </details>
+
+        <div class="metric-strip" data-role="surface">
+            <div class="metric" style="--fit-chars: 7"><strong>6</strong><span>sheets</span></div>
+            <div class="metric" style="--fit-chars: 7"><strong>8</strong><span>paths</span></div>
+            <div class="metric" style="--fit-chars: 7"><strong>4</strong><span>planes</span></div>
+            <div class="metric" style="--fit-chars: 7"><strong>31</strong><span>looks</span></div>
+        </div>
+
+        <!-- Recipes are starting points. Individual choices remain editable;
+             the live explanation exposes dependencies between them. -->
+        <div data-cols="fit max-3" data-gap="close" style="--col-chars: 30">
+            <button class="compose-card" type="button" data-role="select"
+                    data-compose="layout:default;lattice:continuous;layer:inline;look:blueprint;life:pulse;scrollFlow:reveal;density:cozy;size:m">
+                <strong>Article</strong>
+                <span class="compose-coords">default &middot; continuous &middot; inline</span>
+                <span class="compose-note">One column that scrolls. The neutral case.</span>
+            </button>
+            <button class="compose-card" type="button" data-role="select"
+                    data-compose="layout:default;lattice:app;layer:top-left-edge-drawer;look:tux;life:pulse;scrollFlow:still;inoutFlow:slide;density:compact;size:s">
+                <strong>Panel app</strong>
+                <span class="compose-coords">app &middot; edge drawer</span>
+                <span class="compose-note">A wall of panels; the rails go on call.</span>
+            </button>
+            <button class="compose-card" type="button" data-role="select"
+                    data-compose="layout:3col;lattice:control;layer:pop-over;look:lab;life:still;scrollFlow:still;inoutFlow:show;density:compact;size:s">
+                <strong>Dashboard</strong>
+                <span class="compose-coords">3col &middot; control &middot; pop-over</span>
+                <span class="compose-note">One glass. Every tile at once, each scrolling itself.</span>
+            </button>
+            <button class="compose-card" type="button" data-role="select"
+                    data-compose="layout:hero;lattice:slides;layer:top-menu;look:museum;life:still;scrollFlow:parallax;inoutFlow:flip;density:roomy;size:l">
+                <strong>Slide deck</strong>
+                <span class="compose-coords">hero &middot; slides &middot; top menu</span>
+                <span class="compose-note">Sideways, snapped, one view at a time.</span>
+            </button>
+            <button class="compose-card" type="button" data-role="select"
+                    data-compose="layout:stacked;lattice:pages;layer:pop-over;look:parchment;life:still;scrollFlow:reveal;inoutFlow:slide;density:roomy;size:m">
+                <strong>Book</strong>
+                <span class="compose-coords">stacked &middot; pages &middot; pop-over</span>
+                <span class="compose-note">Numbered sheets and a reading measure.</span>
+            </button>
+            <button class="compose-card" type="button" data-role="select"
+                    data-compose="layout:default;lattice:card-stack;layer:inline;look:deepsea;life:3d;scrollFlow:parallax;density:cozy;size:m">
+                <strong>Card stack</strong>
+                <span class="compose-coords">card-stack &middot; 3D</span>
+                <span class="compose-note">Sticky planes, resolved by the camera.</span>
+            </button>
+        </div>
+
+        <p class="hint-text">
+            Each recipe selects a starting experience using the existing composition attributes.
+            You can adjust its choices afterwards. Their responsibilities are distinct, and their
+            dependencies should be visible.
+        </p>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 2. THE FRAME =================== -->
+    <section class="frame-demo concept" data-view aria-labelledby="frame-title" style="--lattice-index: 2">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">Meaning before mechanics</span>
+            <h2 id="frame-title" data-role="voice">One guide, three decisions</h2>
+            <p>
+                The Guide is a semantic subject with a navigation responsibility.
+                <strong>Layout</strong> assigns the navigator a place, <strong>Layer</strong>
+                decides whether it stays there or opens on demand, and <strong>Lattice</strong>
+                defines the path through its chapters. The depth model below implements those
+                choices; it is not vocabulary you need before using them.
+            </p>
+        </div>
+
+        <div class="depth-pair">
+            <!-- One row per plane, which is all a plane needs in order to say
+                 which plane it is. --z is the physical plane; the caption is
+                 the Layer distance that puts a frame there. The deck fans
+                 around the glass because that is what --z means: 0 is the
+                 page surface, positive is in front of it, negative behind. -->
+            <div class="depth-stage" data-role="surface" aria-label="The planes a frame can stand on">
+                <div class="depth-stack">
+                    <div class="plane" data-z="3">
+                        <strong>Top menu</strong>
+                        <span class="plane-z">layer-z 4</span>
+                    </div>
+                    <div class="plane" data-z="2">
+                        <strong>Edge drawer</strong>
+                        <span class="plane-z">layer-z 3</span>
+                    </div>
+                    <div class="plane" data-z="1">
+                        <strong>Pop-over</strong>
+                        <span class="plane-z">layer-z 2</span>
+                    </div>
+                    <div class="plane" data-z="0">
+                        <strong>Base plane</strong>
+                        <span class="plane-z">the glass</span>
+                    </div>
+                    <div class="plane" data-z="-2">
+                        <strong>&hellip;and the page</strong>
+                        <span class="plane-z">page-far</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="depth-notes">
+                <h3>One number, five spenders</h3>
+                <p>
+                    Whether a frame is lifted is a yes or a no, but <em>the level it lands
+                    on</em> is a distance. Written as a distance, every other sheet can spend
+                    it without being told a drawer exists.
+                </p>
+                <dl class="contract-list">
+                    <dt>Layer</dt><dd>stands the frame that many planes forward</dd>
+                    <dt>Look</dt><dd>paints that many planes of its own air over the page</dd>
+                    <dt>Life</dt><dd>times the recede, and the crossing that causes it</dd>
+                    <dt>Lattice</dt><dd>sets the camera the whole scene is resolved by</dd>
+                    <dt>Lens</dt><dd>decides how far any of it is allowed to go</dd>
+                </dl>
+                <p class="depth-readout">
+                    <span>camera <b data-readout="camera">900px</b></span>
+                    <span>haze <b data-readout="haze">&mdash;</b></span>
+                    <span>face-aspect <b data-readout="face-aspect">&mdash;</b></span>
+                </p>
+                <p class="hint-text">Read live out of the cascade, not from a table in the script.</p>
+            </div>
+        </div>
+
+        <div data-cols="fit max-3" data-gap="close" style="--col-chars: 30">
+            <div class="layer-card" data-role="surface">
+                <span class="demo-label">at.layout.css</span>
+                <strong>Layout &mdash; the plane</strong>
+                <p>Where does each responsibility belong? Bind the navigator, stage and inspector
+                   to slots; resolve their arrangement at the available width.</p>
+                <p class="layer-rule">Publish the slot binding. Presence and traversal make their own decisions.</p>
+            </div>
+            <div class="layer-card" data-role="surface">
+                <span class="demo-label">at.layer.css</span>
+                <strong>Layer &mdash; the stack</strong>
+                <p>What stays, floats, or appears on demand? A projected guide retains its identity
+                   while changing its relationship to the document.</p>
+                <p class="layer-rule">Make space retention or release explicit. Publish depth through <code>--layer-z</code>.</p>
+            </div>
+            <div class="layer-card" data-role="surface">
+                <span class="demo-label">at.lattice.css</span>
+                <strong>Lattice &mdash; the traversal</strong>
+                <p>How do I move through the content? The Guide keeps its paged path when
+                   it moves from a rail into a drawer.</p>
+                <p class="layer-rule">The path belongs to its frame. <code>--lattice-axis</code> publishes its direction.</p>
+            </div>
+        </div>
+
+        <div class="custom-effect-note" data-role="surface">
+            <h3>Retain space, or release it.</h3>
+            <p>The floating Brand retains its original place through a spacer, so the
+               composition readout stays beside it. Projected panels release their rail slots.
+               These are different presence policies; each should preserve the meaning and
+               working state of the subject.</p>
+            <p>The Guide and Axes now have independent presence policies. In the
+               <strong>CSS composition contract</strong>, set Guide to open on demand while
+               Axes stays embedded. Only the Guide's slot is released. The
+               <a class="text-link" href="simple.html">simple example</a> shows the smaller version.</p>
+        </div>
+
+        <div class="vocab-strip">
+            <div class="vocab" data-role="surface"><code>data-frame</code><p>a box content is seen through</p></div>
+            <div class="vocab" data-role="surface"><code>data-track</code><p>the sequence inside it</p></div>
+            <div class="vocab" data-role="surface"><code>data-view</code><p>one view in that sequence</p></div>
+            <div class="vocab" data-role="surface"><code>--camera</code><p>where you stand &mdash; Lattice</p></div>
+            <div class="vocab" data-role="surface"><code>--layer-z</code><p>how many planes forward &mdash; Layer</p></div>
+            <div class="vocab" data-role="surface"><code>--z</code><p>which plane a thing is on</p></div>
+        </div>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 3. THE PATHS =================== -->
+    <section class="lattice-demo concept" data-view aria-labelledby="lattice-title" style="--lattice-index: 3">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">at.lattice.css</span>
+            <h2 id="lattice-title" data-role="voice">Eight paths, running at once</h2>
+            <p>
+                Every cell below is a real frame with its own <code>data-lattice</code>, alive
+                right now. The sheet contains no rule that mentions this gallery, this section,
+                or this page &mdash; only a rule about frames, tracks and views. Each path is one
+                way of tying a frame's views together and moving between them; it traverses
+                whichever frame carries it, and the page's own frame is not special.
+            </p>
+        </div>
+
+        <div class="lattice-gallery" data-cols="fit" data-gap="even" style="--col-chars: 26">
+
+            <figure class="lattice-cell">
+                <figcaption><span class="demo-label">continuous</span><span class="cell-note">ordinary flow</span></figcaption>
+                <div class="mini-frame" data-frame data-role="surface">
+                    <div class="panel-track" data-track>
+                        <section class="mini-view concept" data-view><strong>Flow</strong><p>Whatever geometry Layout gave the frame is left exactly as it is.</p></section>
+                        <section class="mini-view concept" data-view><strong>Neutral</strong><p>The identity path, and what an unmarked frame gets.</p></section>
+                        <section class="mini-view concept" data-view><strong>Ordinary</strong><p>Nothing snaps. Nothing paces.</p></section>
+                    </div>
+                </div>
+            </figure>
+
+            <figure class="lattice-cell">
+                <figcaption><span class="demo-label">pages</span><span class="cell-note">snapped sheets</span></figcaption>
+                <div class="mini-frame" data-frame data-lattice="pages" data-role="surface">
+                    <div class="panel-track" data-track>
+                        <section class="mini-view concept" data-view><strong>One</strong><p>Vertical, snapped, numbered.</p></section>
+                        <section class="mini-view concept" data-view><strong>Two</strong><p>Proximity snapping, so a long page stays readable.</p></section>
+                        <section class="mini-view concept" data-view><strong>Three</strong><p>A reading measure, centred.</p></section>
+                    </div>
+                </div>
+            </figure>
+
+            <figure class="lattice-cell">
+                <figcaption><span class="demo-label">slides</span><span class="cell-note">sideways, mandatory</span></figcaption>
+                <div class="mini-frame" data-frame data-lattice="slides" data-role="surface">
+                    <div class="panel-track" data-track>
+                        <section class="mini-view concept" data-view><strong>Slide</strong><p>Inline axis. One view fills the frame.</p></section>
+                        <section class="mini-view concept" data-view><strong>Next</strong><p>Mandatory snap with a hard stop.</p></section>
+                        <section class="mini-view concept" data-view><strong>Last</strong><p>Centred content, generous air.</p></section>
+                    </div>
+                </div>
+            </figure>
+
+            <figure class="lattice-cell">
+                <figcaption><span class="demo-label">ribbon</span><span class="cell-note">sideways, free</span></figcaption>
+                <div class="mini-frame" data-frame data-lattice="ribbon" data-role="surface">
+                    <div class="panel-track" data-track>
+                        <section class="mini-view concept" data-view><strong>Panel</strong><p>Variable width, no snap.</p></section>
+                        <section class="mini-view concept" data-view><strong>Panel</strong><p>Each keeps its own vertical scroll.</p></section>
+                        <section class="mini-view concept" data-view><strong>Panel</strong><p>Browse, rather than present.</p></section>
+                        <section class="mini-view concept" data-view><strong>Panel</strong><p>As many as you like.</p></section>
+                    </div>
+                </div>
+            </figure>
+
+            <figure class="lattice-cell">
+                <figcaption><span class="demo-label">card-stack</span><span class="cell-note">sticky planes</span></figcaption>
+                <div class="mini-frame" data-frame data-lattice="card-stack" data-role="surface">
+                    <div class="panel-track" data-track>
+                        <section class="mini-view concept" data-view style="--lattice-index: 1"><strong>Card one</strong><p>Pins, then the next arrives over it.</p></section>
+                        <section class="mini-view concept" data-view style="--lattice-index: 2"><strong>Card two</strong><p>Depth order is markup's, not the DOM's.</p></section>
+                        <section class="mini-view concept" data-view style="--lattice-index: 3"><strong>Card three</strong><p>Still a block-axis read.</p></section>
+                    </div>
+                </div>
+            </figure>
+
+            <figure class="lattice-cell">
+                <figcaption><span class="demo-label">spotlight</span><span class="cell-note">centred chapters</span></figcaption>
+                <div class="mini-frame" data-frame data-lattice="spotlight" data-role="surface">
+                    <div class="panel-track" data-track>
+                        <section class="mini-view concept" data-view><strong>Chapter</strong><p>One thing at a time, centred.</p></section>
+                        <section class="mini-view concept" data-view><strong>Chapter</strong><p>Mandatory snap, generous gap.</p></section>
+                        <section class="mini-view concept" data-view><strong>Chapter</strong><p>Slow, deliberate pacing.</p></section>
+                    </div>
+                </div>
+            </figure>
+
+            <figure class="lattice-cell">
+                <figcaption><span class="demo-label">control</span><span class="cell-note">one glass</span></figcaption>
+                <div class="mini-frame" data-frame data-lattice="control" data-role="surface">
+                    <div class="panel-track" data-track>
+                        <section class="mini-view concept" data-view><strong>Tile</strong><p>Divides the glass.</p></section>
+                        <section class="mini-view concept" data-view><strong>Tile</strong><p>Scrolls itself.</p></section>
+                        <section class="mini-view concept" data-view><strong>Tile</strong><p>Never moves.</p></section>
+                        <section class="mini-view concept" data-view><strong>Tile</strong><p>All at once.</p></section>
+                    </div>
+                </div>
+            </figure>
+
+            <figure class="lattice-cell">
+                <figcaption><span class="demo-label">app</span><span class="cell-note">a panel wall</span></figcaption>
+                <div class="mini-frame" data-frame data-lattice="app" data-role="surface">
+                    <div class="panel-track" data-track>
+                        <section class="mini-view concept" data-view="stage"><strong>Stage</strong><p>The panel the workspace is about.</p></section>
+                        <section class="mini-view concept" data-view><strong>Panel</strong><p>Fixed size.</p></section>
+                        <section class="mini-view concept" data-view><strong>Panel</strong><p>Own scroll.</p></section>
+                        <section class="mini-view concept" data-view><strong>Panel</strong><p>The wall scrolls.</p></section>
+                    </div>
+                </div>
+            </figure>
+
+        </div>
+
+        <p class="hint-text">
+            <strong>Control</strong> and <strong>App</strong> differ in one clause: a Control tile
+            divides a glass that never moves, an App panel is a fixed-size tile on a wall that
+            does. Both keep their own overflow &mdash; a panel is a frame, and a frame keeps what
+            does not fit.
+        </p>
+
+        <div class="chip-row" role="group" aria-label="Set the path through this page">
+            <button class="chip" type="button" data-role="select" data-lattice-option="continuous" data-compose="lattice:continuous" aria-pressed="true">continuous</button>
+            <button class="chip" type="button" data-role="select" data-lattice-option="pages" data-compose="lattice:pages" aria-pressed="false">pages</button>
+            <button class="chip" type="button" data-role="select" data-lattice-option="slides" data-compose="lattice:slides" aria-pressed="false">slides</button>
+            <button class="chip" type="button" data-role="select" data-lattice-option="ribbon" data-compose="lattice:ribbon" aria-pressed="false">ribbon</button>
+            <button class="chip" type="button" data-role="select" data-lattice-option="card-stack" data-compose="lattice:card-stack" aria-pressed="false">card-stack</button>
+            <button class="chip" type="button" data-role="select" data-lattice-option="spotlight" data-compose="lattice:spotlight" aria-pressed="false">spotlight</button>
+            <button class="chip" type="button" data-role="select" data-lattice-option="control" data-compose="lattice:control" aria-pressed="false">control</button>
+            <button class="chip" type="button" data-role="select" data-lattice-option="app" data-compose="lattice:app" aria-pressed="false">app</button>
+        </div>
+        <p class="hint-text">Those set the path through <em>this</em> page &mdash; the same eight
+           rules, applied to the root frame. The gallery keeps its own the whole time.</p>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 4. THE PLANES ================== -->
+    <section class="layer-demo concept" data-view aria-labelledby="layer-title" style="--lattice-index: 4">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">at.layer.css</span>
+            <h2 id="layer-title" data-role="voice">On the plane, or above it</h2>
+            <p>
+                What stays in place, floats, or appears on demand? Pick a projection, then
+                open the Guide. Its identity and paged path remain the same. These Layer
+                buttons request the projection for both panels; the CSS contract can override
+                Guide and Axes independently. Embedded relationships keep their own layout slots.
+            </p>
+        </div>
+
+        <div class="feature-grid" data-cols="fit max-4" data-gap="close" style="--col-chars: 20">
+            <button class="layer-card compose-card" type="button" data-role="select"
+                    data-layer-option="inline" data-compose="layer:inline" aria-pressed="true">
+                <strong>Inline</strong>
+                <span class="compose-coords">z 0 &mdash; on the base plane</span>
+                <p class="compose-note">Every panel stays in Layout's slots. The scriptless page,
+                   and the print page.</p>
+            </button>
+            <button class="layer-card compose-card" type="button" data-role="select"
+                    data-layer-option="pop-over" data-compose="layer:pop-over" aria-pressed="false">
+                <strong>Pop-over</strong>
+                <span class="compose-coords">z +2 &mdash; belongs to its trigger</span>
+                <p class="compose-note">Anchored where there is room for it; a bottom sheet on a
+                   phone, where a small card is no use.</p>
+            </button>
+            <button class="layer-card compose-card" type="button" data-role="select"
+                    data-layer-option="top-left-edge-drawer" data-compose="layer:top-left-edge-drawer" aria-pressed="false">
+                <strong>Edge drawer</strong>
+                <span class="compose-coords">z +3 &mdash; belongs to an edge</span>
+                <p class="compose-note">Full height, flush to the edge, invokers fixed beside it.</p>
+            </button>
+            <button class="layer-card compose-card" type="button" data-role="select"
+                    data-layer-option="top-menu" data-compose="layer:top-menu" aria-pressed="false">
+                <strong>Top menu</strong>
+                <span class="compose-coords">z +4 &mdash; belongs to the window</span>
+                <p class="compose-note">Drops from the top edge, flush, reading as one piece of
+                   furniture with its invokers.</p>
+            </button>
+        </div>
+
+        <p>
+            A level is a relationship, so Layer states both ends of it. While a projection is
+            open the page falls back exactly as far as the projection came forward &mdash;
+            <code>--page-far</code> is <code>--layer-z</code> pointing the other way. Nothing
+            downstream names a projection, so a fourth one added tomorrow recedes the page today.
+        </p>
+        <p>
+            The footer is a frame too, and it names the edge it belongs to:
+            <code>data-edge="block-end"</code>. The projections that hang furniture off the
+            window &mdash; the drawer and the top menu &mdash; lift it into a drawer on that
+            edge; a pop-over, which belongs to a trigger, leaves it on the plane. Its own
+            centred layout goes with it either way, because every plane carries its own.
+        </p>
+
+        <div class="crossing-table" role="table" aria-label="Lattice crossed with Layer">
+            <div class="crossing-row crossing-head" role="row">
+                <span role="columnheader">Lattice &times; Layer</span>
+                <span role="columnheader">inline</span>
+                <span role="columnheader">edge drawer</span>
+                <span role="columnheader">pop-over</span>
+            </div>
+            <div class="crossing-row" role="row">
+                <span role="rowheader">continuous</span>
+                <span role="cell">an article</span>
+                <span role="cell">an article with a nav drawer</span>
+                <span role="cell">an article with margin notes</span>
+            </div>
+            <div class="crossing-row" role="row">
+                <span role="rowheader">app</span>
+                <span role="cell">a fixed workspace</span>
+                <span role="cell">a shelf app</span>
+                <span role="cell">a workspace with inspectors</span>
+            </div>
+            <div class="crossing-row" role="row">
+                <span role="rowheader">control</span>
+                <span role="cell">a wall board</span>
+                <span role="cell">a console with a drawer</span>
+                <span role="cell">a console with detail cards</span>
+            </div>
+            <div class="crossing-row" role="row">
+                <span role="rowheader">pages</span>
+                <span role="cell">a bound book</span>
+                <span role="cell">a book with an index</span>
+                <span role="cell">a book with footnotes</span>
+            </div>
+        </div>
+        <p class="hint-text">
+            These combinations illustrate how presence and traversal can compose. Their
+            responsibilities remain distinct; their dependencies must be made explicit.
+        </p>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 5. LOOK ======================== -->
+    <section class="look-demo concept" data-view aria-labelledby="look-title" style="--lattice-index: 5">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">at.look.css</span>
+            <h2 id="look-title" data-role="voice">Thirty-one looks, one skeleton</h2>
+            <p>
+                A look declares colour, typography, texture and the air between planes. It moves
+                nothing and places nothing. It also declares how wide a character is in the face
+                it just chose &mdash; <code>--face-aspect</code> &mdash; which is what lets every
+                component solve its own type size in a box a look just made narrower.
+            </p>
+        </div>
+
+        <div class="swatch-grid">
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="apple" data-theme-option="apple" data-compose="look:apple"><span class="swatch-chip" aria-hidden="true"></span><strong>Apple</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="android" data-theme-option="android" data-compose="look:android"><span class="swatch-chip" aria-hidden="true"></span><strong>Android</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="microsoft" data-theme-option="microsoft" data-compose="look:microsoft"><span class="swatch-chip" aria-hidden="true"></span><strong>Microsoft</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="temple" data-theme-option="temple" data-compose="look:temple"><span class="swatch-chip" aria-hidden="true"></span><strong>Temple</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="citadel" data-theme-option="citadel" data-compose="look:citadel"><span class="swatch-chip" aria-hidden="true"></span><strong>Citadel</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="tux" data-theme-option="tux" data-compose="look:tux"><span class="swatch-chip" aria-hidden="true"></span><strong>Tux</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="luxury" data-theme-option="luxury" data-compose="look:luxury"><span class="swatch-chip" aria-hidden="true"></span><strong>Luxury</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="parchment" data-theme-option="parchment" data-compose="look:parchment"><span class="swatch-chip" aria-hidden="true"></span><strong>Parchment</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="typewritter" data-theme-option="typewritter" data-compose="look:typewritter"><span class="swatch-chip" aria-hidden="true"></span><strong>Typewriter</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="newspaper" data-theme-option="newspaper" data-compose="look:newspaper"><span class="swatch-chip" aria-hidden="true"></span><strong>Newspaper</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="origami" data-theme-option="origami" data-compose="look:origami"><span class="swatch-chip" aria-hidden="true"></span><strong>Origami</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="comic" data-theme-option="comic" data-compose="look:comic"><span class="swatch-chip" aria-hidden="true"></span><strong>Comic</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="school" data-theme-option="school" data-compose="look:school"><span class="swatch-chip" aria-hidden="true"></span><strong>School</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="lab" data-theme-option="lab" data-compose="look:lab"><span class="swatch-chip" aria-hidden="true"></span><strong>Lab</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="blueprint" data-theme-option="blueprint" data-compose="look:blueprint"><span class="swatch-chip" aria-hidden="true"></span><strong>Blueprint</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="museum" data-theme-option="museum" data-compose="look:museum"><span class="swatch-chip" aria-hidden="true"></span><strong>Museum</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="western" data-theme-option="western" data-compose="look:western"><span class="swatch-chip" aria-hidden="true"></span><strong>Western</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="nightclub" data-theme-option="nightclub" data-compose="look:nightclub"><span class="swatch-chip" aria-hidden="true"></span><strong>Nightclub</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="urban" data-theme-option="urban" data-compose="look:urban"><span class="swatch-chip" aria-hidden="true"></span><strong>Urban</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="crt" data-theme-option="crt" data-compose="look:crt"><span class="swatch-chip" aria-hidden="true"></span><strong>CRT</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="cyberpunk" data-theme-option="cyberpunk" data-compose="look:cyberpunk"><span class="swatch-chip" aria-hidden="true"></span><strong>Cyberpunk</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="hologram" data-theme-option="hologram" data-compose="look:hologram"><span class="swatch-chip" aria-hidden="true"></span><strong>Hologram</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="arcade" data-theme-option="arcade" data-compose="look:arcade"><span class="swatch-chip" aria-hidden="true"></span><strong>Arcade</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="starfield" data-theme-option="starfield" data-compose="look:starfield"><span class="swatch-chip" aria-hidden="true"></span><strong>Starfield</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="deepsea" data-theme-option="deepsea" data-compose="look:deepsea"><span class="swatch-chip" aria-hidden="true"></span><strong>Deep sea</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="storm" data-theme-option="storm" data-compose="look:storm"><span class="swatch-chip" aria-hidden="true"></span><strong>Storm</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="vaporwave" data-theme-option="vaporwave" data-compose="look:vaporwave"><span class="swatch-chip" aria-hidden="true"></span><strong>Vaporwave</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="thermal" data-theme-option="thermal" data-compose="look:thermal"><span class="swatch-chip" aria-hidden="true"></span><strong>Thermal</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="fortress" data-theme-option="fortress" data-compose="look:fortress"><span class="swatch-chip" aria-hidden="true"></span><strong>Fortress</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="vault" data-theme-option="vault" data-compose="look:vault"><span class="swatch-chip" aria-hidden="true"></span><strong>Vault</strong></button>
+            <button class="theme-btn swatch" type="button" data-role="select" data-theme="midcentury" data-theme-option="midcentury" data-compose="look:midcentury"><span class="swatch-chip" aria-hidden="true"></span><strong>Mid-Century</strong></button>
+        </div>
+
+        <div class="depth-pair">
+            <div class="fit-pair">
+                <div class="plane fit-sample" data-z="0" data-fit="on" data-role="surface">
+                    <strong>compositions</strong>
+                    <p>told how wide a character is</p>
+                </div>
+                <div class="plane fit-sample" data-z="0" data-fit="off" style="--face-aspect: 0.4" data-role="surface">
+                    <strong>compositions</strong>
+                    <p>not told</p>
+                </div>
+            </div>
+            <div class="depth-notes">
+                <h3>The measure contract</h3>
+                <p>Same word, same box. The only difference is whether the box was told how long
+                   the word would be in the face the look just picked. Switch looks above and
+                   watch the left one hold while the right one breaks.</p>
+                <p>This is why a component can solve its own type size at all. It knows the worst
+                   case it must hold, in characters; the look knows how wide a character is; the
+                   box knows how wide it is. Three numbers, one <code>min()</code>, and no
+                   breakpoint anywhere.</p>
+            </div>
+        </div>
+
+        <p class="hint-text">Density and size are supporting controls, orthogonal to all six:
+           <code>--density-scale</code> is the reader's air, <code>--lattice-scale</code> is what
+           a path needs, and they multiply.</p>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 6. LIFE ======================== -->
+    <section class="life-demo concept" data-view aria-labelledby="life-title" style="--lattice-index: 6">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">at.life.css</span>
+            <h2 id="life-title" data-role="voice">Motion is a score, not a property</h2>
+            <p>
+                Life animates <em>roles</em>, never elements. The markup says a thing is a
+                <code>surface</code>, a <code>select</code>, a piece of <code>reading</code>, the
+                <code>masthead</code> or a <code>voice</code>; the score decides what those feel
+                like. Nothing on this page carries an animation.
+            </p>
+        </div>
+
+        <div class="life-grid" data-cols="fit max-2" data-gap="close" style="--col-chars: 34">
+            <div class="life-card" data-role="surface">
+                <span class="demo-label">micro-motion</span>
+                <strong>How it feels to touch</strong>
+                <div class="chip-row">
+                    <button class="chip" type="button" data-role="select" data-life-option="still" data-compose="life:still">still</button>
+                    <button class="chip" type="button" data-role="select" data-life-option="pulse" data-compose="life:pulse">pulse</button>
+                    <button class="chip" type="button" data-role="select" data-life-option="wiggle" data-compose="life:wiggle">wiggle</button>
+                    <button class="chip" type="button" data-role="select" data-life-option="3d" data-compose="life:3d">3d</button>
+                    <button class="chip" type="button" data-role="select" data-life-option="glitch" data-compose="life:glitch">glitch</button>
+                    <button class="chip" type="button" data-role="select" data-life-option="crazy" data-compose="life:crazy">crazy</button>
+                </div>
+            </div>
+            <div class="life-card" data-role="surface">
+                <span class="demo-label">scroll flow</span>
+                <strong>How it feels to travel</strong>
+                <div class="chip-row">
+                    <button class="chip" type="button" data-role="select" data-compose="scrollFlow:still">still</button>
+                    <button class="chip" type="button" data-role="select" data-compose="scrollFlow:reveal">drop in</button>
+                    <button class="chip" type="button" data-role="select" data-compose="scrollFlow:parallax">parallax</button>
+                </div>
+                <p>Scroll-linked, and scored against the frame's own <code>--flow</code> timeline.</p>
+            </div>
+            <div class="life-card" data-role="surface">
+                <span class="demo-label">crossing</span>
+                <strong>How a projection arrives</strong>
+                <div class="chip-row">
+                    <button class="chip" type="button" data-role="select" data-compose="inoutFlow:show">show</button>
+                    <button class="chip" type="button" data-role="select" data-compose="inoutFlow:slide">slide</button>
+                    <button class="chip" type="button" data-role="select" data-compose="inoutFlow:slam">slam</button>
+                    <button class="chip" type="button" data-role="select" data-compose="inoutFlow:flip">flip</button>
+                    <button class="chip" type="button" data-role="select" data-compose="inoutFlow:materialize">materialize</button>
+                    <button class="chip" type="button" data-role="select" data-compose="inoutFlow:focus">focus</button>
+                </div>
+                <p>The flow names the manner; Layer supplies the distance and the hinge, so
+                   one crossing reads at drawer scale and at pop-over scale alike. Pick a
+                   projection above and open a panel to feel it.</p>
+            </div>
+            <div class="life-card" data-role="surface">
+                <span class="demo-label">reduced motion</span>
+                <strong>Honoured, not overridden</strong>
+                <p>Every score collapses to its still form under
+                   <code>prefers-reduced-motion</code>. Pointer feedback stays, because that is
+                   information rather than decoration.</p>
+                <p class="status-line"><span class="status-dot"></span><span>ready</span></p>
+            </div>
+        </div>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 7. LENS ======================== -->
+    <section class="lens-demo concept" data-view aria-labelledby="lens-title" style="--lattice-index: 7">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">at.lens.css</span>
+            <h2 id="lens-title" data-role="voice">A chord across the other five</h2>
+            <p>
+                A lens is not a seventh axis. It is a starting position on the other five, chosen
+                for how it should feel to use rather than for how it should look &mdash; and it
+                gets out of the way the moment you move an axis yourself. The readout says
+                <code>+2</code> when two axes have drifted off the seed.
+            </p>
+        </div>
+
+        <div class="chip-row" role="group" aria-label="Experience lenses">
+            <button class="chip" type="button" data-role="select" data-lens-option="none" data-compose="lens:none" aria-pressed="true">none</button>
+            <button class="chip" type="button" data-role="select" data-lens-option="productive-data-dense" data-compose="lens:productive-data-dense">productive &amp; data-dense</button>
+            <button class="chip" type="button" data-role="select" data-lens-option="expressive-gamified" data-compose="lens:expressive-gamified">expressive &amp; gamified</button>
+            <button class="chip" type="button" data-role="select" data-lens-option="cinematic-luxury" data-compose="lens:cinematic-luxury">cinematic luxury</button>
+            <button class="chip" type="button" data-role="select" data-lens-option="stealth-terminal" data-compose="lens:stealth-terminal">stealth terminal</button>
+            <button class="chip" type="button" data-role="select" data-lens-option="institutional-reassuring" data-compose="lens:institutional-reassuring">institutional</button>
+        </div>
+
+        <ul class="note-list" data-lens-notes>
+            <li><strong>Loading&hellip;</strong> &mdash; the psychology notes come from
+                <code>experience_themes.json</code>, so the model is data, not a stylesheet.</li>
+        </ul>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 8. THE LEDGER ================== -->
+    <section class="contract-demo concept" data-view aria-labelledby="contract-title" style="--lattice-index: 8">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">Decisions and contracts</span>
+            <h2 id="contract-title" data-role="voice">One question per responsibility</h2>
+            <p>
+                Give each decision a clear owner. When responsibilities meet, use a semantic
+                address, a shared token, or explicit state. This ledger shows the questions
+                and the dependencies behind the laboratory's implementation.
+            </p>
+        </div>
+
+        <div class="ledger" role="table" aria-label="Each concern, its question, collaborators and published tokens">
+            <div class="ledger-row ledger-head" role="row">
+                <span role="columnheader">Sheet</span>
+                <span role="columnheader">Its question</span>
+                <span role="columnheader">Coordinates with</span>
+                <span role="columnheader">Publishes</span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Layout</span>
+                <span role="cell">Where does each responsibility belong?</span>
+                <span role="cell" class="ledger-note">Presence determines which slots remain occupied</span>
+                <span role="cell"><code>--grid-areas --grid-cols --layout-gap --content-max --density-scale</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Layer</span>
+                <span role="cell">What stays, floats, or appears on demand?</span>
+                <span role="cell" class="ledger-note">Layout retains or releases space; Life times the crossing</span>
+                <span role="cell"><code>--layer-z --page-far</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Lattice</span>
+                <span role="cell">How do I move through the content?</span>
+                <span role="cell" class="ledger-note">Layout supplies the frame; Layer determines its presence</span>
+                <span role="cell"><code>--lattice-axis --lattice-scale --camera --depth-unit</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Look</span>
+                <span role="cell">What does it look like?</span>
+                <span role="cell" class="ledger-note">Type and material metrics inform the available space</span>
+                <span role="cell"><code>--face-aspect --face-bold --haze</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Life</span>
+                <span role="cell">How does it respond and change?</span>
+                <span role="cell" class="ledger-note">Layout and Layer supply the geometry and presence</span>
+                <span role="cell"><code>--motion-duration --layer-travel --depth-drift</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Lens</span>
+                <span role="cell">What experience should these choices serve?</span>
+                <span role="cell" class="ledger-note">Seeds choices; explicit adjustments remain possible</span>
+                <span role="cell">a seed on the other five</span>
+            </div>
+        </div>
+
+        <!-- The same rule from the other side: not what a sheet is asked, but
+             which declarations are its to write. The last cell is a local --
+             data-span -- so the table borrows its tracks from the ledger
+             above instead of minting a second component for three columns. -->
+        <h3>Where a declaration is filed</h3>
+        <p>
+            File a declaration with the decision it serves. The same CSS property can serve
+            different decisions in different contexts; the table below describes this
+            implementation's conventions. Share facts through tokens instead of competing overrides.
+        </p>
+        <div class="ledger" role="table" aria-label="Which CSS each sheet files">
+            <div class="ledger-row ledger-head" role="row">
+                <span role="columnheader">Sheet</span>
+                <span role="columnheader">Its space</span>
+                <span role="columnheader" data-span="2">Files</span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Layout</span>
+                <span role="cell">The flat plane, X by Y</span>
+                <span role="cell" data-span="2"><code>display: grid | flex</code>, <code>grid-*</code>, <code>flex-*</code>, <code>gap</code>, <code>width</code>, <code>height</code>, <code>min-*</code>, <code>max-*</code>, <code>aspect-ratio</code>, <code>margin</code>, <code>padding</code>, <code>columns</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Layer</span>
+                <span role="cell">The stack of planes, along z</span>
+                <span role="cell" data-span="2"><code>z-index</code>, <code>isolation</code>, <code>position: fixed | absolute | sticky</code>, <code>[popover]</code>, <code>::backdrop</code>, <code>&lt;dialog&gt;</code>, elevation shadow, <code>backdrop-filter</code>, <code>mix-blend-mode</code>, <code>opacity</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Lattice</span>
+                <span role="cell">Traversal across the stack</span>
+                <span role="cell" data-span="2"><code>overflow</code>, <code>scroll-snap-*</code>, <code>scroll()</code> and <code>view()</code> timelines, <code>view-transition-name</code>, <code>perspective</code>, <code>perspective-origin</code>, <code>transform-style</code>, <code>:focus-visible</code> order</span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Look</span>
+                <span role="cell">Surfaces and materials</span>
+                <span role="cell" data-span="2"><code>color</code>, <code>background-color</code>, <code>border</code>, <code>border-radius</code>, <code>box-shadow</code>, <code>filter</code>, <code>font-*</code>, <code>text-align</code>, <code>line-height</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Life</span>
+                <span role="cell">Change over time</span>
+                <span role="cell" data-span="2"><code>transition</code>, <code>animation</code>, <code>:hover</code>, <code>:active</code>, <code>:focus</code>, <code>pointer-events</code></span>
+            </div>
+            <div class="ledger-row" role="row">
+                <span role="rowheader">Lens</span>
+                <span role="cell">Experience policy</span>
+                <span role="cell" data-span="2">Nothing of its own: seeds, defaults and timing for the other five</span>
+            </div>
+        </div>
+
+        <div class="feature-grid" data-cols="fit max-4" data-gap="close" style="--col-chars: 20">
+            <div class="feature-card" data-role="surface">
+                <span class="demo-label">at.components.css</span>
+                <strong>A part's own shape</strong>
+                <p>Intrinsic padding, borders, and the box a part needs to hold its worst-case
+                   content. Knows nothing about looks or paths.</p>
+            </div>
+            <div class="feature-card" data-role="surface">
+                <span class="demo-label">at.local.css</span>
+                <strong>Quantity at the call site</strong>
+                <p>How many columns, how much gap, which plane. Named steps on scales the axes
+                   own &mdash; <code>data-gap="open"</code>, never a raw length.</p>
+            </div>
+            <div class="feature-card" data-role="surface">
+                <span class="demo-label">the razor</span>
+                <strong>How to tell a local from a hardcode</strong>
+                <p>If changing <code>data-look</code> or <code>data-density</code> does not move
+                   it, it is not a local. It is a hardcode, and it belongs nowhere.</p>
+            </div>
+            <div class="feature-card" data-role="surface">
+                <span class="demo-label">the markup</span>
+                <strong>Declares a semantic contract</strong>
+                <p>An ID addresses an instance; a class names a kind. <code>data-place</code>
+                   names responsibility, <code>data-part</code> its constituents, and
+                   <code>data-role</code> a shared presentation responsibility.</p>
+            </div>
+        </div>
+        <section class="experiment" id="semantic-contract-example" data-role="surface"
+                 data-gap="even" data-pad="even" aria-labelledby="semantic-contract-title">
+            <header data-part="explanation">
+                <h3 id="semantic-contract-title" data-role="voice">Name the meaning. Compose the encounter.</h3>
+                <p>A kind declares its meaningful parts. The concern sheets compose against
+                   those stable addresses, rather than hiding unrelated decisions in one class.</p>
+            </header>
+            <figure data-part="demonstration">
+                <article class="release-task" data-role="surface" data-pad="even">
+                    <h4 data-part="title">Publish release notes</h4>
+                    <p data-part="summary">The same task can be read, inspected, or presented.</p>
+                </article>
+                <figcaption>Kind: release-task · Role: surface · Parts: title, summary</figcaption>
+            </figure>
+            <form data-part="controls" aria-label="Semantic contract experiment">
+                <label for="semantic-note">Write a note, then change the surroundings.</label>
+                <textarea id="semantic-note" rows="3" placeholder="This draft stays in the same node…"></textarea>
+                <div class="button-row">
+                    <button type="button" data-role="select" data-compose="look:blueprint">Blueprint</button>
+                    <button type="button" data-role="select" data-compose="look:newspaper">Newspaper</button>
+                    <button type="button" data-role="select" data-compose="density:compact">Compact</button>
+                    <button type="button" data-role="select" data-compose="density:roomy">Roomy</button>
+                </div>
+            </form>
+            <pre data-part="evidence"><code>/* Layout arranges this kind's own parts. */
+.experiment &gt; [data-part="demonstration"] { grid-area: demonstration; }
+.experiment &gt; [data-part="controls"] { grid-area: controls; }
+/* Look publishes tokens; shared role paint consumes them. */</code></pre>
+            <p data-part="conclusion">The same subject and input remain across swaps. This note
+               is a session-only native draft; changing presentation does not save it elsewhere.</p>
+        </section>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 9. TABS ======================== -->
+    <!-- One WAI-ARIA tab set, and nothing in it says where the list sits.
+         That is an axis like any other (data-tabs), so the two chips below
+         are ordinary data-compose swaps and the drawer's Tabs menu moves the
+         same attribute. Each panel names the one file that owns that slice
+         of the component; Lattice and Layer have no panel because a tab set
+         is neither a path nor a plane. -->
+    <section class="tabs-demo concept" data-view aria-labelledby="tabs-title" style="--lattice-index: 9">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">One component, five owners</span>
+            <h2 id="tabs-title" data-role="voice">A tab set nobody owns outright</h2>
+            <p>
+                Tabs are usually shipped as a component with variants. Here the same markup is
+                filed like everything else: each sheet writes its own slice and none of them
+                knows the others' answers. Move the list with <code>data-tabs</code>, then
+                change a Look or a Life &mdash; the tab set follows without being told.
+            </p>
+        </div>
+
+        <div class="chip-row" role="group" aria-label="Tab placement">
+            <button class="chip" type="button" data-role="select" data-tabs-option="classic" data-compose="tabs:classic" aria-pressed="true">classic</button>
+            <button class="chip" type="button" data-role="select" data-tabs-option="column" data-compose="tabs:column">column</button>
+        </div>
+
+        <div class="tab-set">
+            <div class="tab-list" role="tablist" aria-label="Who owns a tab set">
+                <button class="tab" type="button" role="tab" id="tab-markup"
+                        aria-controls="panel-markup" aria-selected="true" data-role="select">Markup</button>
+                <button class="tab" type="button" role="tab" id="tab-shape"
+                        aria-controls="panel-shape" aria-selected="false" data-role="select">Shape</button>
+                <button class="tab" type="button" role="tab" id="tab-layout"
+                        aria-controls="panel-layout" aria-selected="false" data-role="select">Layout</button>
+                <button class="tab" type="button" role="tab" id="tab-look"
+                        aria-controls="panel-look" aria-selected="false" data-role="select">Look</button>
+                <button class="tab" type="button" role="tab" id="tab-life"
+                        aria-controls="panel-life" aria-selected="false" data-role="select">Life</button>
+                <button class="tab" type="button" role="tab" id="tab-state"
+                        aria-controls="panel-state" aria-selected="false" data-role="select">State</button>
+            </div>
+
+            <div class="tab-panels">
+                <div class="tab-panel" role="tabpanel" id="panel-markup" aria-labelledby="tab-markup" tabindex="0">
+                    <strong>What exists</strong>
+                    <p>A tablist, six tabs and six panels, paired by <code>aria-controls</code>.
+                       No class or attribute in the markup says top, side, selected colour or
+                       animation &mdash; so no later choice has to undo one.</p>
+                    <div class="tab-figure">
+                        <span>role="tablist"</span>
+                        <span>role="tab"</span>
+                        <span>role="tabpanel"</span>
+                        <span>aria-controls</span>
+                        <span>data-role="select"</span>
+                    </div>
+                </div>
+
+                <div class="tab-panel" role="tabpanel" id="panel-shape" aria-labelledby="tab-shape" tabindex="0" hidden>
+                    <strong>at.components.css &mdash; the inside</strong>
+                    <p>The set is a grid with two named areas, <code>list</code> and
+                       <code>panels</code>, and the parts are given their padding and a minimum
+                       panel height. It names the areas and stops: where they go is not its
+                       question.</p>
+                    <div class="tab-figure">
+                        <span>.tab-set</span>
+                        <span>grid-area: list</span>
+                        <span>grid-area: panels</span>
+                        <span>--fit-chars</span>
+                    </div>
+                </div>
+
+                <div class="tab-panel" role="tabpanel" id="panel-layout" aria-labelledby="tab-layout" tabindex="0" hidden>
+                    <strong>at.layout.css &mdash; where the list sits</strong>
+                    <p><code>classic</code> runs the list along the top with the panel below;
+                       <code>column</code> stacks it at the left with the panel beside it. A
+                       column needs a column to live in, so under 26rem of panel width it falls
+                       back to classic on its own.</p>
+                    <div class="tab-figure">
+                        <span>data-tabs</span>
+                        <span>grid-template-areas</span>
+                        <span>@container panel</span>
+                        <span>26rem</span>
+                    </div>
+                </div>
+
+                <div class="tab-panel" role="tabpanel" id="panel-look" aria-labelledby="tab-look" tabindex="0" hidden>
+                    <strong>at.look.css &mdash; without naming a tab</strong>
+                    <p>No look contains a tab rule. A tab's border is <code>currentColor</code>
+                       at the look's stroke strength; the panel's corners are the look's radius
+                       and its padding scales with the look's density &mdash; so thirty-one looks
+                       restyle the set and none of them had to be taught it exists.</p>
+                    <div class="tab-figure">
+                        <span>currentColor</span>
+                        <span>--stroke-strength</span>
+                        <span>--radius-lg</span>
+                        <span>--look-density</span>
+                        <span>--look-leading</span>
+                    </div>
+                </div>
+
+                <div class="tab-panel" role="tabpanel" id="panel-life" aria-labelledby="tab-life" tabindex="0" hidden>
+                    <strong>at.life.css &mdash; how the swap feels</strong>
+                    <p>The selected tab is scored by the current Life: pulse lifts it, wiggle
+                       bounces it, glitch flickers it. A panel that has just appeared arrives on
+                       the look's own entrance, and <code>still</code> switches both off.</p>
+                    <div class="tab-figure">
+                        <span>data-life</span>
+                        <span>[aria-selected="true"]</span>
+                        <span>--stagger-anim</span>
+                        <span>--enter-time</span>
+                    </div>
+                </div>
+
+                <div class="tab-panel" role="tabpanel" id="panel-state" aria-labelledby="tab-state" tabindex="0" hidden>
+                    <strong>atmosphere.js &mdash; which one is chosen</strong>
+                    <p>Selection is state, so it is the script's and nothing else is. It keeps
+                       <code>aria-selected</code>, the roving <code>tabindex</code> and each
+                       panel's <code>hidden</code> in step, and moves between tabs on the arrow
+                       keys, Home and End.</p>
+                    <div class="tab-figure">
+                        <span>aria-selected</span>
+                        <span>tabindex</span>
+                        <span>hidden</span>
+                        <span>Arrow / Home / End</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+    <!-- ============================== 10. ADOPT ====================== -->
+    <section class="adopt-demo concept" data-view aria-labelledby="adopt-title" style="--lattice-index: 10">
+        <div class="layout-section-header" data-part="explanation">
+            <span class="section-kicker" data-role="voice">Adopt</span>
+            <h2 id="adopt-title" data-role="voice">The whole contract, in one skeleton</h2>
+            <p>
+                Eight link tags and a document that names its frames. Everything on this page
+                follows from that; nothing below is a component library.
+            </p>
+        </div>
+
+        <pre class="code-block"><code>&lt;link rel="stylesheet" href="css/at.components.css"&gt;
+&lt;link rel="stylesheet" href="css/at.layout.css"&gt;
+&lt;link rel="stylesheet" href="css/at.lattice.css"&gt;
+&lt;link rel="stylesheet" href="css/at.layer.css"&gt;
+&lt;link rel="stylesheet" href="css/at.look.css"&gt;
+&lt;link rel="stylesheet" href="css/at.life.css"&gt;
+&lt;link rel="stylesheet" href="css/at.lens.css"&gt;
+&lt;link rel="stylesheet" href="css/at.local.css"&gt;   &lt;!-- last, unlayered --&gt;
+
+&lt;body class="Layout"
+      data-layout="default" data-lattice="app" data-layer="top-left-edge-drawer"
+      data-look="tux" data-life="pulse" data-lens="none"&gt;
+
+  &lt;header class="Header" data-place="toolbar" data-role="masthead"&gt;…&lt;/header&gt;
+
+  &lt;main data-identity="document" data-place="stage" data-frame="root"&gt;                &lt;!-- takes the root lattice --&gt;
+    &lt;div data-track&gt;
+      &lt;section data-view="stage"&gt;…&lt;/section&gt;
+      &lt;section data-view&gt;…&lt;/section&gt;
+    &lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;aside class="Sidebar" data-identity="guide" data-place="navigator"
+         data-frame data-lattice="pages" data-layer-panel&gt;
+    &lt;div class="panel-track" data-track&gt;
+      &lt;section data-view&gt;…&lt;/section&gt;
+    &lt;/div&gt;
+  &lt;/aside&gt;
+
+  &lt;footer class="Footer"&gt;…&lt;/footer&gt;
+&lt;/body&gt;</code></pre>
+
+        <div class="feature-grid" data-cols="fit max-4" data-gap="close" style="--col-chars: 20">
+            <div class="feature-card" data-role="surface">
+                <strong>Addressable</strong>
+                <p>Every composition is in the URL. <code>#at=…</code> is the compact form; the
+                   long named form stays readable forever, and old links canonicalize.</p>
+            </div>
+            <div class="feature-card" data-role="surface">
+                <strong>Progressive</strong>
+                <p>Without script the page keeps its complete inline structure. Projections are
+                   an enhancement; a control for a missing capability stays hidden.</p>
+            </div>
+            <div class="feature-card" data-role="surface">
+                <strong>Operable</strong>
+                <p>A paced frame is focusable and answers arrows, Page keys and Home / End. Tabs
+                   are the full ARIA pattern. Nothing is mouse-only.</p>
+            </div>
+            <div class="feature-card" data-role="surface">
+                <strong>Printable</strong>
+                <p>Whatever the six say on screen, print returns one complete paged document with
+                   every frame flattened and in order.</p>
+            </div>
+        </div>
+        <span class="page-stamp" aria-hidden="true"></span>
+    </section>
+
+</div>
+</main>
+
+<!-- A frame with no Lattice of its own, which is the default rule: a nested
+     frame must ASK for a path rather than inherit the page's. Give it
+     data-lattice="ribbon" and it becomes one. -->
+<aside id="layer-composition" class="UtilityRail" data-identity="composition-controls" data-relation="controls" data-target="experience" data-place="inspector" data-region="composition" data-layer-panel
+       data-frame aria-label="The axes">
+    <button class="LayerClose" type="button" data-layer-close aria-label="Close the axes rail" hidden>&times;</button>
+    <div class="panel-track" data-track>
+
+        <section data-view data-role="reading">
+            <h2>Compose from meaning</h2>
+            <ol class="note-list">
+                <li><strong>Identity</strong> &mdash; name the guide, document and controls.</li>
+                <li><strong>Responsibility</strong> &mdash; navigator, stage and inspector.</li>
+                <li><strong>Presentation</strong> &mdash; bind jobs to slots, presence and paths.</li>
+            </ol>
+            <p class="hint-text">Start with an experience; use the dimensions to adjust it.
+               Keep the subjects and their working state as presentation changes.</p>
+        </section>
+
+        <section data-view data-role="reading">
+            <h2>Supporting controls</h2>
+            <div class="chip-row">
+                <button class="chip" type="button" data-role="select" data-density-option="compact" data-compose="density:compact">compact</button>
+                <button class="chip" type="button" data-role="select" data-density-option="cozy" data-compose="density:cozy">cozy</button>
+                <button class="chip" type="button" data-role="select" data-density-option="roomy" data-compose="density:roomy">roomy</button>
+            </div>
+            <div class="chip-row">
+                <button class="chip" type="button" data-role="select" data-size-option="xs" data-compose="size:xs">XS</button>
+                <button class="chip" type="button" data-role="select" data-size-option="s" data-compose="size:s">S</button>
+                <button class="chip" type="button" data-role="select" data-size-option="m" data-compose="size:m">M</button>
+                <button class="chip" type="button" data-role="select" data-size-option="l" data-compose="size:l">L</button>
+                <button class="chip" type="button" data-role="select" data-size-option="xl" data-compose="size:xl">XL</button>
+            </div>
+            <p class="hint-text">Density is air; size is the things. Both multiply through every
+               axis rather than fighting one.</p>
+        </section>
+
+        <section data-view data-role="reading">
+            <h2>Structure &mdash; where responsibilities belong</h2>
+            <p class="hint-text" data-structure-feedback>Choose Inline to compare the rail structures.</p>
+            <button class="chip" type="button" data-compose="layer:inline" data-structure-inline hidden>Show structure inline</button>
+            <div class="chip-row">
+                <button class="chip" type="button" data-role="select" data-layout-option="default" data-compose="layout:default">default</button>
+                <button class="chip" type="button" data-role="select" data-layout-option="3col" data-compose="layout:3col">3col</button>
+                <button class="chip" type="button" data-role="select" data-layout-option="sidebar-right" data-compose="layout:sidebar-right">right rail</button>
+                <button class="chip" type="button" data-role="select" data-layout-option="stacked" data-compose="layout:stacked">stacked</button>
+                <button class="chip" type="button" data-role="select" data-layout-option="hero" data-compose="layout:hero">hero</button>
+            </div>
+        </section>
+
+        <section data-view data-role="reading">
+            <h2>Responsive by frame</h2>
+            <div class="viewport-list">
+                <div class="viewport-card">
+                    <span class="viewport-icon" aria-hidden="true">S</span>
+                    <div class="viewport-body"><strong>Phone</strong><p>One column. Rails become bands.</p></div>
+                </div>
+                <div class="viewport-card">
+                    <span class="viewport-icon" aria-hidden="true">M</span>
+                    <div class="viewport-body"><strong>Tablet</strong><p>The rail takes a column and sticks.</p></div>
+                </div>
+                <div class="viewport-card">
+                    <span class="viewport-icon" aria-hidden="true">L</span>
+                    <div class="viewport-body"><strong>Desk</strong><p>Full measure, generous rail.</p></div>
+                </div>
+                <div class="viewport-card">
+                    <span class="viewport-icon" aria-hidden="true">TV</span>
+                    <div class="viewport-body"><strong>TV</strong><p>Both rails, wider measure.</p></div>
+                </div>
+            </div>
+            <p class="hint-text">Components ask the <em>panel</em> how much room they got, not the
+               viewport &mdash; which is the only honest question once the same card can live in a
+               dashboard tile, a slide and a 22rem ribbon panel.</p>
+        </section>
+
+    </div>
+</aside>
+
+<!-- =====================================================================
+     THE FOOTER. A place, a frame, and the edge it belongs to.
+
+     Three sheets answer for it and none of them is told about the other two.
+     Layout centres it, once, with no path in the selector. Layer lifts it:
+     it names its own edge, so the projections that hang furniture off the
+     window -- the drawer, the top menu -- stand it on the bottom one as a
+     drawer, and a pop-over, which belongs to a trigger, leaves it in the
+     plan. Life times the crossing from that edge. Its invoker is authored
+     beside it and says the same edge, so it hangs there too.
+     ===================================================================== -->
+<nav class="LayerControls" data-edge="block-end" aria-label="Footer panel" hidden>
+    <button id="layer-trigger-footer" type="button" data-layer-trigger="footer"
+            aria-controls="layer-footer" aria-expanded="false">Footer</button>
+</nav>
+
+<footer id="layer-footer" class="Footer" data-identity="project-footer" data-place="footer" data-region="footer"
+        data-layer-panel data-edge="block-end">
+    <button class="LayerClose" type="button" data-layer-close aria-label="Close the footer" hidden>&times;</button>
+    <p>Describe the meaning once. Compose how people encounter it.</p>
+    <nav class="footer-links" aria-label="Project and legal links">
+        <a class="text-link" href="tutorial.html">Tutorial</a>
+        <a class="text-link" href="README.md">Source &amp; README</a>
+        <a class="text-link" href="LICENSE">License</a>
+        <span class="legal-note">for our community; see license.</span>
+        <span class="support">Show your $upport</span>
+        <span>© 2026 MENTIC LLC</span>
+    </nav>
+</footer>
+
+<!-- Outside .Main on purpose: a life score may give .Main a filter or a
+     perspective, either of which would make it the containing block for this
+     fixed bar and strand it mid-page. -->
+<div class="flow-rail" aria-hidden="true"><span class="flow-rail-bar"></span></div>
+
+<script src="js/atmosphere.js"></script>
+<script src="js/at.contract.js"></script>
+<atmospheric-lander floating></atmospheric-lander>
+<script src="webcomp/atmospheric-lander.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Documentation Life extension: progress and subscriber feedback. */
+
+.progress-meter > span {
+  transition: inline-size var(--motion-duration-swift, 180ms) ease;
+}
+
+.subscriber-card[data-flash="true"] {
+  animation: subscriber-flash var(--motion-duration-swift, 180ms) ease-out;
+}
+
+@keyframes subscriber-flash {
+  50% { transform: translateY(-0.18rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-meter > span {
+    transition: none;
+  }
+
+  .subscriber-card[data-flash="true"] {
+    animation: none;
+  }
+}

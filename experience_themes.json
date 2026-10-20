@@ -1,0 +1,205 @@
+{
+  "framework": "Layout, Lattice, Layer, Look, Life, Lens",
+  "experience_themes": [
+    {
+      "id": "productive-data-dense",
+      "name": "Productive / Data-Dense",
+      "psychology": "Speed, efficiency, utility, and reduced cognitive latency.",
+      "layers": {
+        "layout": {
+          "padding": "tight",
+          "typography_size": "compact",
+          "grid_structure": "rigid / high-density",
+          "whitespace": "minimal"
+        },
+        "look": {
+          "borders": "high-contrast",
+          "backgrounds": "muted grays / solid tones",
+          "accents": "functional status colors (blue, green, red)"
+        },
+        "life": {
+          "transition_duration": "100ms",
+          "easing_curve": "linear / cubic-bezier(0, 0, 1, 1)",
+          "feedback_style": "instant state flips",
+          "alerts": "strict / immediate text banners"
+        }
+      },
+      "result": "An Interaction Model built for high-throughput speed and professional utility."
+    },
+    {
+      "id": "expressive-gamified",
+      "name": "Expressive / Gamified",
+      "psychology": "Delight, dopamine reward loops, high brand personality, and retention.",
+      "layers": {
+        "layout": {
+          "padding": "generous",
+          "typography_size": "massive / prominent headers",
+          "grid_structure": "fluid / organic",
+          "whitespace": "abundant"
+        },
+        "look": {
+          "borders": "borderless / soft overlapping boundaries",
+          "backgrounds": "vibrant gradients / saturated tones",
+          "accents": "playful secondary colors / deep drop-shadows"
+        },
+        "life": {
+          "transition_duration": "400ms",
+          "easing_curve": "spring-physics / cubic-bezier(0.43, 0.07, 0.2, 1.45)",
+          "feedback_style": "bouncy / rubber-band scaling",
+          "alerts": "celebrating particles / modal popups"
+        }
+      },
+      "result": "An Interaction Model built for emotional joy, user engagement, and habit-building."
+    },
+    {
+      "id": "cinematic-luxury",
+      "name": "Cinematic / Luxury",
+      "psychology": "Prestige, status, high brand value, and slow-paced artistic immersion.",
+      "layers": {
+        "layout": {
+          "padding": "extreme / exaggerated spacing",
+          "typography_size": "oversized display headers / tiny body print",
+          "grid_structure": "asymmetrical / off-grid focal points",
+          "whitespace": "immense / gallery-style breathing room"
+        },
+        "look": {
+          "borders": "hairline dividers / razor-thin separators",
+          "backgrounds": "deep pure blacks / stark whites / muted earth tones",
+          "accents": "subtle grain noise textures / monochromatic palettes"
+        },
+        "life": {
+          "transition_duration": "600ms - 900ms",
+          "easing_curve": "ultra-slow sweeping deceleration / cubic-bezier(0.16, 1, 0.3, 1)",
+          "feedback_style": "cross-fades / sweeping slide reveals / staggered loading cascading",
+          "alerts": "whisper-quiet / ambient self-dismissing text transitions"
+        }
+      },
+      "result": "An Interaction Model built for premium presentation, editorial authority, and artistic impact."
+    },
+    {
+      "id": "stealth-terminal",
+      "name": "Stealth / Terminal",
+      "psychology": "Developer focus, hardware efficiency, zero distraction, and technical nostalgia.",
+      "layers": {
+        "layout": {
+          "padding": "dense raw text grouping",
+          "typography_size": "uniform / monospace baseline scales",
+          "grid_structure": "strict character grid matrices",
+          "whitespace": "purely functional alignment gaps"
+        },
+        "look": {
+          "borders": "none / simple text character dividers (---)",
+          "backgrounds": "pure midnight black / true zero-light dark modes",
+          "accents": "high-vis neon green / radioactive amber / raw unstyled code blocks"
+        },
+        "life": {
+          "transition_duration": "0ms",
+          "easing_curve": "none (instant variable assignments)",
+          "feedback_style": "binary active state swaps / stepping frame jumps",
+          "alerts": "blinking cursor loops / terminal stderr console streams"
+        }
+      },
+      "result": "An Interaction Model built for absolute low-level latency execution and raw technical power user control."
+    },
+    {
+      "id": "institutional-reassuring",
+      "name": "Institutional / Reassuring",
+      "psychology": "Safety, cognitive accessibility, absolute system trust, and anxiety reduction.",
+      "layers": {
+        "layout": {
+          "padding": "standardized / uniform predictability",
+          "typography_size": "highly legible large text weights",
+          "grid_structure": "linear vertical single-column focus steps",
+          "whitespace": "balanced clear reading sections"
+        },
+        "look": {
+          "borders": "stark high-contrast defined input walls",
+          "backgrounds": "pure clinical whites / soft safe tinted backing card blocks",
+          "accents": "reassuring navy blues / calm medical teals / safety check greens"
+        },
+        "life": {
+          "transition_duration": "200ms",
+          "easing_curve": "conservative ease-in-out / cubic-bezier(0.4, 0, 0.2, 1)",
+          "feedback_style": "highly apparent focus indicators / non-moving state outlines",
+          "alerts": "persistent warning banners / prominent undo confirmations"
+        }
+      },
+      "result": "An Interaction Model optimized for universal accessibility, regulatory compliance, and emotional security."
+    },
+    {
+        "id": "accessible-high-visibility",
+        "name": "Accessible / High-Visibility",
+        "lens": "Maximum contrast, universal reading assistance, and absolute clarity for all users.",
+        "layers": {
+          "layout": {
+            "padding": "exaggerated hit-targets / thick button bounding boxes",
+            "typography_size": "scalable large-print defaults (minimum 16px/1rem)",
+            "grid_structure": "rigidly linear / predictable block structure",
+            "whitespace": "generous spacing to prevent accidental clicks"
+          },
+          "look": {
+            "borders": "thick solid 3px boundaries on active elements",
+            "backgrounds": "pure contrast monochrome (stark white/stark black pairs)",
+            "accents": "pure primary yellow or high-visibility magenta indicators"
+          },
+          "life": {
+            "transition_duration": "150ms",
+            "easing_curve": "standard linear ease",
+            "feedback_style": "persistent thick dash outline rings on focus/keyboard navigation",
+            "alerts": "static persistent top-bar headers / no flashing transitions"
+          }
+        },
+        "result": "An Interaction Model built entirely for WCAG compliance, motor control assistance, and low-vision accessibility."
+      },
+      {
+        "id": "immersive-aaa-gaming",
+        "name": "Immersive / AAA Gaming",
+        "lens": "Atmospheric excitement, state depth, sci-fi/fantasy high tech, and reactive physical feedback.",
+        "layers": {
+          "layout": {
+            "padding": "cinematic standard sizing",
+            "typography_size": "futuristic futuristic weights / small tight telemetry numbers",
+            "grid_structure": "skewed HUD matrices / nested module containers",
+            "whitespace": "compact focus frames wrapped by dramatic wide asset banners"
+          },
+          "look": {
+            "borders": "angled clip-paths / digital crosshairs / technical brackets",
+            "backgrounds": "semi-transparent dark glassmorphism overlays",
+            "accents": "neon status neon rings / radiant localized active element box-glows"
+          },
+          "life": {
+            "transition_duration": "250ms - 350ms",
+            "easing_curve": "snappy, sharp deceleration / cubic-bezier(0.25, 1, 0.5, 1)",
+            "feedback_style": "continuous parallax depth / mouse-tracking coordinate glides",
+            "alerts": "screen shake triggers / flickering warning glitch text loops"
+          }
+        },
+        "result": "An Interaction Model built for extreme sensory engagement, canvas-depth simulation, and entertainment hubs."
+      },
+      {
+        "id": "organic-skeuomorphic-lite",
+        "name": "Organic / Skeuomorphic-Lite",
+        "lens": "Tactile nostalgia, real-world physics analog, and human-material comfort.",
+        "layers": {
+          "layout": {
+            "padding": "soft / natural margins",
+            "typography_size": "warm editorial print-style scale",
+            "grid_structure": "overlapping structural layers resembling stacked paper sheet textures",
+            "whitespace": "organic breathing spaces mimicking real-world object spacing"
+          },
+          "look": {
+            "borders": "embossed inner lines / soft multi-layered directional lighting shadows",
+            "backgrounds": "textured canvas / soft cream tints / textured warm elements",
+            "accents": "natural earthy tones / subtle metallic sheen trim highlights"
+          },
+          "life": {
+            "transition_duration": "450ms",
+            "easing_curve": "heavy-mass spring momentum / cubic-bezier(0.34, 1.56, 0.64, 1)",
+            "feedback_style": "depressed card indents on active click / floating elevate-on-hover physics",
+            "alerts": "smooth sliding physical drop trays / elastic pull-to-refresh mechanics"
+          }
+        },
+        "result": "An Interaction Model designed for physical reassurance, organic desktop warmth, and tangible user actions."
+      }
+  ]
+}

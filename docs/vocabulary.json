@@ -1,0 +1,460 @@
+{
+  "catalogVersion": "0.1.0-draft",
+  "status": "Proposed semantic catalog; current-value snapshot. Not loaded by the runtime.",
+  "reviewedOn": "2026-10-16",
+  "sources": [
+    "../js/atmosphere.js",
+    "../js/atmosphere-model.js",
+    "../css/at.local.css",
+    "../css/at.components.css"
+  ],
+  "concerns": [
+    "arrangement",
+    "traversal",
+    "appearance",
+    "motion"
+  ],
+  "policyGroup": "policy",
+  "dimensions": {
+    "layout": {
+      "concern": "arrangement",
+      "label": "Placement",
+      "kind": "profile",
+      "attribute": "data-layout",
+      "scope": "composition",
+      "values": [
+        "default",
+        "3col",
+        "sidebar-right",
+        "stacked",
+        "hero"
+      ]
+    },
+    "layer": {
+      "concern": "arrangement",
+      "label": "Projection",
+      "kind": "profile",
+      "attribute": "data-layer",
+      "scope": "composition",
+      "values": [
+        "inline",
+        "top-left-edge-drawer",
+        "top-menu",
+        "pop-over"
+      ]
+    },
+    "lattice": {
+      "concern": "traversal",
+      "label": "Path",
+      "kind": "profile",
+      "attribute": "data-lattice",
+      "scope": "composition-or-explicit-frame",
+      "values": [
+        "continuous",
+        "pages",
+        "slides",
+        "ribbon",
+        "card-stack",
+        "spotlight",
+        "control",
+        "app"
+      ]
+    },
+    "look": {
+      "concern": "appearance",
+      "label": "Look",
+      "kind": "profile",
+      "attribute": "data-look",
+      "scope": "composition",
+      "values": [
+        "apple",
+        "android",
+        "microsoft",
+        "temple",
+        "citadel",
+        "tux",
+        "luxury",
+        "parchment",
+        "typewritter",
+        "newspaper",
+        "origami",
+        "comic",
+        "school",
+        "lab",
+        "blueprint",
+        "museum",
+        "western",
+        "nightclub",
+        "urban",
+        "crt",
+        "cyberpunk",
+        "hologram",
+        "arcade",
+        "starfield",
+        "deepsea",
+        "storm",
+        "vaporwave",
+        "thermal",
+        "fortress",
+        "vault",
+        "midcentury"
+      ]
+    },
+    "life": {
+      "concern": "motion",
+      "label": "Feedback",
+      "kind": "profile",
+      "attribute": "data-life",
+      "scope": "composition",
+      "values": [
+        "still",
+        "pulse",
+        "wiggle",
+        "3d",
+        "glitch",
+        "crazy"
+      ]
+    },
+    "lens": {
+      "concern": "policy",
+      "label": "Lens",
+      "kind": "policy",
+      "attribute": "data-lens",
+      "scope": "composition",
+      "values": [
+        "none",
+        "productive-data-dense",
+        "expressive-gamified",
+        "cinematic-luxury",
+        "stealth-terminal",
+        "institutional-reassuring"
+      ]
+    },
+    "density": {
+      "concern": "arrangement",
+      "label": "Density",
+      "kind": "preference",
+      "attribute": "data-density",
+      "scope": "composition",
+      "values": [
+        "compact",
+        "cozy",
+        "roomy"
+      ]
+    },
+    "size": {
+      "concern": "appearance",
+      "label": "Type size",
+      "kind": "preference",
+      "attribute": "data-size",
+      "scope": "composition",
+      "values": [
+        "xs",
+        "s",
+        "m",
+        "l",
+        "xl"
+      ]
+    },
+    "tabs": {
+      "concern": "arrangement",
+      "label": "Tab placement",
+      "kind": "component-choice",
+      "attribute": "data-tabs",
+      "scope": "composition",
+      "values": [
+        "classic",
+        "column"
+      ]
+    },
+    "scrollFlow": {
+      "concern": "motion",
+      "label": "Scroll effect",
+      "kind": "profile",
+      "attribute": "data-scroll-flow",
+      "scope": "composition",
+      "values": [
+        "still",
+        "reveal",
+        "parallax"
+      ]
+    },
+    "inoutFlow": {
+      "concern": "motion",
+      "label": "Crossing",
+      "kind": "profile",
+      "attribute": "data-inout-flow",
+      "scope": "composition",
+      "values": [
+        "show",
+        "slide",
+        "slam",
+        "flip",
+        "materialize",
+        "focus"
+      ]
+    },
+    "headerFold": {
+      "concern": "motion",
+      "label": "Masthead fold",
+      "kind": "effect-toggle",
+      "attribute": "data-header-fold",
+      "scope": "composition",
+      "values": [
+        false,
+        true
+      ]
+    },
+    "heartbeat": {
+      "concern": "motion",
+      "label": "Control heartbeat",
+      "kind": "effect-toggle",
+      "attribute": "data-heartbeat",
+      "scope": "composition",
+      "values": [
+        false,
+        true
+      ]
+    },
+    "flap": {
+      "concern": "motion",
+      "label": "Control flap",
+      "kind": "effect-toggle",
+      "attribute": "data-flap",
+      "scope": "composition",
+      "values": [
+        false,
+        true
+      ]
+    }
+  },
+  "wireFormat": {
+    "authority": "AT_CODEBOOK, AT_SEG1, AT_SEG2, AT_FLAGS in js/atmosphere.js until a deliberate migration",
+    "segments": [
+      [
+        "look",
+        "layout",
+        "life",
+        "density",
+        "size",
+        "tabs"
+      ],
+      [
+        "lattice",
+        "layer",
+        "scrollFlow",
+        "inoutFlow",
+        "lens"
+      ]
+    ],
+    "flags": [
+      {
+        "code": "f",
+        "dimension": "headerFold"
+      },
+      {
+        "code": "h",
+        "dimension": "heartbeat"
+      },
+      {
+        "code": "p",
+        "dimension": "flap"
+      }
+    ],
+    "ordering": "Enum value positions are existing wire indices. Never infer wire indices from labels, menu order, or sorted names.",
+    "legacySpelling": {
+      "look.typewritter": {
+        "label": "Typewriter",
+        "note": "Preserve the existing ID; display spelling is separate."
+      }
+    }
+  },
+  "locals": {
+    "gap": {
+      "attribute": "data-gap",
+      "kind": "scale-step",
+      "values": [
+        "none",
+        "tight",
+        "close",
+        "even",
+        "open",
+        "wide"
+      ],
+      "resolvesThrough": "--layout-gap"
+    },
+    "pad": {
+      "attribute": "data-pad",
+      "kind": "scale-step",
+      "values": [
+        "none",
+        "tight",
+        "close",
+        "even",
+        "open",
+        "wide"
+      ],
+      "resolvesThrough": "--layout-pad"
+    },
+    "cols": {
+      "attribute": "data-cols",
+      "kind": "constraint",
+      "forms": [
+        "fit",
+        "1",
+        "2",
+        "3",
+        "4",
+        "lead",
+        "fit max-2",
+        "fit max-3",
+        "fit max-4"
+      ],
+      "note": "Documented authoring forms. Current max-N rules use container breakpoints, not an unconditional maximum."
+    },
+    "span": {
+      "attribute": "data-span",
+      "kind": "constraint",
+      "values": [
+        "1",
+        "2",
+        "3",
+        "all"
+      ]
+    },
+    "z": {
+      "attribute": "data-z",
+      "kind": "scale-step",
+      "values": [
+        "-4",
+        "-3",
+        "-2",
+        "-1",
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "resolvesThrough": "--z"
+    }
+  },
+  "semanticHooks": {
+    "note": "Current exact-value hooks, not native HTML/ARIA roles and not an exhaustive application ontology. Multiple space-separated roles are not currently supported by exact-match selectors.",
+    "roles": {
+      "surface": "A surface eligible for shared treatment and hover feedback.",
+      "select": "A selectable control; native semantics and appropriate state remain required.",
+      "voice": "An expressive heading or kicker.",
+      "reading": "A watched readout, as defined in at.components.css; not a generic prose region.",
+      "masthead": "The primary header addressed by measurement and fold behavior."
+    },
+    "states": {
+      "alert": "Requests attention.",
+      "live": "Updates over time.",
+      "active": "Active state treatment in demo extension CSS; not a universal selection protocol."
+    },
+    "identity": "Application-owned classes and stable IDs remain open-ended.",
+    "region": "data-region labels bind authored regions to invokers; they are not a closed list of region types.",
+    "edge": "data-edge names the viewport edge a panel frame and its invokers belong to, in the presentation catalog's logical positions. Implemented value: block-end. Edge projections lift such a frame onto that edge; pop-over leaves it in the plan."
+  },
+  "publicProperties": {
+    "--layout-gap": {
+      "owner": "layout",
+      "type": "length",
+      "meaning": "Base gap scale, influenced by density and Look."
+    },
+    "--layout-pad": {
+      "owner": "layout",
+      "type": "length",
+      "meaning": "Base padding scale, influenced by density and Look."
+    },
+    "--face-aspect": {
+      "owner": "look",
+      "type": "number",
+      "meaning": "Authored typeface width estimate used by content-measure formulas; not a live font measurement."
+    },
+    "--look-density": {
+      "owner": "look",
+      "type": "number",
+      "meaning": "Material-specific spacing multiplier."
+    },
+    "--layer-z": {
+      "owner": "layer",
+      "type": "number",
+      "meaning": "Projection distance in shared depth planes."
+    },
+    "--page-far": {
+      "owner": "layer",
+      "type": "number",
+      "meaning": "Recession input published while a projection is open."
+    },
+    "--plane-altitude": {
+      "owner": "layer",
+      "type": "number",
+      "meaning": "Per-frame level: 0 on the base plane, --layer-z once the active projection lifts the frame. The controller promotes frames whose altitude is above zero."
+    },
+    "--depth-unit": {
+      "owner": "lattice",
+      "type": "length",
+      "meaning": "Physical distance represented by a depth plane."
+    },
+    "--camera": {
+      "owner": "lattice",
+      "type": "length",
+      "meaning": "Perspective distance."
+    },
+    "--lens-enter-time": {
+      "owner": "lens",
+      "type": "time",
+      "meaning": "Optional policy contribution to entry timing."
+    }
+  },
+  "propertyStatus": "Initial proposed public subset of existing tokens; not every internal CSS custom property is public. Owner names describe responsibility, not exclusive write enforcement.",
+  "contentInputs": {
+    "--col-chars": {
+      "type": "positive-number",
+      "scope": "collection",
+      "meaning": "Requested column measure in approximate characters; explicit content input, not an enum."
+    }
+  },
+  "limitations": [
+    "Declaring a value here does not prove every composition of it is operable.",
+    "Only lattice has explicit per-frame composition selectors in this catalog; a general scoped model is proposed.",
+    "Root coordinate URLs do not encode local frame choices, selection, focus, or drafts.",
+    "Profile requirements, adapters, and fallback validation are proposed in VOCABULARY.md, not implemented by this JSON."
+  ],
+  "semanticContract": {
+    "authority": "../README.md#the-core-principle-semantic-addresses-are-the-composition-contract",
+    "grammar": {
+      "instance": "id when referenced; domain ID in model",
+      "kind": "native/custom element or semantic class",
+      "place": "data-place",
+      "part": "data-part scoped to kind; native part for public shadow internals",
+      "role": "data-role",
+      "state": "native/ARIA first, then additional data-state",
+      "constraint": "existing bounded locals"
+    },
+    "examples": {
+      "experiment": {
+        "requiredParts": [
+          "explanation",
+          "demonstration"
+        ],
+        "conditionalParts": {
+          "controls": "when interactive"
+        },
+        "optionalParts": [
+          "evidence",
+          "conclusion"
+        ]
+      }
+    },
+    "invariants": [
+      "stable subject identity",
+      "stable interactive nodes across presentation swaps",
+      "owned state",
+      "scoped parts",
+      "documented optional-capability fallback"
+    ],
+    "runtime": "Descriptive authoring contract; this catalog is not a runtime schema."
+  }
+}

@@ -1,0 +1,179 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Encapsulated presentation for <atheme-tray>. Generic theme tokens inherit
+   from the component's host, so the tray always previews the active look. */
+
+:host {
+  --atheme-tray-width: min(13rem, calc(100vw - 2.5rem));
+  --atheme-tray-tab-width: 2.2rem;
+  position: fixed;
+  z-index: 1000;
+  top: 0.75rem;
+  right: 0;
+  display: block;
+  /* The closed drawer is visually translated off-screen, but its fixed host
+     still spans the drawer's full width. Keep that invisible area from
+     blocking controls underneath it. */
+  pointer-events: none;
+  color: var(--text, #e8eef6);
+  font-family: var(--font, system-ui, sans-serif);
+}
+
+* { box-sizing: border-box; }
+
+button { font: inherit; }
+
+.tab,
+.panel { pointer-events: auto; }
+
+.tray {
+  display: grid;
+  grid-template-columns: var(--atheme-tray-tab-width) var(--atheme-tray-width);
+  align-items: start;
+  width: calc(var(--atheme-tray-tab-width) + var(--atheme-tray-width));
+  transform: translateX(var(--atheme-tray-width));
+  transition: transform 0.28s ease;
+}
+
+.tray.is-open { transform: translateX(0); }
+
+.tab,
+.theme,
+.close {
+  cursor: pointer;
+  border: 1px solid var(--accent, #3ad29f);
+  color: var(--accent, #3ad29f);
+  background: color-mix(in srgb, var(--bg, #06080c) 88%, transparent);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.tab:hover,
+.theme:hover,
+.theme.is-selected,
+.close:hover {
+  color: var(--bg, #06080c);
+  background: var(--accent, #3ad29f);
+}
+
+.tab:focus-visible,
+.theme:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--accent, #3ad29f);
+  outline-offset: 2px;
+}
+
+.tab {
+  width: var(--atheme-tray-tab-width);
+  min-height: 5.4rem;
+  padding: 0.65rem 0.35rem;
+  border-right: 0;
+  border-radius: 0.35rem 0 0 0.35rem;
+  background: var(--accent, #3ad29f);
+  color: var(--bg, #06080c);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: calc(0.08em * var(--caps-tracking, 1));
+  text-transform: var(--caps, uppercase);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  backdrop-filter: blur(10px);
+}
+
+.panel {
+  max-height: calc(100svh - 1.5rem);
+  overflow-y: auto;
+  padding: 0.8rem;
+  border: 1px solid var(--accent, #3ad29f);
+  border-right: 0;
+  border-radius: 0.35rem 0 0 0.35rem;
+  background: color-mix(in srgb, var(--bg, #06080c) 94%, transparent);
+  box-shadow: -0.4rem 0 1.6rem rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+}
+
+.title {
+  color: var(--text, #e8eef6);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: calc(0.14em * var(--caps-tracking, 1));
+  text-transform: var(--caps, uppercase);
+}
+
+.close {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.menu {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.theme {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 2.35rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.theme.is-selected {
+  box-shadow:
+    inset 0 -0.2rem 0 color-mix(in srgb, var(--bg, #06080c) 34%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--accent, #3ad29f) 28%, transparent),
+    0 0 0.8rem color-mix(in srgb, var(--accent, #3ad29f) 42%, transparent);
+  transform: translateY(-1px);
+}
+
+.mark {
+  display: none;
+  min-width: 1.8rem;
+  padding: 0.14rem 0.3rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.theme.is-selected .mark { display: inline-block; }
+
+@media (max-width: 520px) {
+  :host {
+    --atheme-tray-width: min(12rem, calc(100vw - 2rem));
+    top: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tray { transition: none; }
+}
+
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */

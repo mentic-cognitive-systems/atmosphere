@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en"
+      data-archetype="workspace"
+      data-layout="3col" data-lattice="app" data-layer="inline"
+      data-look="tux" data-theme="tux" data-life="pulse"
+      data-scroll-flow="still" data-inout-flow="slide" data-lens="productive-data-dense"
+      data-density="compact" data-size="s" data-tabs="classic"
+      data-header-fold="false" data-heartbeat="false" data-flap="true">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Canonical Atmosphere UI Template — A standardized, reactive presentation framework for the modern web.">
+  <meta name="theme-color" content="#111827" id="theme-color-meta">
+  <title>Atmosphere UI — Canonical Presentation Canvas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Monoton&amp;family=Permanent+Marker&amp;family=Press+Start+2P&amp;family=Rye&amp;family=VT323&amp;family=Montserrat:wght@400;600;700;900&amp;family=Cinzel:wght@400;600;700;900&amp;family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&amp;family=Noto+Sans:wght@300;400;600;700;900&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Open+Sans:wght@400;600;700&amp;family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+
+  <!-- Core Atmosphere Concern Sheets -->
+  <link rel="stylesheet" href="css/at.components.css">
+  <link rel="stylesheet" href="css/at.docs.components.css">
+  <link rel="stylesheet" href="css/at.layout.css">
+  <link rel="stylesheet" href="css/at.docs.layout.css">
+  <link rel="stylesheet" href="css/at.lattice.css">
+  <link rel="stylesheet" href="css/at.layer.css">
+  <link rel="stylesheet" href="css/at.look.css">
+  <link rel="stylesheet" href="css/at.docs.look.css">
+  <link rel="stylesheet" href="css/at.life.css">
+  <link rel="stylesheet" href="css/at.docs.life.css">
+  <link rel="stylesheet" href="css/at.lens.css">
+  <link rel="stylesheet" href="css/at.local.css">
+</head>
+<body class="Layout"
+      data-archetype="workspace"
+      data-layout="3col" data-lattice="app" data-layer="inline"
+      data-look="tux" data-theme="tux" data-life="pulse"
+      data-scroll-flow="still" data-inout-flow="slide" data-lens="productive-data-dense"
+      data-density="compact" data-size="s" data-tabs="classic"
+      data-header-fold="false" data-heartbeat="false" data-flap="true" data-drawer-intro="true">
+
+  <!-- =====================================================================
+       1. TOOLBAR / MASTHEAD (data-place="toolbar")
+       Houses brand identity, presentation archetype switcher, and utilities.
+       ===================================================================== -->
+  <header class="Header" data-place="toolbar" data-role="masthead">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: .6rem;">
+          <h1 class="title-text" data-role="voice" data-breathe="land" style="font-size: 1.4rem; margin: 0;">Atmosphere UI</h1>
+          <span class="pill" data-state="live" style="background: rgba(59,130,246,.2); color: #3b82f6;">Canonical Canvas</span>
+        </div>
+        <p style="margin: .2rem 0 0; font-size: .85rem; opacity: .8;">Standardized semantic presentation framework with live-object state continuity.</p>
+      </div>
+      <nav class="site-nav" aria-label="Atmosphere documentation" style="display: flex; gap: .75rem; font-size: .85rem;">
+        <a href="tutorial.html">Tutorial</a>
+        <a href="UI.html" aria-current="page">UI Canvas</a>
+        <a href="atmosphere.html">Laboratory</a>
+        <a href="live-object.html">Live Object</a>
+        <a href="README.md">README</a>
+      </nav>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .75rem; margin-top: .5rem; padding-top: .5rem; border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);">
+      <atmosphere-archetype-picker></atmosphere-archetype-picker>
+      <div style="font-size: .78rem; opacity: .8;">
+        Switch archetypes above: watch <strong>Navigator</strong>, <strong>Stage</strong>, and <strong>Inspector</strong> adapt while draft notes persist.
+      </div>
+    </div>
+  </header>
+
+  <!-- Native Popover & Drawer Layer Controls -->
+  <nav class="LayerControls" data-layer-controls aria-label="Projected application panels" hidden>
+    <button id="nav-trigger" type="button" data-layer-trigger="navigation" aria-controls="panel-navigator" aria-expanded="false">Navigator</button>
+    <button id="inspector-trigger" type="button" data-layer-trigger="inspector" aria-controls="panel-inspector" aria-expanded="false">Inspector</button>
+  </nav>
+
+  <!-- =====================================================================
+       2. NAVIGATOR (data-place="navigator")
+       Sidebar / on-call drawer / dropdown menu representing structure.
+       ===================================================================== -->
+  <aside id="panel-navigator" class="Sidebar" data-place="navigator"
+         data-region="navigation" data-layer-panel data-frame data-lattice="continuous"
+         aria-label="Semantic Place: Navigator">
+    <button class="LayerClose" type="button" data-layer-close aria-label="Close navigator" hidden>&times;</button>
+    <atmosphere-navigator></atmosphere-navigator>
+  </aside>
+
+  <!-- Look background canvas -->
+  <div class="Surface" aria-hidden="true"></div>
+
+  <!-- =====================================================================
+       3. STAGE (data-place="stage")
+       The primary work area: reading article, IDE code/notes editor, slides.
+       ===================================================================== -->
+  <main class="Main" data-place="stage" data-frame="root" tabindex="-1" aria-label="Semantic Place: Stage">
+    <div class="main-shell" data-track>
+      <atmosphere-stage></atmosphere-stage>
+    </div>
+  </main>
+
+  <!-- =====================================================================
+       4. INSPECTOR (data-place="inspector")
+       Utility rail / on-call drawer exposing properties and drafts.
+       ===================================================================== -->
+  <aside id="panel-inspector" class="UtilityRail" data-place="inspector"
+         data-region="inspector" data-layer-panel data-frame data-lattice="continuous"
+         aria-label="Semantic Place: Inspector">
+    <button class="LayerClose" type="button" data-layer-close aria-label="Close inspector" hidden>&times;</button>
+    <atmosphere-inspector></atmosphere-inspector>
+  </aside>
+
+  <!-- =====================================================================
+       5. CONTEXT (data-place="context")
+       Status bar, environmental controls, and activity telemetry.
+       ===================================================================== -->
+  <footer class="Footer" data-place="context" data-region="context" aria-label="Semantic Place: Context">
+    <atmosphere-context></atmosphere-context>
+  </footer>
+
+  <!-- Atmosphere Core Controllers & Presentation Engine -->
+  <script src="js/atmosphere.js"></script>
+  <script src="js/atmosphere-model.js"></script>
+  <script src="js/atmosphere-presentation.js"></script>
+  <atmospheric-lander floating></atmospheric-lander>
+  <script src="webcomp/atmospheric-lander.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,815 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.layout.css - which frames exist, and where they sit */
+
+/*
+ * Layout is one of the three questions asked about a FRAME -- see the frame
+ * contract at the top of at.lattice.css. Its question is the PLAN:
+ *
+ *   Layout    which frames exist, what shape they are, where they sit
+ *   Layer     is this frame in the plan, or on call -- and where it lands
+ *   Lattice   how content travels THROUGH a frame
+ *
+ * So this file owns page-level placement: the document grid, area assignment,
+ * the spacing scale, breakpoints, and the [data-layout] structure modes. What
+ * it may not do is decide whether a frame is PRESENT (that is Layer's summons)
+ * or what path runs through one (Lattice's). It draws the plan; it does not
+ * decide who shows up or where they go once inside.
+ *
+ * It never sets colour, typography, texture (at.look.css), a component's
+ * internal shape (at.components.css), or motion (at.life.css).
+ *
+ * The engine is a small set of custom properties on .Layout. Every layout
+ * theme is a declaration of those properties; nothing else has to change.
+ *   --grid-areas / --grid-cols / --grid-rows   the document grid
+ *   --sidebar-display / --utility-display      whether a rail exists at all
+ *   --content-max                              measure of the main column
+ *   --density-scale                            how much air everything gets
+ *
+ * Two rules that are load-bearing and easy to undo by accident:
+ *   1. A region whose grid-area is not named by the active --grid-areas MUST
+ *      be display:none, or it spawns a phantom implicit track and silently
+ *      steals width from .Main.
+ *   2. .Surface is the look's canvas and lives OUTSIDE .Main, because .Main
+ *      may become a scroll container when a Lattice asks it to.
+ */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100svh;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* --- DENSITY: a supporting control, orthogonal to every L-axis ----------- */
+/* --density-scale is the reader's choice; --lattice-scale is what a pacing
+   mode needs. They multiply, so compact density composes with every Lattice.
+   Components consume --leading-extra and --tracking-extra to extend the same
+   density choice into text rhythm without changing a look's font.
+
+   --look-density is the third term, and it belongs to the LOOK: how much air
+   a design language thinks is normal before the reader has an opinion. See
+   THE PLATFORM DENSITY CONTRACT in at.look.css. It multiplies rather than
+   replaces, so a Fluent page at "roomy" is still tighter than a Material page
+   at "roomy" and the reader's control still does exactly what it says on
+   both. Layout owns this formula and always did; the look only supplies a
+   rate to spend in it, the same arrangement --face-aspect has with the fit.
+
+   Threading it here is most of the job: at.local.css routes every declarative
+   data-gap and data-pad in the document back through these two properties, so
+   two lines of arithmetic reach every gap on the page. */
+[data-density="compact"] { --density-scale: 0.85; --leading-extra: 0; --tracking-extra: 0em; --layout-gap: calc(clamp(0.5rem, 1.5vw, 1rem) * var(--density-scale, 1) * var(--look-density, 1)); --layout-pad: calc(clamp(1rem, 3vw, 2.5rem) * var(--density-scale, 1) * var(--look-density, 1)); }
+[data-density="cozy"]    { --density-scale: 1; --leading-extra: 0.05; --tracking-extra: 0em; --layout-gap: calc(clamp(0.75rem, 2vw, 1.5rem) * var(--density-scale, 1) * var(--look-density, 1)); --layout-pad: calc(clamp(1rem, 3vw, 2.5rem) * var(--density-scale, 1) * var(--look-density, 1)); }
+[data-density="roomy"]   { --density-scale: 1.15; --leading-extra: 0.12; --tracking-extra: 0.012em; --layout-gap: calc(clamp(0.75rem, 2vw, 1.5rem) * var(--density-scale, 1) * var(--look-density, 1)); --layout-pad: calc(clamp(1rem, 3vw, 2.5rem) * var(--density-scale, 1) * var(--look-density, 1)); }
+
+/* --- RESPONSIVE LAYOUT ENGINE USING CSS VARIABLES --- */
+.Layout {
+    /* No default here on purpose: .Layout and [data-density] land on the same
+       element at the same specificity, so a default set here would win over
+       the reader's choice. Every use site carries its own `, 1` fallback. */
+    --layout-gap: calc(clamp(0.75rem, 2vw, 1.5rem) * var(--density-scale, 1) * var(--look-density, 1));
+    --layout-pad: calc(clamp(1rem, 3vw, 2.5rem) * var(--density-scale, 1) * var(--look-density, 1));
+    --sidebar-size: clamp(13rem, 22vw, 42rem);
+    --utility-size: clamp(12rem, 20vw, 20rem);
+    --content-max: 84rem;
+
+    /* Base Phone / Mobile Variables.
+
+       Main comes SECOND, before either rail. On a phone the plan has one
+       column, so source-order is reading order, and a rail placed above the
+       content is a page whose first screen is its own furniture. The rails
+       become bands under the article -- which is what they are once there is
+       no column to put them beside. */
+    --grid-areas:
+        "Header"
+        "Main"
+        "Sidebar"
+        "UtilityRail"
+        "Footer";
+    --grid-cols: minmax(0, 1fr);
+    --grid-rows: auto 1fr auto auto auto;
+    --sidebar-display: grid;
+    --utility-display: grid;
+
+    min-height: 100svh;
+    display: grid;
+    letter-spacing: var(--tracking-extra, 0em);
+    grid-template-areas: var(--grid-areas);
+    grid-template-columns: var(--grid-cols);
+    grid-template-rows: var(--grid-rows);
+
+}
+
+.Header {
+    grid-area: Header;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: var(--layout-pad);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+    /* How much of its track the masthead is holding. Its row is `auto` in
+       every plan, and an auto track cannot be multiplied -- but it is sized by
+       the masthead's margin box, so a negative end margin hands back exactly
+       the share that is not present, without the box itself changing size.
+       That matters twice: the controller keeps measuring a masthead that is
+       still its natural height, and the box needs no clipping, because
+       whatever closes it (Life's fold) is already drawing it that much
+       shorter. --masthead-open is Life's to move and rests at 1, where this is
+       0px; with no measured --masthead-size the declaration is invalid and
+       the margin is simply not set. */
+    margin-block-end: calc(var(--masthead-size) * (var(--masthead-open, 1) - 1));
+}
+
+/* A furniture panel only exists when the active layout reserves an area for
+   it. Without this an unplaced grid-area name spawns a phantom implicit
+   column and quietly steals the width back out of .Main. */
+.Sidebar {
+    grid-area: Sidebar;
+    display: var(--sidebar-display, none);
+    gap: 1rem;
+    align-content: start;
+    padding: var(--layout-pad);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.UtilityRail {
+    grid-area: UtilityRail;
+    display: var(--utility-display, none);
+    gap: 1rem;
+    align-content: start;
+    padding: var(--layout-pad);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+/* A look is free to choose a display face three times the size layout assumed
+   (Press Start 2P, Monoton, Fredericka). Layout's job is to guarantee there is
+   always a box it can fit in, whatever it picks. */
+.Sidebar,
+.UtilityRail,
+.Main,
+.main-shell {
+    min-width: 0;
+    overflow-wrap: break-word;
+}
+
+.Sidebar > *,
+.UtilityRail > *,
+.main-shell > * {
+    min-width: 0;
+}
+
+/* The look's canvas. It occupies the Main grid area but sits OUTSIDE the
+   scroll container, so a painted texture stays put while content scrolls
+   past it in pages / slides / ribbon. at.look.css paints this and its
+   ::before / ::after; nothing else ever touches it. */
+.Surface {
+    grid-area: Main;
+    position: relative;
+    z-index: 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.Main {
+    grid-area: Main;
+    position: relative;
+    z-index: 1;
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    display: block;
+    overflow: visible;
+    padding: var(--layout-pad);
+    font-size: calc(1em * var(--density-scale, 1) * var(--lattice-scale, 1));
+}
+
+/* A Lattice may make .Main the scrollport. Keep its keyboard focus visible
+   without making structural Layout responsible for choosing that behavior. */
+.Main:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+}
+
+/* Panels declare themselves as containers so components can respond to the
+   space they were actually given, not to the viewport. The rails are on this
+   list because they are frames too: a rail that carries its own Lattice needs
+   to know how much room it actually got, and "am I a page or a panel" is a
+   question about this box, not about the window. Both are sized by definite
+   grid tracks or a definite projection width, so an inline-size container
+   here has no cycle to fall into. */
+.Sidebar,
+.UtilityRail,
+[data-frame="root"] > [data-track] > [data-view],
+.layout-sample,
+.responsive-proof {
+    container-type: inline-size;
+    container-name: panel;
+}
+
+.main-shell {
+    width: min(100%, var(--content-max));
+    margin-inline: auto;
+    display: grid;
+    gap: calc(var(--layout-gap) * 1.25);
+}
+
+.hero-demo {
+    display: grid;
+    gap: 1rem;
+    min-height: clamp(20rem, 50svh, 36rem);
+    align-content: center;
+}
+
+.hero-split {
+    display: grid;
+    gap: var(--layout-gap);
+    align-items: center;
+    min-width: 0;
+}
+
+.hero-copy {
+    display: grid;
+    gap: 1rem;
+    align-content: center;
+    justify-items: start;
+    min-width: 0;
+}
+
+.about-demo,
+.compose-demo,
+.contract-demo,
+.depth-demo,
+.fit-demo,
+.adopt-demo,
+.layout-demo,
+.frame-demo,
+.life-demo,
+.tabs-demo,
+.responsive-proof {
+    display: grid;
+    gap: var(--layout-gap);
+}
+
+/* The depth section reads as scene-then-control-group, side by side once
+   there is room for both to stay legible. */
+@container panel (min-width: 52rem) {
+    .depth-pair {
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    }
+}
+
+.depth-pair,
+.fit-pair {
+    display: grid;
+    gap: var(--layout-gap);
+    align-items: start;
+}
+
+/* Fixed tracks, not fractions: the samples sit next to each other at the width
+   the demo is about, rather than being stretched to half a page each. A before
+   and an after are only a comparison if they are side by side and the same
+   size. */
+.fit-pair {
+    grid-template-columns: repeat(auto-fit, 11rem);
+    justify-content: start;
+}
+
+.layout-pair {
+    display: grid;
+    gap: var(--layout-gap);
+}
+
+.Footer {
+    grid-area: Footer;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 1rem var(--layout-pad);
+    border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+}
+
+/* A footer PLACE is a colophon -- a line and its links -- and it reads
+   centred under the page whatever path the page above it takes. That is a
+   statement about how one plane is divided, so it is made once, here, with
+   no Lattice and no Layer in the selector. Other occupants of the Footer
+   area (a status bar, a context strip) keep the arrangement above.
+
+   The plane carries this layout with it. Lifted off the page by Layer it is
+   still the same footer, so the last four declarations describe one box on
+   any level: a single full-width track for the moment a projection makes it
+   a grid, its own content for a size, and whatever block bound the frame was
+   handed. --frame-block-max is the handshake a rail already uses -- Layer
+   names the number, Layout writes the property. */
+.Footer[data-place="footer"] {
+    justify-content: center;
+    justify-items: center;
+    grid-template-columns: minmax(0, 1fr);
+    inline-size: auto;
+    block-size: auto;
+    max-block-size: var(--frame-block-max, none);
+}
+
+/* ...and whatever it holds centres its own wrapped lines the same way. */
+.Footer[data-place="footer"] > * {
+    justify-content: center;
+}
+
+/* Phone: stacked, content-first, rowwise samples. */
+@media (max-width: 639px) {
+    .brand-line {
+        display: grid;
+    }
+
+    .Sidebar,
+    .viewport-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* A rail that is a BAND rather than a column has no cap, and must not have
+   one. The viewport-sized fallback Lattice applies to a nested bounded frame
+   is there to stop a rail from taking the page with it, which is a hazard
+   only when the rail sits beside the content. Stacked under it, that same cap
+   is a scrollport inside a scrolling page -- two scrollbars, one gesture, and
+   a section of the document you can only reach by finding its inner edge.
+   Publishing `none` is Layout answering its own question again: this frame is
+   not a column here, so the column's bound is not its bound. */
+@media (max-width: 639px) {
+    .Sidebar,
+    .UtilityRail {
+        --frame-block-max: none;
+    }
+}
+
+[data-layout="stacked"] :is(.Sidebar, .UtilityRail) {
+    --frame-block-max: none;
+}
+
+/* Tablet Default Variables */
+@media (min-width: 640px) {
+    .Layout {
+        --grid-areas:
+            "Header Header"
+            "Sidebar Main"
+            "Footer Footer";
+        --grid-cols: minmax(12rem, 16rem) minmax(0, 1fr);
+        --grid-rows: auto 1fr auto;
+        --utility-display: none;
+    }
+
+    .Header {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .Sidebar {
+        border-right: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+        border-bottom: 0;
+    }
+
+    /* A rail is furniture BESIDE the content, not a second column of it. Once
+       a plan gives it its own column it starts at the top of that column and
+       stays there while Main goes past -- which is a statement about WHERE IT
+       SITS, so it belongs to Layout and to nothing else.
+
+       Without it a rail is as tall as the tallest thing in its row, and the
+       row is as tall as the article: an eight-screen document leaves an
+       eight-screen rail holding one screen of notes. Capping it is the same
+       decision as placing it, and the cap is what makes a rail that carries
+       its own Lattice pace against a real box.
+
+       Stacked is excluded because it does not give a rail a column -- there
+       the rail is a band under the content, and a band cannot stick.
+       --masthead-size is measured by the controller; the fallback is correct
+       for a scriptless page, where the masthead does not stick either. */
+       align-self is STRETCH, and stated rather than left to the initial
+       value. A content-sized grid item can be taller than the track it was
+       placed in, and in a bounded page -- any page-budget Lattice -- that is
+       a rail hanging down over the footer. Stretched, it can never exceed
+       its track; the cap below is what bounds it in the other case, where
+       the track is as tall as the whole article.
+
+       That cap is published rather than applied, because Lattice caps a
+       nested frame too and two sheets writing max-block-size on the same box
+       is a race decided by link order. Layout knows the tighter number -- it
+       is the one that placed the box and the one that knows the masthead is
+       above it -- so it declares the number and Lattice spends it. */
+    .Layout:not([data-layout="stacked"]) :is(.Sidebar, .UtilityRail) {
+        --frame-block-max: calc(100svb - var(--masthead-size, 0px) * var(--masthead-open, 1));
+        position: sticky;
+        top: calc(var(--masthead-size, 0px) * var(--masthead-open, 1));
+        align-self: stretch;
+        max-block-size: var(--frame-block-max);
+        overflow: auto;
+        overscroll-behavior: contain;
+    }
+}
+
+/* Desktop Default Variables */
+@media (min-width: 1024px) {
+    .Layout {
+        --grid-cols: var(--sidebar-size) minmax(0, 1fr);
+    }
+
+    .Header {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1.5rem;
+    }
+
+    .brand-block {
+        flex: 1 1 32rem;
+    }
+
+}
+
+/* TV Default Variables */
+@media (min-width: 1600px) {
+    .Layout {
+        --content-max: 112rem;
+        --grid-areas:
+            "Header Header Header"
+            "Sidebar Main UtilityRail"
+            "Footer Footer Footer";
+        --grid-cols: 24rem minmax(0, 1fr) minmax(16rem, 20rem);
+        --utility-display: grid;
+    }
+
+    .Header,
+    .Sidebar,
+    .Main {
+        padding-inline: clamp(2rem, 1vw, 4rem);
+    }
+
+    .Header h1 {
+        font-size: clamp(3rem, 4vw, 5.5rem);
+    }
+
+    .UtilityRail {
+        border-left: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+        border-bottom: 0;
+    }
+
+    .hero-demo {
+        min-height: 52svh;
+    }
+
+    .layout-demo,
+    .frame-demo,
+    .life-demo {
+        grid-template-columns: minmax(28rem, 0.5fr) minmax(0, 1.5fr);
+        align-items: start;
+    }
+
+}
+
+/* ==================================================================== */
+/* LOOK-SPECIFIC LAYOUT CONTRACTS                                       */
+/*                                                                      */
+/* A look supplies preference variables; layout remains responsible for */
+/* applying them at the active breakpoint and for keeping every track   */
+/* shrinkable. This makes a look's geometry opt-in rather than a new    */
+/* layout mode.                                                         */
+/* ==================================================================== */
+
+/* Newspaper is a default-layout, continuous-flow treatment. Its editorial
+   subgrid must not leak into a paced Lattice such as slides or card-stack.
+   The no-attribute branch preserves the ordinary pre-Lattice document. */
+@media (min-width: 640px) and (max-width: 1023px) {
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) {
+        --grid-cols: var(--newspaper-sidebar-tablet-width) minmax(0, 1fr);
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1599px) {
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) {
+        --grid-cols: var(--newspaper-sidebar-width) minmax(0, 1fr);
+    }
+}
+
+@media (min-width: 1600px) {
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) {
+        --grid-cols: var(--newspaper-sidebar-tv-width) minmax(0, 1fr) minmax(16rem, 20rem);
+    }
+}
+
+@media (min-width: 900px) {
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .main-shell {
+        position: relative;
+        isolation: isolate;
+        grid-template-columns: repeat(var(--newspaper-column-count), minmax(0, 1fr));
+        column-gap: var(--newspaper-column-gap);
+    }
+
+    /* Every section is itself the same grid. Descendants opt into a one-,
+       two-, or three-column span with --newspaper-span; padding remains an
+       internal component concern and never participates in alignment. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .main-shell > section {
+        /* Inline-size containment and subgrid are mutually exclusive here.
+           Newspaper uses the page tracks as its responsive contract instead;
+           nested cards such as .layout-sample remain query containers. */
+        container-type: normal;
+        container-name: none;
+        grid-column: 1 / -1;
+        grid-template-columns: subgrid;
+        column-gap: var(--newspaper-column-gap);
+    }
+
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .main-shell > section > * {
+        grid-column: auto / span var(--newspaper-span, var(--newspaper-column-count));
+        min-width: 0;
+    }
+
+    /* Introductory copy reads like a lead story: two columns of measure with
+       the third left open. The content groups below it occupy a complete row. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) :is(
+        .hero-copy,
+        .layout-section-header
+    ) {
+        --newspaper-span: 2;
+    }
+
+    /* These wrappers pass the page grid down one level. Because they are
+       subgrids, card borders and text edges resolve against the exact same
+       tracks used to place the vertical rules. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) :is(
+        .hero-split,
+        .responsive-proof,
+        .metric-strip,
+        .feature-grid,
+        .layout-pair,
+        .frame-sample-grid,
+        .life-grid
+    ) {
+        --newspaper-span: var(--newspaper-column-count);
+        grid-column: 1 / -1;
+        grid-template-columns: subgrid;
+        column-gap: var(--newspaper-column-gap);
+    }
+
+    /* Hero copy is the two-column lead; the proof starts a fresh full-width
+       row so its metrics and stories retain a useful editorial measure. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .hero-copy {
+        grid-column: 1 / span 2;
+    }
+
+    /* justify-items:start makes display headings size to max-content. Cap
+       those children at the two-column lead measure so long headlines wrap
+       instead of crossing the third-column rule. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .hero-copy > * {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .responsive-proof {
+        container-type: normal;
+        container-name: none;
+        grid-column: 1 / -1;
+    }
+
+    /* Two comparison stories deliberately use a 1 + 2 lead/support split. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .layout-pair > .layout-sample:first-child {
+        grid-column: span 1;
+    }
+
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .layout-pair > .layout-sample:last-child {
+        grid-column: span 2;
+    }
+
+    /* When a four-item collection leaves one item on the next row, promote
+       the orphan to a full-width story instead of leaving two empty tracks. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) :is(
+        .metric-strip,
+        .life-grid
+    ) > :last-child:nth-child(3n + 1) {
+        grid-column: 1 / -1;
+    }
+
+    /* Tabs use the same tracks while preserving both public tab modes. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .tab-set {
+        --newspaper-span: var(--newspaper-column-count);
+        grid-template-areas:
+            "list list list"
+            "panels panels panels";
+        grid-template-columns: subgrid;
+        column-gap: var(--newspaper-column-gap);
+    }
+
+    .Layout[data-theme="newspaper"][data-layout="default"][data-tabs="column"]:where(:not([data-lattice]), [data-lattice="continuous"]) .tab-set {
+        grid-template-areas: "list panels panels";
+    }
+
+    /* Paint the rules on the content container, not .Surface: .Surface is
+       the full Main area and may be wider than the max-width main shell.
+       The rule centres are derived from the same three tracks and two gaps. */
+    .Layout[data-theme="newspaper"][data-layout="default"]:where(:not([data-lattice]), [data-lattice="continuous"]) .main-shell::before {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        inset: 0;
+        pointer-events: none;
+        background-image: linear-gradient(
+            to right,
+            transparent 0,
+            transparent calc(33.333% - (var(--newspaper-column-gap) / 6) - 0.5px),
+            var(--newspaper-column-rule) calc(33.333% - (var(--newspaper-column-gap) / 6) - 0.5px),
+            var(--newspaper-column-rule) calc(33.333% - (var(--newspaper-column-gap) / 6) + 0.5px),
+            transparent calc(33.333% - (var(--newspaper-column-gap) / 6) + 0.5px),
+            transparent calc(66.667% + (var(--newspaper-column-gap) / 6) - 0.5px),
+            var(--newspaper-column-rule) calc(66.667% + (var(--newspaper-column-gap) / 6) - 0.5px),
+            var(--newspaper-column-rule) calc(66.667% + (var(--newspaper-column-gap) / 6) + 0.5px),
+            transparent calc(66.667% + (var(--newspaper-column-gap) / 6) + 0.5px)
+        );
+    }
+
+}
+
+/* ==================================================================== */
+/* STRUCTURE LAYOUTS - where the page furniture sits                    */
+/* ==================================================================== */
+
+/* 1. "3col": Header | Sidebar (Left) | Main (Center) | Utility Rail (Right) */
+@media (min-width: 800px) {
+    [data-layout="3col"],
+    [data-layout="3col"].Layout {
+        --grid-areas:
+            "Header Header Header"
+            "Sidebar Main UtilityRail"
+            "Footer Footer Footer";
+        --grid-cols: var(--sidebar-size) minmax(0, 1fr) var(--utility-size);
+        --grid-rows: auto 1fr auto;
+        --utility-display: grid;
+    }
+
+    [data-layout="3col"] .UtilityRail {
+        border-left: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+        border-bottom: 0;
+    }
+}
+
+/* 2. "hero": Stacked hero banner focus with centered lead copy */
+[data-layout="hero"] .hero-split {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+[data-layout="hero"] .hero-demo {
+    text-align: center;
+    padding: clamp(2rem, 5vw, 4.5rem) 1.5rem;
+}
+
+/* `width`, not `max-width` + auto margins. An auto margin makes the box size
+   itself from its contents, and .hero-copy is an inline-size query container --
+   which is a promise that its width can be resolved WITHOUT looking at its
+   contents. Ask for both and the used width resolves to zero, 100cqi with it,
+   and every fitted child computes font-size: 0. A definite width breaks the
+   cycle and centres it just the same. */
+[data-layout="hero"] .hero-copy {
+    justify-items: center;
+    width: min(100%, 52rem);
+    margin-inline: auto;
+}
+
+[data-layout="hero"] .metric-strip {
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+/* 3. "sidebar-right": Inverted right-sidebar layout */
+@media (min-width: 640px) {
+    [data-layout="sidebar-right"],
+    [data-layout="sidebar-right"].Layout {
+        --grid-areas:
+            "Header Header"
+            "Main Sidebar"
+            "Footer Footer";
+        --grid-cols: minmax(0, 1fr) var(--sidebar-size);
+        --utility-display: none;
+    }
+
+    [data-layout="sidebar-right"] .Sidebar {
+        border-left: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+        border-right: 0;
+    }
+}
+
+/* 4. "stacked": Single column centered reader layout */
+[data-layout="stacked"],
+[data-layout="stacked"].Layout {
+    --grid-areas:
+        "Header"
+        "Main"
+        "Sidebar"
+        "UtilityRail"
+        "Footer";
+    --grid-cols: minmax(0, 1fr);
+    --grid-rows: auto 1fr auto auto auto;
+    --content-max: 56rem;
+    --utility-display: grid;
+}
+
+[data-layout="stacked"] .Sidebar,
+[data-layout="stacked"] .UtilityRail {
+    border-inline: 0;
+    border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+    border-bottom: 0;
+}
+
+
+/* ==================================================================== */
+/* SIZE - the relative type scale                                        */
+/*                                                                      */
+/* Density changes the air between things; size changes the things.     */
+/* Applied at the root so every rem in every layer moves together.      */
+/* ==================================================================== */
+
+html {
+    font-size: calc(100% * var(--size-scale, 1));
+}
+
+[data-size="xs"] { --size-scale: 0.8; }
+[data-size="s"]  { --size-scale: 0.9; }
+[data-size="m"]  { --size-scale: 1; }
+[data-size="l"]  { --size-scale: 1.12; }
+[data-size="xl"] { --size-scale: 1.25; }
+
+/* ==================================================================== */
+/* TABS - a layout collection, not a component variant                   */
+/*                                                                      */
+/*   classic  list along the top, panel spanning below                   */
+/*   column   list stacked at the left, panel spanning to the right      */
+/* ==================================================================== */
+
+.tab-set {
+    grid-template-areas:
+        "list"
+        "panels";
+    grid-template-columns: minmax(0, 1fr);
+}
+
+[data-tabs="column"] .tab-set {
+    grid-template-areas: "list panels";
+    grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
+}
+
+[data-tabs="column"] .tab-list {
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+[data-tabs="column"] .tab {
+    width: 100%;
+}
+
+/* A column of tabs needs a column to live in. Below that, fall back to the
+   classic arrangement rather than crushing both tracks. */
+@container panel (max-width: 26rem) {
+    [data-tabs="column"] .tab-set {
+        grid-template-areas:
+            "list"
+            "panels";
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-tabs="column"] .tab-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    [data-tabs="column"] .tab {
+        width: auto;
+    }
+}
+
+@media (max-width: 520px) {
+    [data-tabs="column"] .tab-set {
+        grid-template-areas:
+            "list"
+            "panels";
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-tabs="column"] .tab-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */

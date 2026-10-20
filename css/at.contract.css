@@ -1,0 +1,147 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Laboratory authoring contract. CSS resolves intent, policy and relationships;
+   a narrow adapter publishes its computed legacy values to the shared renderer.
+   This file is intentionally scoped to .SemanticLab, after the shared sheets. */
+@property --arrangement { syntax: "adaptive | stack | alongside | aside | focus"; inherits: true; initial-value: adaptive; }
+@property --navigation { syntax: "auto | embedded | on-demand"; inherits: true; initial-value: embedded; }
+@property --controls { syntax: "auto | embedded | on-demand"; inherits: true; initial-value: embedded; }
+@property --path { syntax: "continuous | pages | slides | ribbon | card-stack | spotlight | control | app"; inherits: true; initial-value: continuous; }
+@property --rhythm { syntax: "compact | comfortable | spacious"; inherits: true; initial-value: comfortable; }
+@property --identity { syntax: "persistent | flowing"; inherits: true; initial-value: persistent; }
+
+.SemanticLab {
+  container-name: lab-experience;
+  --arrangement: adaptive; --navigation: embedded; --controls: embedded;
+  --path: continuous; --rhythm: comfortable; --identity: persistent;
+  --contract-projection: top-left-edge-drawer; --contract-can-project: 0;
+}
+.SemanticLab[data-contract-can-project] { --contract-can-project: 1; }
+/* Relationships bind responsibilities while data-place remains a compatible
+   address for the shared renderer. The target is scoped to this experience. */
+.SemanticLab > [data-relation="navigates"][data-target="document"] { --responsibility: navigator; --place: var(--place-navigator); }
+.SemanticLab > [data-relation="controls"][data-target="experience"] { --responsibility: inspector; --place: var(--place-inspector); }
+.SemanticLab [data-relation="identifies"][data-target="experience"] { --responsibility: identity; }
+.SemanticLab > [data-place="stage"] { --responsibility: stage; }
+/* Lens defaults. Legacy dimension requests below and inline policies can win. */
+.SemanticLab[data-experience="reading"] { --arrangement: stack; --navigation: auto; --controls: auto; --path: continuous; }
+.SemanticLab[data-experience="workspace"] { --arrangement: alongside; --navigation: auto; --controls: auto; --path: continuous; }
+.SemanticLab[data-experience="presentation"] { --arrangement: focus; --navigation: auto; --controls: auto; --path: slides; }
+
+/* Existing controls and old URLs enter through CSS bindings, not a JS recipe. */
+.SemanticLab[data-contract-layout="default"] { --arrangement: adaptive; }
+.SemanticLab[data-contract-layout="stacked"] { --arrangement: stack; }
+.SemanticLab[data-contract-layout="3col"] { --arrangement: alongside; }
+.SemanticLab[data-contract-layout="sidebar-right"] { --arrangement: aside; }
+.SemanticLab[data-contract-layout="hero"] { --arrangement: focus; }
+.SemanticLab[data-contract-lattice="continuous"] { --path: continuous; }
+.SemanticLab[data-contract-lattice="pages"] { --path: pages; }
+.SemanticLab[data-contract-lattice="slides"] { --path: slides; }
+.SemanticLab[data-contract-lattice="ribbon"] { --path: ribbon; }
+.SemanticLab[data-contract-lattice="card-stack"] { --path: card-stack; }
+.SemanticLab[data-contract-lattice="spotlight"] { --path: spotlight; }
+.SemanticLab[data-contract-lattice="control"] { --path: control; }
+.SemanticLab[data-contract-lattice="app"] { --path: app; }
+.SemanticLab[data-contract-density="compact"] { --rhythm: compact; }
+.SemanticLab[data-contract-density="cozy"] { --rhythm: comfortable; }
+.SemanticLab[data-contract-density="roomy"] { --rhythm: spacious; }
+.SemanticLab[data-contract-layer="inline"] { --navigation: embedded; --controls: embedded; }
+.SemanticLab[data-contract-layer="top-left-edge-drawer"] { --navigation: on-demand; --controls: on-demand; --contract-projection: top-left-edge-drawer; }
+.SemanticLab[data-contract-layer="top-menu"] { --navigation: on-demand; --controls: on-demand; --contract-projection: top-menu; }
+.SemanticLab[data-contract-layer="pop-over"] { --navigation: on-demand; --controls: on-demand; --contract-projection: pop-over; }
+
+.SemanticLab [data-contract-state] {
+  --css-contract: fallback;
+  --resolved-layout: default; --resolved-lattice: var(--path); --resolved-layer: inline;
+  --resolved-density: cozy; --navigation-presence: embedded; --controls-presence: embedded;
+  --navigation-reason: default; --controls-reason: default;
+}
+@container lab-experience style(--arrangement: adaptive) or style(--arrangement: stack) or style(--arrangement: alongside) or style(--arrangement: aside) or style(--arrangement: focus) {
+  .SemanticLab [data-contract-state] { --css-contract: ready; }
+}
+@container lab-experience style(--arrangement: stack) { .SemanticLab [data-contract-state] { --resolved-layout: stacked; } }
+@container lab-experience style(--arrangement: alongside) { .SemanticLab [data-contract-state] { --resolved-layout: 3col; } }
+@container lab-experience style(--arrangement: aside) { .SemanticLab [data-contract-state] { --resolved-layout: sidebar-right; } }
+@container lab-experience style(--arrangement: focus) { .SemanticLab [data-contract-state] { --resolved-layout: hero; } }
+@container lab-experience style(--rhythm: compact) { .SemanticLab [data-contract-state] { --resolved-density: compact; } }
+@container lab-experience style(--rhythm: spacious) { .SemanticLab [data-contract-state] { --resolved-density: roomy; } }
+
+/* Relationships acquire independent presence. Registered --plane-altitude is
+   the existing native-popover controller's input, never a JS panel-name list. */
+.SemanticLab[data-contract-ready] > [data-layer-panel][data-relation] { --plane-altitude: 0; --contract-presence: embedded; }
+@container lab-experience style(--contract-can-project: 1) {
+  @container lab-experience style(--navigation: on-demand) {
+    .SemanticLab [data-contract-state] { --navigation-presence: on-demand; --navigation-reason: explicit; --resolved-layer: var(--contract-projection); }
+    .SemanticLab[data-contract-ready] > [data-layer-panel][data-relation="navigates"] { --plane-altitude: var(--layer-z, 3); --contract-presence: on-demand; }
+  }
+  @container lab-experience style(--controls: on-demand) {
+    .SemanticLab [data-contract-state] { --controls-presence: on-demand; --controls-reason: explicit; --resolved-layer: var(--contract-projection); }
+    .SemanticLab[data-contract-ready] > [data-layer-panel][data-relation="controls"] { --plane-altitude: var(--layer-z, 3); --contract-presence: on-demand; }
+  }
+  @container lab-experience style(--navigation: auto) and style(--arrangement: focus) {
+    .SemanticLab [data-contract-state] { --navigation-presence: on-demand; --navigation-reason: focus; --resolved-layer: var(--contract-projection); }
+    .SemanticLab[data-contract-ready] > [data-layer-panel][data-relation="navigates"] { --plane-altitude: var(--layer-z, 3); --contract-presence: on-demand; }
+  }
+  @container lab-experience style(--controls: auto) and style(--arrangement: focus) {
+    .SemanticLab [data-contract-state] { --controls-presence: on-demand; --controls-reason: focus; --resolved-layer: var(--contract-projection); }
+    .SemanticLab[data-contract-ready] > [data-layer-panel][data-relation="controls"] { --plane-altitude: var(--layer-z, 3); --contract-presence: on-demand; }
+  }
+  @media (max-width: 799px) {
+    @container lab-experience style(--navigation: auto) and style(--arrangement: alongside) {
+      .SemanticLab [data-contract-state] { --navigation-presence: on-demand; --navigation-reason: space; --resolved-layer: var(--contract-projection); }
+      .SemanticLab[data-contract-ready] > [data-layer-panel][data-relation="navigates"] { --plane-altitude: var(--layer-z, 3); --contract-presence: on-demand; }
+    }
+  }
+}
+.SemanticLab .Brand { --contract-brand-presence: flowing; }
+@container lab-experience style(--identity: persistent) {
+  .SemanticLab .Brand { --contract-brand-presence: pinned; }
+}
+
+/* The base plan is no longer replaced when just one relationship is lifted.
+   These attributes record computed presence; they are not authoring policies. */
+.Layout.SemanticLab[data-contract-ready] {
+  --grid-areas: "Header" "Main" "Sidebar" "UtilityRail" "Footer";
+  --grid-cols: minmax(0, 1fr); --grid-rows: auto minmax(0, 1fr);
+  --sidebar-display: grid; --utility-display: grid;
+}
+.Layout.SemanticLab[data-contract-ready][data-navigation-presence="on-demand"] { --grid-areas: "Header" "Main" "UtilityRail" "Footer"; --sidebar-display: none; }
+.Layout.SemanticLab[data-contract-ready][data-controls-presence="on-demand"] { --grid-areas: "Header" "Main" "Sidebar" "Footer"; --utility-display: none; }
+.Layout.SemanticLab[data-contract-ready][data-navigation-presence="on-demand"][data-controls-presence="on-demand"] { --grid-areas: "Header" "Main" "Footer"; }
+@media (min-width: 800px) {
+  .Layout.SemanticLab[data-contract-ready]:is([data-layout="default"], [data-layout="3col"], [data-layout="sidebar-right"]) {
+    --grid-areas: "Header Header" "Sidebar Main" "UtilityRail UtilityRail" "Footer Footer";
+    --grid-cols: var(--sidebar-size) minmax(0, 1fr);
+  }
+  .Layout.SemanticLab[data-contract-ready][data-layout="sidebar-right"] { --grid-areas: "Header Header" "Main Sidebar" "UtilityRail UtilityRail" "Footer Footer"; --grid-cols: minmax(0, 1fr) var(--sidebar-size); }
+  .Layout.SemanticLab[data-contract-ready][data-layout="3col"] { --grid-areas: "Header Header Header" "Sidebar Main UtilityRail" "Footer Footer Footer"; --grid-cols: var(--sidebar-size) minmax(0, 1fr) var(--utility-size); }
+  .Layout.SemanticLab[data-contract-ready]:is([data-layout="default"], [data-layout="3col"], [data-layout="sidebar-right"])[data-navigation-presence="on-demand"] { --grid-areas: "Header Header" "Main UtilityRail" "Footer Footer"; --grid-cols: minmax(0, 1fr) var(--utility-size); }
+  .Layout.SemanticLab[data-contract-ready]:is([data-layout="default"], [data-layout="3col"])[data-controls-presence="on-demand"] { --grid-areas: "Header Header" "Sidebar Main" "Footer Footer"; --grid-cols: var(--sidebar-size) minmax(0, 1fr); }
+  .Layout.SemanticLab[data-contract-ready][data-layout="sidebar-right"][data-controls-presence="on-demand"] { --grid-areas: "Header Header" "Main Sidebar" "Footer Footer"; --grid-cols: minmax(0, 1fr) var(--sidebar-size); }
+  .Layout.SemanticLab[data-contract-ready][data-layout="hero"] { --grid-areas: "Header Header" "Main Main" "Sidebar UtilityRail" "Footer Footer"; --grid-cols: repeat(2, minmax(0, 1fr)); }
+  .Layout.SemanticLab[data-contract-ready][data-layout="hero"][data-navigation-presence="on-demand"] { --grid-areas: "Header" "Main" "UtilityRail" "Footer"; --grid-cols: minmax(0, 1fr); }
+  .Layout.SemanticLab[data-contract-ready][data-layout="hero"][data-controls-presence="on-demand"] { --grid-areas: "Header" "Main" "Sidebar" "Footer"; --grid-cols: minmax(0, 1fr); }
+  .Layout.SemanticLab[data-contract-ready][data-navigation-presence="on-demand"][data-controls-presence="on-demand"] { --grid-areas: "Header" "Main" "Footer"; --grid-cols: minmax(0, 1fr); }
+}
+.Layout.SemanticLab[data-contract-ready] > .UtilityRail { max-block-size: 25svh; overflow: auto; }
+.Layout.SemanticLab[data-contract-ready][data-layout="3col"] > .UtilityRail { max-block-size: var(--frame-block-max, calc(100svh - var(--masthead-size, 12rem))); }
+@media (max-width: 799px) {
+  .Layout.SemanticLab[data-contract-ready] > :is(.Sidebar, .UtilityRail) { max-block-size: 18svh; overflow: auto; }
+}
+/* A projected panel is bounded by the viewport, not its former track. */
+.Layout.SemanticLab[data-contract-ready] > [data-layer-panel][popover]:popover-open { max-block-size: 100svh; }
+
+.contract-experiences, .contract-fields { gap: 0.6rem; }
+.contract-experiences:not([hidden]) { display: flex; flex-wrap: wrap; }
+.contract-editor { min-inline-size: 0; padding: var(--layout-gap); border: 1px solid var(--accent); border-radius: 0.5rem; background: var(--bg); }
+.contract-editor > :not(summary) { margin-block-start: 0.8rem; }
+.contract-editor summary { cursor: pointer; font-weight: 700; }
+.contract-fields:not([hidden]) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
+.contract-fields > div { display: grid; gap: 0.3rem; }
+.contract-fields label { font-size: 0.8rem; }
+.contract-fields select { min-inline-size: 0; inline-size: 100%; padding: 0.5rem; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--accent); }
+.SemanticLab [data-contract-state] { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.75rem; }
+@media print {
+  .contract-experiences, .contract-fields { display: none !important; }
+  .Layout.SemanticLab[data-contract-ready] { display: block !important; }
+  .Layout.SemanticLab[data-contract-ready] > :is(.Sidebar, .UtilityRail) { display: grid !important; max-block-size: none !important; overflow: visible !important; }
+}

@@ -1,0 +1,588 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Documentation components: internal shape only.
+ * Page placement is in at.docs.layout.css, paint in at.docs.look.css, and
+ * motion in at.docs.life.css.
+ */
+
+/* The experiment contract: parts belong to their direct owning kind. */
+.experiment {
+  display: grid;
+  min-inline-size: 0;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-md, .55rem);
+}
+:where(.experiment) > [data-part="explanation"],
+:where(.experiment) > [data-part="controls"] {
+  display: grid;
+  gap: var(--layout-gap, 1rem);
+  min-inline-size: 0;
+}
+:where(.experiment) > [data-part="demonstration"] { margin: 0; min-inline-size: 0; }
+:where(.experiment) > [data-part="demonstration"] > .release-task {
+  display: grid;
+  gap: var(--layout-gap, 1rem);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-sm, .35rem);
+}
+:where(.experiment) > [data-part="controls"] textarea {
+  inline-size: 100%; min-block-size: 7rem; resize: vertical;
+  padding: var(--layout-gap, 1rem); font: inherit;
+}
+:where(.experiment) > [data-part="evidence"] { margin: 0; padding: var(--layout-gap, 1rem); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.site-nav,
+.step-actions,
+.button-row,
+.control-row,
+.footer-links,
+.app-toolbar,
+.app-titlebar,
+.case-card-header,
+.task-row,
+.file-row,
+.activity-row,
+.event-row,
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.site-nav,
+.step-actions,
+.button-row,
+.control-row,
+.footer-links,
+.app-toolbar,
+.app-titlebar,
+.filter-row {
+  flex-wrap: wrap;
+}
+
+.site-nav a {
+  min-block-size: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 0.65rem;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-pill, 999px);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.site-nav a:focus-visible,
+.action-link:focus-visible,
+.text-link:focus-visible,
+.docs-nav button:focus-visible,
+.step-actions button:focus-visible {
+  outline-width: 3px;
+  outline-style: solid;
+  outline-offset: 3px;
+}
+
+.action-link,
+.text-link {
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
+}
+
+.docs-header-inner,
+.docs-heading,
+.docs-copy,
+.tutorial-step,
+.case-section,
+.live-section,
+.callout,
+.tour-card,
+.principle-card,
+.proof-card,
+.case-card,
+.inspector-card,
+.architecture-card,
+.subscriber-card,
+.event-card,
+.coordinate-list,
+.ownership-list,
+.file-tree,
+.activity-list,
+.task-list,
+.docs-nav,
+.live-stage {
+  display: grid;
+  gap: var(--layout-gap, 1rem);
+}
+
+.docs-header-inner {
+  gap: 0.75rem;
+}
+
+.docs-heading {
+  gap: 0.35rem;
+}
+
+.docs-heading h1,
+.docs-heading h2,
+.docs-heading h3,
+.tutorial-step h2,
+.case-section h2,
+.live-section h2,
+.case-card-header h3,
+.case-card p,
+.inspector-card p {
+  margin: 0;
+}
+
+.eyebrow,
+.status-label,
+.owner-label,
+.step-label,
+.file-kind {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: calc(0.09em * var(--caps-tracking, 1));
+  text-transform: var(--caps, uppercase);
+}
+
+.lede {
+  max-inline-size: 68ch;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: calc(1.6 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.docs-sidebar,
+.docs-sidebar > *,
+.tutorial-step,
+.case-section,
+.live-section,
+.callout,
+.tour-card,
+.principle-card,
+.proof-card,
+.case-card,
+.inspector-card,
+.architecture-card,
+.subscriber-card,
+.event-card {
+  min-inline-size: 0;
+}
+
+.docs-nav {
+  gap: 0.35rem;
+}
+
+.docs-nav button {
+  width: 100%;
+  min-block-size: 2.75rem;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-sm, 0.35rem);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.docs-nav button[aria-current="step"] {
+  font-weight: 800;
+}
+
+.docs-nav-index,
+.step-number,
+.revision-mark {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 50%;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.tutorial-track {
+  gap: calc(var(--layout-gap, 1rem) * 1.5);
+}
+
+.tutorial-step,
+.case-section,
+.live-section {
+  position: relative;
+  padding: clamp(1rem, 3vw, 2.5rem);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-lg, 0.75rem);
+}
+
+.step-heading {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.85rem;
+}
+
+.step-number {
+  inline-size: 3rem;
+  font-size: 1rem;
+}
+
+.step-actions {
+  justify-content: space-between;
+  padding-block-start: 0.5rem;
+}
+
+.step-actions button,
+.button-row button,
+.control-row button,
+.model-controls button,
+.filter-row button {
+  min-block-size: 2.65rem;
+  padding: 0.55rem 0.8rem;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-sm, 0.35rem);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.callout,
+.tour-card,
+.principle-card,
+.proof-card,
+.case-card,
+.inspector-card,
+.architecture-card,
+.subscriber-card,
+.event-card {
+  gap: 0.7rem;
+  padding: var(--frame-box-padding, 1rem);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-md, 0.55rem);
+}
+
+.callout[data-kind="warning"] {
+  border-inline-start-width: 0.4rem;
+}
+
+.tour-card {
+  max-inline-size: 68rem;
+}
+
+.tour-card ol,
+.docs-copy ol,
+.docs-copy ul,
+.tutorial-step ol,
+.tutorial-step ul,
+.case-section ul,
+.live-section ul {
+  margin: 0;
+  padding-inline-start: 1.25rem;
+}
+
+.principle-grid,
+.proof-grid,
+.axis-grid,
+.case-grid,
+.subscriber-grid,
+.architecture-flow,
+.metric-grid {
+  display: grid;
+  gap: var(--layout-gap, 1rem);
+}
+
+.axis-grid,
+.principle-grid,
+.proof-grid,
+.subscriber-grid,
+.metric-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.case-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+}
+
+.architecture-flow {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  align-items: stretch;
+}
+
+.architecture-card {
+  align-content: start;
+  text-align: center;
+}
+
+.architecture-card[data-primary="true"] {
+  border-width: 2px;
+}
+
+.ownership-list,
+.coordinate-list {
+  margin: 0;
+  gap: 0;
+}
+
+.ownership-list > div,
+.coordinate-list > div,
+.metric-grid > div {
+  min-inline-size: 0;
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 0.7fr) minmax(0, 1.3fr);
+  gap: 0.6rem;
+  padding-block: 0.45rem;
+  border-block-end-width: 1px;
+  border-block-end-style: solid;
+}
+
+.ownership-list dt,
+.ownership-list dd,
+.coordinate-list dt,
+.coordinate-list dd,
+.metric-grid dt,
+.metric-grid dd {
+  min-inline-size: 0;
+  margin: 0;
+}
+
+.ownership-list dt,
+.coordinate-list dt,
+.metric-grid dt {
+  font-weight: 800;
+}
+
+.coordinate-list dd,
+.metric-grid dd {
+  font-family: ui-monospace, "SF Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
+.compare-table,
+.status-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.compare-table th,
+.compare-table td,
+.status-table th,
+.status-table td {
+  padding: 0.65rem;
+  border-width: 1px;
+  border-style: solid;
+  text-align: start;
+  vertical-align: top;
+}
+
+.compare-table th,
+.status-table th {
+  font-weight: 850;
+}
+
+.code-block,
+.code-panel {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-md, 0.55rem);
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.code-panel[data-compact="true"] {
+  max-block-size: 24rem;
+}
+
+.progress-meter {
+  inline-size: 100%;
+  block-size: 0.45rem;
+  overflow: hidden;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-pill, 999px);
+}
+
+.progress-meter > span {
+  display: block;
+  inline-size: var(--tutorial-progress, 12.5%);
+  block-size: 100%;
+}
+
+.invariant-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-md, 0.55rem);
+}
+
+.invariant-strip > div {
+  min-inline-size: 0;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.75rem;
+}
+
+.invariant-strip strong {
+  font-size: 0.76rem;
+}
+
+.app-toolbar,
+.app-titlebar,
+.case-card-header {
+  justify-content: space-between;
+}
+
+.file-tree,
+.task-list,
+.activity-list,
+.event-stream {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.file-row,
+.task-row,
+.activity-row {
+  min-inline-size: 0;
+  padding: 0.65rem;
+  border-block-end-width: 1px;
+  border-block-end-style: solid;
+}
+
+.file-icon,
+.task-status,
+.activity-mark {
+  flex: 0 0 auto;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-sm, 0.35rem);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.file-row > span:last-child,
+.task-copy,
+.activity-copy {
+  min-inline-size: 0;
+}
+
+.task-copy,
+.activity-copy {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.pill,
+.state-badge {
+  display: inline-flex;
+  align-items: center;
+  inline-size: max-content;
+  padding: 0.25rem 0.55rem;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-pill, 999px);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.case-editor {
+  min-block-size: 22rem;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--radius-md, 0.55rem);
+}
+
+.case-editor pre {
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  white-space: pre;
+}
+
+.case-editor .app-titlebar {
+  padding: 0.6rem 0.8rem;
+  border-block-end-width: 1px;
+  border-block-end-style: solid;
+}
+
+.filter-row {
+  gap: 0.4rem;
+}
+
+.filter-row button {
+  min-block-size: 2.25rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.model-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr));
+  gap: 0.45rem;
+}
+
+.model-controls button {
+  width: 100%;
+}
+
+.event-stream {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.event-row {
+  align-items: start;
+  padding-block: 0.55rem;
+  border-block-end-width: 1px;
+  border-block-end-style: solid;
+}
+
+.event-row code {
+  min-inline-size: 0;
+}
+
+.revision-mark {
+  flex: 0 0 auto;
+  inline-size: 2rem;
+}
+
+.legal-note {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 48rem) {
+  .invariant-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .step-heading {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+  }
+
+  .step-number {
+    inline-size: 2.5rem;
+  }
+}

@@ -1,0 +1,27 @@
+/* app.look.css - colour, type, material */
+[data-look="paper"] { --bg: #fff; --text: #111827; --accent: #2563eb; --radius-lg: 0.75rem; }
+[data-look="night"] { --bg: #0b1020; --text: #e6ebff; --accent: #8ab4ff; --radius-lg: 0.25rem; }
+
+.notice {
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+/* the night look wants notices pinned and scrollable */
+[data-look="night"] .notices {
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+[data-look="night"][data-life="pulse"] .notice {
+  animation: notice-glow 2s ease-in-out infinite;
+}
+
+@keyframes notice-glow {
+  50% { box-shadow: 0 0 24px #8ab4ff; }
+}
+
+.notice-title { transform: rotate(-1deg); }

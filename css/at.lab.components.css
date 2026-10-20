@@ -1,0 +1,335 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.lab.components.css -- the lab page's own kinds: internal shape only.
+ *
+ * atmosphere2.html adds four kinds the shared sheets have never heard of:
+ * the one-bar masthead (.masthead and its parts), the overture's bento,
+ * the sticker, and the ticker. This file gives each the box it needs to
+ * hold its worst case: display, intrinsic padding, border width and style,
+ * the fit numbers. Where the parts go is at.lab.layout.css; what they are
+ * made of is at.lab.look.css; how they move is at.lab.life.css.
+ */
+
+/* --- MASTHEAD -------------------------------------------------------- */
+
+/* The bar is a toolbar, so nothing in it fits itself to the viewport: the
+   shared fit rule falls back to viewport units when no container is near,
+   and a small --fit-chars keeps that cap above every --fit-max below. */
+.masthead {
+    --fit-chars: 6;
+}
+
+.masthead-bar {
+    display: grid;
+    align-items: center;
+    min-inline-size: 0;
+}
+
+.wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-inline-size: 0;
+    text-decoration: none;
+    color: inherit;
+}
+
+.masthead .wordmark-word {
+    --fit-max: clamp(1.35rem, 2.6vw, 1.9rem);
+    margin: 0;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.masthead .wordmark-word > span {
+    --fit-max: 1em;
+}
+
+.masthead .wordmark-tag {
+    --fit-max: 0.62rem;
+    display: inline-block;
+    padding: 0.2rem 0.45rem;
+    border: 1px solid;
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.12em * var(--caps-tracking, 1));
+}
+
+.pill-nav,
+.masthead-actions,
+.coord-strip {
+    display: flex;
+    align-items: center;
+    min-inline-size: 0;
+}
+
+.pill-nav a,
+.action-pill,
+.coord {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    border: 1px solid;
+    white-space: nowrap;
+}
+
+.pill-nav a {
+    --fit-max: 0.86rem;
+    padding: 0.42rem 0.85rem;
+    font-size: 0.86rem;
+    text-decoration: none;
+}
+
+.action-pill {
+    gap: 0.4rem;
+    padding: 0.42rem 0.8rem;
+    font: inherit;
+    cursor: pointer;
+}
+
+.masthead .action-pill > span {
+    --fit-max: 0.86rem;
+}
+
+.coord-strip {
+    margin: 0;
+    --fit-max: 0.7rem;
+}
+
+.coord {
+    gap: 0.4rem;
+    padding: 0.28rem 0.6rem;
+}
+
+.masthead .coord > span,
+.masthead .coord > b {
+    --fit-max: 0.7rem;
+}
+
+/* --- OVERTURE BENTO -------------------------------------------------- */
+
+.ticker {
+    display: block;
+    min-inline-size: 0;
+    --fit-chars: 4;
+}
+
+.ticker-track {
+    display: flex;
+    inline-size: max-content;
+    white-space: nowrap;
+}
+
+.ticker-track > span {
+    --fit-max: clamp(0.8rem, 1.4vw, 1rem);
+    padding-inline-end: 0.5rem;
+}
+
+.bento {
+    display: grid;
+    min-inline-size: 0;
+}
+
+.bento-tile {
+    display: grid;
+    align-content: start;
+    gap: calc(0.9rem * var(--density-scale, 1));
+    min-inline-size: 0;
+    padding: calc(clamp(1.1rem, 3cqi, 2rem) * var(--density-scale, 1) * var(--look-density, 1));
+    border: 1px solid;
+    container-type: inline-size;
+    container-name: tile;
+}
+
+/* What each tile has to survive, in characters, the way .metric declares
+   "compositions". The explanation's longest word is "encounter." */
+.bento-tile[data-part="explanation"] { --fit-chars: 9; }
+.bento-tile[data-part="guide"]       { --fit-chars: 11; }
+.bento-tile[data-part="controls"]    { --fit-chars: 11; }
+.stat-grid                           { --fit-chars: 4; }
+
+.overture-title {
+    --fit-max: clamp(2.2rem, 7.5cqi, 4.6rem);
+    margin: 0;
+}
+
+.overture-title .glow-text {
+    --fit-max: 1em;
+    display: block;
+}
+
+.overture-lede {
+    --fit-max: clamp(1rem, 2.4cqi, 1.25rem);
+    max-inline-size: 38rem;
+}
+
+.sticker {
+    --fit-max: 0.74rem;
+    display: inline-block;
+    justify-self: start;
+    padding: 0.32rem 0.7rem;
+    rotate: var(--tilt, 0deg);
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.08em * var(--caps-tracking, 1));
+}
+
+/* Stated against .button-row too: the docs sheet shapes every button in a
+   button row, and a CTA is a different kind that happens to sit in one. */
+.cta,
+.button-row .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.2rem;
+    border: 1px solid;
+    font: inherit;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cta,
+.button-row .cta {
+    font-size: 1rem;
+}
+
+.cta > span {
+    --fit-max: 1em;
+}
+
+.stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: stretch;
+}
+
+.stat {
+    display: grid;
+    align-content: end;
+    gap: 0.15rem;
+    padding: 0.8rem;
+    border: 1px solid;
+    min-inline-size: 0;
+}
+
+.stat strong {
+    --fit-max: clamp(2rem, 14cqi, 3.6rem);
+    line-height: 0.9;
+}
+
+.stat span {
+    --fit-max: 0.78rem;
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.1em * var(--caps-tracking, 1));
+}
+
+.tour-title {
+    --fit-max: clamp(1.15rem, 5cqi, 1.5rem);
+    line-height: 1.15;
+}
+
+.tour-steps {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: tour;
+}
+
+.tour-steps li,
+.tour-steps .tour-step,
+.tour-steps b {
+    --fit-max: 0.95rem;
+}
+
+.tour-steps li {
+    display: grid;
+    grid-template-columns: 1.9rem minmax(0, 1fr);
+    align-items: baseline;
+    counter-increment: tour;
+}
+
+.tour-steps li::before {
+    content: counter(tour);
+    display: inline-grid;
+    place-items: center;
+    inline-size: 1.4rem;
+    block-size: 1.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.presets-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+}
+
+.presets-title {
+    --fit-max: clamp(1.15rem, 3cqi, 1.5rem);
+}
+
+.presets-note {
+    --fit-max: 0.78rem;
+}
+
+.preset-grid {
+    display: grid;
+    min-inline-size: 0;
+}
+
+.preset {
+    display: grid;
+    align-content: start;
+    gap: 0.3rem;
+    min-inline-size: 0;
+    padding: 0.9rem 1rem;
+    border: 1px solid;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+    container-type: inline-size;
+    --fit-chars: 11;
+}
+
+.preset-emoji {
+    --fit-max: 1.6rem;
+    line-height: 1.1;
+}
+
+.preset strong {
+    --fit-max: 1.05rem;
+}
+
+.preset-coords {
+    --fit-max: 0.74rem;
+}
+
+/* --- SECTION NUMBERS ------------------------------------------------- */
+/* Generated, not authored: a view's number is its place in the track, so it
+   comes from a counter on the track rather than from ten hand-typed "02"s
+   that would go stale the first time a view moved. */
+.main-shell {
+    counter-reset: lab-view;
+}
+
+.main-shell > .concept {
+    counter-increment: lab-view;
+}
+
+.layout-section-header::before {
+    content: counter(lab-view, decimal-leading-zero);
+    display: inline-block;
+    justify-self: start;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.layout-section-header .section-kicker {
+    justify-self: start;
+    padding: 0.28rem 0.65rem;
+    border: 1px solid;
+}

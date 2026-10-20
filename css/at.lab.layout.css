@@ -1,0 +1,157 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.lab.layout.css -- where the lab page's own parts sit on the plane.
+ *
+ * Placement is by part name (data-part), never by source order or by a
+ * preset name, so a Lattice that turns a view into a slide moves nothing
+ * here and a Look that widens the face changes nothing here.
+ */
+
+/* --- MASTHEAD -------------------------------------------------------- */
+
+/* One bar, full bleed. The shared Header is a column of stacked blocks with
+   a 64rem brand block; this masthead spends the whole plane width and keeps
+   its block size close to constant: a narrow plane gets a second row for
+   navigation, never a third and fourth row of wrapped pills. The end
+   padding leaves the theme drawer's tab its own strip of the edge. */
+.Header.masthead {
+    display: grid;
+    gap: 0.55rem;
+    padding-block: calc(var(--layout-pad) * 0.4);
+    padding-inline: var(--layout-pad) calc(var(--layout-pad) + var(--atheme-drawer-tab-width, 2.5rem));
+}
+
+.masthead-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "identity controls"
+        "navigation navigation";
+    gap: 0.6rem 1rem;
+}
+
+.masthead-bar > [data-part="identity"]   { grid-area: identity; }
+.masthead-bar > [data-part="navigation"] { grid-area: navigation; }
+.masthead-bar > [data-part="controls"]   { grid-area: controls; }
+
+.pill-nav,
+.masthead-actions,
+.coord-strip {
+    gap: 0.4rem;
+}
+
+@media (min-width: 900px) {
+    .masthead-bar {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas: "identity navigation controls";
+        gap: 1.25rem;
+    }
+
+    .pill-nav {
+        justify-content: safe center;
+    }
+}
+
+/* On a phone the action pills keep their glyph and give up their words;
+   the words stay in the accessibility tree through aria-label. */
+@media (max-width: 479px) {
+    .masthead .action-label {
+        display: none;
+    }
+
+    .action-pill {
+        padding-inline: 0.65rem;
+    }
+}
+
+/* --- OVERTURE BENTO -------------------------------------------------- */
+
+.overture {
+    gap: var(--layout-gap);
+    align-content: start;
+}
+
+.bento {
+    gap: var(--layout-gap);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "explanation"
+        "evidence"
+        "controls"
+        "guide";
+}
+
+.bento > [data-part="explanation"] { grid-area: explanation; }
+.bento > [data-part="evidence"]    { grid-area: evidence; }
+.bento > [data-part="guide"]       { grid-area: guide; }
+.bento > [data-part="controls"]    { grid-area: controls; }
+
+.bento > [data-part="explanation"] {
+    align-content: center;
+    min-block-size: min(26rem, 62svh);
+}
+
+.stat-grid {
+    gap: calc(var(--layout-gap) * 0.6);
+}
+
+.preset-grid {
+    gap: calc(var(--layout-gap) * 0.6);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 8rem), 1fr));
+}
+
+.button-row:has(.cta) {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+@container panel (min-width: 40rem) {
+    .bento {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            "explanation explanation"
+            "evidence    guide"
+            "controls    controls";
+    }
+}
+
+@container panel (min-width: 62rem) {
+    .bento {
+        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+        grid-template-areas:
+            "explanation evidence"
+            "explanation guide"
+            "controls    controls";
+    }
+
+    .preset-grid {
+        grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    }
+}
+
+/* Hero layout centres the shared hero copy; the bento has no single copy
+   block to centre, so it keeps its grid and only the lede gets the axis. */
+[data-layout="hero"] .overture {
+    padding-inline: 0;
+}
+
+/* --- SECTION HEADERS ------------------------------------------------- */
+
+.layout-section-header {
+    gap: 0.6rem;
+}
+
+.layout-section-header h2 {
+    --fit-max: clamp(1.7rem, 4.6cqi, 3.1rem);
+}
+
+@media print {
+    .masthead-actions,
+    .ticker {
+        display: none !important;
+    }
+}
+
+/* A paced Lattice already gives the stage view a whole frame; the
+   explanation does not also need to claim most of the viewport inside it. */
+.Layout:not([data-lattice="continuous"]) .bento > [data-part="explanation"] {
+    min-block-size: 0;
+}

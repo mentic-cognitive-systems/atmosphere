@@ -1,0 +1,1603 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.components.css - reusable UI contracts */
+
+/* Components own their INTERNAL shape: intrinsic padding, borders, type scale,
+ * and the small grid that arranges a component's own parts.
+ *
+ * They do not own where they sit on the page (Layout/Lattice/Layer), what
+ * color or texture they wear (Look), or how they move (Life)
+ *
+ * Components are also responsible for making a role ANIMATABLE -- an element
+ * life is asked to move has to be a transformable box with a min-width it can
+ * actually shrink to. The roles live in the markup and are scored in
+ * at.life.css:
+ *
+ *   [data-role="surface"]  a hoverable panel
+ *   [data-role="select"]   a selectable control (aria-pressed)
+ *   [data-role="voice"]    a heading or kicker
+ *   [data-role="reading"]  a number that is being watched
+ *   [data-state="alert"]   something that wants attention
+ *   [data-state="live"]    something updating on its own
+ *
+ * Sizing note: the grids below adapt via @container, not @media. See the
+ * CONTAINER RESPONSE section; at.layout.css names the containers.
+ */
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+/* The projection controller supplies behavior, Layer supplies placement,
+   Look supplies paint; Components guarantees usable control shape. */
+.LayerControls button,
+.LayerClose {
+    min-block-size: 2.75rem;
+    padding: 0.65rem 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.04em;
+}
+
+.LayerClose {
+    inline-size: 2.75rem;
+    padding: 0;
+    font-size: 1.25rem;
+}
+
+.LayerControls button:focus-visible,
+.LayerClose:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+}
+
+:root {
+    --frame-box-padding: calc(clamp(0.85rem, 2vw, 1.25rem) * var(--look-density, 1));
+    --frame-window-padding: 0;
+
+    /* THE MEASURE CONTRACT, consumer side. See the section below. */
+    --fit-chars: 12;
+}
+
+/* ====================================================================== */
+/* THE MEASURE CONTRACT                                                   */
+/*                                                                        */
+/* clamp() asks the wrong question. `clamp(1.35rem, 3vw, 2.4rem)` is a    */
+/* statement about the VIEWPORT, and the box a heading actually lives in  */
+/* is a grid track inside a container inside a Lattice. The               */
+/* viewport has no idea. That is why "compositions" splits across two     */
+/* lines in a 103px metric cell while the window is 1440px wide: every    */
+/* term in the clamp was true and the word still did not fit.             */
+/*                                                                        */
+/* So ask the question the box can answer. Three numbers meet here:       */
+/*                                                                        */
+/*   100cqi         how much room this component was actually given       */
+/*   --fit-chars    how much room its content actually needs, in          */
+/*                  characters -- the longest unbreakable word it has to  */
+/*                  hold, declared by whoever knows the content           */
+/*   --face-aspect  what a character costs in this look (at.look.css)     */
+/*                                                                        */
+/*   chars x aspect = the width the content needs, in em                  */
+/*   100cqi / that = the largest font-size at which it still fits         */
+/*                                                                        */
+/* Wrapped in min() with the size the design asked for, so the clamp      */
+/* still holds whenever it can be honoured -- this only ever takes size   */
+/* AWAY, and only in a box where the alternative was a broken word.       */
+/*                                                                        */
+/*   font-size: min(<what you wanted>, fit);                              */
+/*                                                                        */
+/* --fit-chars is per component, not per string: a component declares the */
+/* worst case it must survive, the same way it declares a min-height. A   */
+/* caller with unusual content overrides it inline. */
+
+@property --fit-chars {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 12;
+}
+
+/* Components that solve for their own type size have to be able to see their
+   own width, so each is a query container. Naming them `fit` keeps them out
+   of the way of the `panel` queries at.layout.css owns.
+
+   A container can never query ITSELF, so the fit always lands on a descendant:
+   .metric is the container, .metric strong is what gets solved. */
+.metric,
+.demo-cell,
+.feature-card,
+.life-card,
+.frame-sample,
+.viewport-card,
+.layer-card,
+.layout-section-header,
+.hero-copy,
+.brand-block,
+.tab-panel,
+.plane,
+.Sidebar > section,
+.UtilityRail > section {
+    container-type: inline-size;
+    container-name: fit;
+}
+
+/* The size a component wants before anyone has an opinion -- the UA defaults,
+   restated so they can be capped. :where() keeps them at zero specificity, so
+   a component overrides them and a look overrides the component, which is the
+   order that already applied when these were plain font-size declarations. */
+:where(h1) { --fit-max: 2em; }
+:where(h2) { --fit-max: 1.5em; }
+:where(h3) { --fit-max: 1.17em; }
+
+/* Some faces are optically small in prose but already generous at display
+   sizes. Look declares the base correction and how quickly it falls away;
+   Components maps semantic text roles onto that ramp. Inline descendants
+   reset to 1 because their `1em` already inherits the corrected parent size. */
+:where(p, li, dt, dd, .body-text) {
+    --type-optical-adjust: var(--type-base-adjust, 1);
+}
+
+:where(h3, h4) {
+    --type-optical-adjust: calc(
+        var(--type-base-adjust, 1) * var(--type-growth-adjust, 1)
+    );
+}
+
+:where(h2, .header-text) {
+    --type-optical-adjust: calc(
+        var(--type-base-adjust, 1) * var(--type-growth-adjust, 1) *
+        var(--type-growth-adjust, 1)
+    );
+}
+
+:where(h1, .title-text) {
+    --type-optical-adjust: calc(
+        var(--type-base-adjust, 1) * var(--type-growth-adjust, 1) *
+        var(--type-growth-adjust, 1) * var(--type-growth-adjust, 1)
+    );
+}
+
+:where(strong, b, em, i, span, .tab, .chip) {
+    --type-optical-adjust: 1;
+}
+
+/* THE FIT ITSELF. One declaration, and the only place font-size is decided for
+   anything that participates -- which is now every text-bearing element in the
+   four page regions. Everything upstream expresses a WANT (--fit-max) and a
+   MEASURE (--fit-chars); this is where they are spent.
+
+   Broad on purpose. min() is a no-op in any box with room, so the cost of
+   including something that never needed fitting is zero, and the cost of
+   forgetting something is a broken word in one theme at one density that
+   nobody finds for a year. Code opts out: it is the one thing on the page that
+   must be reproduced exactly, so it scrolls instead of shrinking.
+
+   --fit-headroom is not a fudge. --face-aspect is the AVERAGE width of a
+   character in a face, and the word that decides whether a block fits is by
+   definition not an average word -- it is the widest one. Measured across all
+   28 looks, the gap between the average and the worst case runs to about 7%. */
+:is(.Header, .Sidebar, .UtilityRail, .Main) :is(
+    h1, h2, h3, h4, p, li, dt, dd,
+    strong, b, em, i, span,
+    .tab, .chip
+):not(code, .code-block, .code-block *) {
+    font-size: min(
+        calc(var(--fit-max, 1em) * var(--type-optical-adjust, 1)),
+        calc(100cqi / (var(--fit-chars) * var(--face-aspect)
+                       * var(--face-weight, 1) * var(--fit-headroom, 1.08)))
+    );
+}
+
+/* Bold text is set in a wider cut of the same face, so it needs more room per
+   character than --face-aspect describes. The look knows how much more. */
+:is(h1, h2, h3, strong, b, dt) {
+    --face-weight: var(--face-bold);
+}
+
+/* What each component has to survive, in characters. A component knows the
+   worst case it must hold the same way it knows its own min-height. */
+.metric { --fit-chars: 12; }              /* "compositions" */
+.Sidebar > section { --fit-chars: 12; }   /* "Presentation", "Breakpoint" */
+.brand-block { --fit-chars: 10; }         /* "Atmosphere" */
+.hero-copy { --fit-chars: 13; }           /* "arrangements." */
+.demo-cell,
+.feature-card,
+.life-card,
+.frame-sample,
+.tab-panel { --fit-chars: 13; }           /* "Theme-neutral" */
+.depth-stack .plane { --fit-chars: 9; }   /* "The glass" */
+.depth-ladder .plane { --fit-chars: 6; }
+.layer-card .demo-label { --fit-chars: 17; }  /* "at.components.css" */
+
+/* ====================================================================== */
+/* WRAPPING                                                               */
+/*                                                                        */
+/* Fitting decides how big the text is; these decide what happens at the  */
+/* end of a line once it is. They are cheap and they are the difference   */
+/* between a ragged block and a set one.                                  */
+/* ====================================================================== */
+
+/* `balance` evens the line lengths of a short block, which is what stops a
+   two-line heading from putting one word on the second line. It is capped by
+   the UA at a handful of lines, so it is safe to apply broadly. */
+h1, h2, h3,
+.title-text,
+.header-text,
+.demo-label,
+.section-kicker,
+.brand-kicker,
+.metric span,
+.tab,
+.chip {
+    text-wrap: balance;
+}
+
+/* `pretty` costs more, so it goes where the block is long enough to have
+   orphans worth avoiding. */
+p,
+.note-list li,
+.tab-panel p {
+    text-wrap: pretty;
+}
+
+/* If a break is genuinely unavoidable, it should look like typesetting rather
+   than truncation: hyphenate at a real syllable boundary. The document
+   declares lang="en", which is what makes this work at all. */
+.Main,
+.Sidebar,
+.UtilityRail,
+.Header,
+.Footer {
+    hyphens: auto;
+    hyphenate-limit-chars: 8 4 4;
+}
+
+/* Code and tokens are the exception -- a hyphen inside `--grid-areas` reads as
+   part of the name. They break anywhere or not at all. */
+code,
+.tab-figure span {
+    hyphens: none;
+    overflow-wrap: anywhere;
+}
+
+/* An explicit size, because `font-family: monospace` otherwise triggers the
+   UA's separate default-fixed-font-size and inline code stops matching the
+   line it is sitting in -- badly, next to a narrow display face. */
+code {
+    font-family: ui-monospace, "SF Mono", "Share Tech Mono", "Courier New", monospace;
+    font-size: 0.88em;
+}
+
+/* --- FRAMES --------------------------------------------------------- */
+
+.frame-default,
+.frame-accent,
+.frame-inset,
+.frame-window {
+    box-sizing: border-box;
+}
+
+.frame-default,
+.frame-accent,
+.frame-inset {
+    padding: var(--frame-box-padding);
+}
+
+.frame-window {
+    padding: var(--frame-window-padding);
+}
+
+/* --- MASTHEAD ------------------------------------------------------- */
+
+.brand-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+}
+
+/* inline-block, not inline: a role that life is allowed to animate has to be
+   a transformable box, and transforms do not apply to inline elements.
+
+   THE CASING CONTRACT, consumer side. Every caps-and-tracked label on the page
+   is written this way: the component states the tracking its own size and
+   density want, and both the case and the scale of that tracking come from the
+   look, which is the only sheet that knows whether the face it is about to
+   spend has a usable uppercase. See THE CASING CONTRACT in at.look.css. A
+   component that hardcodes `text-transform: uppercase` is deciding typography,
+   which is not its job -- and it will set Luxury in caps. */
+.brand-kicker,
+.viewport-label,
+.section-kicker,
+.demo-label {
+    display: inline-block;
+    --fit-max: 0.78rem;
+    line-height: calc(1.2 + var(--leading-extra, 0) + var(--look-leading, 0));
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.08em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+}
+
+.Header h1,
+.Header p,
+.Sidebar h2,
+.Sidebar h3,
+.Sidebar p,
+.Footer p,
+.Main h2,
+.Main h3,
+.Main p {
+    margin: 0;
+}
+
+.Header h1 {
+    --fit-max: clamp(1.6rem, 5vw, 3.75rem);
+    line-height: calc(0.95 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.Header p {
+    max-width: 64rem;
+    line-height: calc(1.55 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+/* --- COMPOSITION READOUT -------------------------------------------- */
+/* Shows the active composition axes; Lattice supplies the orientation. */
+
+.composition-readout {
+    display: flex;
+    flex-direction: var(--composition-direction, row);
+    flex-wrap: wrap;
+    align-items: var(--composition-align, center);
+    gap: 0.35rem 0.55rem;
+    margin-top: 0.7rem;
+    --fit-max: 0.72rem;
+    line-height: calc(1 + var(--leading-extra, 0) + var(--look-leading, 0));
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.08em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+}
+
+.composition-readout .dim {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid color-mix(in srgb, currentColor calc(32% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-pill);
+}
+
+.composition-readout .dim-key {
+    opacity: 0.65;
+}
+
+.composition-readout b {
+    font-weight: 700;
+    letter-spacing: calc(0.04em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+}
+
+.composition-readout .sep {
+    display: var(--composition-separator-display, inline);
+    opacity: 0.45;
+}
+
+/* --- SIDEBAR NOTES -------------------------------------------------- */
+
+.viewport-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.viewport-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.3rem 0.75rem;
+    align-items: center;
+    padding-block: 0.65rem;
+    border-bottom: 1px solid color-mix(in srgb, currentColor calc(14% * var(--stroke-strength, 1)), transparent);
+}
+
+/* The text sits in a side column, not across the whole card, so the card is
+   the wrong thing to measure against -- 100cqi would report the space the icon
+   is already using. The column is its own container, and reports its own. */
+.viewport-body {
+    container-type: inline-size;
+    container-name: fit;
+    min-width: 0;
+    display: grid;
+    gap: 0.2rem;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.viewport-card:last-child {
+    border-bottom: 0;
+}
+
+/* min-width, not width: "TV" is two characters, and in a display face two
+   characters are wider than the 2.4rem square layout guessed at. The badge is
+   square when the content lets it be and grows when it does not. */
+.viewport-icon {
+    min-width: 2.4rem;
+    height: 2.4rem;
+    padding-inline: 0.3rem;
+    display: grid;
+    place-items: center;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-md);
+}
+
+.note-list {
+    --fit-max: 0.92rem;
+    line-height: calc(1.45 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.viewport-card p {
+    --fit-max: 0.92rem;
+    line-height: calc(1.45 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.note-list {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.note-list li + li {
+    margin-top: 0.3rem;
+}
+
+.hint-text {
+    margin: 0.6rem 0 0;
+    --fit-max: 0.82rem;
+    line-height: calc(1.45 + var(--leading-extra, 0) + var(--look-leading, 0));
+    opacity: 0.75;
+}
+
+/* --- SECTION HEADERS ------------------------------------------------ */
+
+.layout-section-header {
+    display: grid;
+    gap: 0.35rem;
+    max-width: 62rem;
+}
+
+.layout-section-header h2 {
+    --fit-max: clamp(1.35rem, 3vw, 2.4rem);
+    line-height: calc(1.05 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.layout-section-header p {
+    line-height: calc(1.55 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+/* --- SAMPLE PANELS -------------------------------------------------- */
+
+.layout-sample {
+    display: grid;
+    gap: calc(0.9rem * var(--look-density, 1));
+    align-content: start;
+    min-width: 0;
+    padding: calc(clamp(0.9rem, 2vw, 1.35rem) * var(--look-density, 1));
+    border: 1px solid color-mix(in srgb, currentColor calc(22% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-lg);
+}
+
+.layout-sample h3 {
+    --fit-max: clamp(1.1rem, 2vw, 1.45rem);
+}
+
+/* .flow-columns, .feature-grid, .frame-sample-grid and .layer-grid used to
+   live here as four names whose entire content was one number. They are now
+   data-cols="fit" with a --col-chars measure -- see at.local.css. The class
+   names stay, because layout (newspaper subgrid) and life (3D) address these
+   wrappers BY NAME and a local is not a handle a distant sheet can point at. */
+.flow-rowwise,
+.life-grid,
+.metric-strip {
+    display: grid;
+    gap: calc(0.75rem * var(--look-density, 1));
+}
+
+.flow-rowwise {
+    grid-template-columns: 1fr;
+}
+
+/* THE SHAPE CONTRACT, consumer side. The card is the common case, so this is
+   where the whole of it shows at once: the look supplies the corner, how
+   present the stroke is, what is behind it and how far off the page it sits.
+   All four default to what these cards drew before there were tokens. */
+.demo-cell,
+.feature-card,
+.life-card,
+.metric {
+    min-width: 0;
+    padding: calc(0.9rem * var(--look-density, 1));
+    border: 1px solid color-mix(in srgb, currentColor calc(18% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+    background: var(--card-fill, transparent);
+    box-shadow: var(--card-shadow, none);
+}
+
+.demo-cell {
+    min-height: 7rem;
+    display: grid;
+    align-content: space-between;
+    gap: calc(0.75rem * var(--look-density, 1));
+}
+
+.demo-cell strong,
+.feature-card strong,
+.life-card strong,
+.metric strong {
+    display: block;
+}
+
+.demo-cell p,
+.feature-card p,
+.life-card p {
+    margin: 0;
+    line-height: calc(1.45 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.feature-card {
+    display: grid;
+    gap: calc(0.45rem * var(--look-density, 1));
+}
+
+.frame-sample {
+    min-width: 0;
+    min-height: 10rem;
+    display: grid;
+    align-content: space-between;
+    gap: calc(0.65rem * var(--look-density, 1));
+}
+
+.frame-sample p {
+    margin: 0;
+    line-height: calc(1.45 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.metric-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric {
+    display: grid;
+    gap: calc(0.25rem * var(--look-density, 1));
+}
+
+/* This used to say `overflow-wrap: anywhere`, on the theory that a track has
+   to be able to shrink when a look picks a display face far wider than layout
+   assumed. It shrank -- by breaking "compositions" across two lines with no
+   hyphen, in every theme, at every viewport width. The track was never the
+   problem; nobody had told the track how wide a character was. That is what
+   --face-aspect is for, and the fit above now handles it. */
+.metric strong {
+    --fit-max: clamp(1.25rem, 3.4vw, 2.4rem);
+    line-height: calc(1 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+/* Single-column component grids need an explicit shrinkable track. Without
+   one the implicit column is sized to max-content, so a look with a wide
+   display face overflows its own card no matter how narrow the card gets --
+   the card is fine, the track inside it is not. */
+.metric,
+.demo-cell,
+.feature-card,
+.life-card,
+.frame-sample,
+.layout-sample,
+.layout-section-header,
+.hero-copy {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+/* --- LIFE SURFACES --------------------------------------------------- */
+/* The concrete roles at.life.css animates. Shape only, no motion here. */
+
+/* Wide enough tracks that the four roles land two-by-two rather than 3 + 1. */
+.life-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+}
+
+.life-card {
+    display: grid;
+    align-content: start;
+    gap: calc(0.4rem * var(--look-density, 1));
+}
+
+.custom-effect-note {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: calc(clamp(0.9rem, 2vw, 1.25rem) * var(--look-density, 1));
+    border: 1px dashed color-mix(in srgb, currentColor calc(34% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+}
+
+.custom-effect-note h3,
+.custom-effect-note p {
+    margin: 0;
+}
+
+.custom-effect-note h3 {
+    --fit-max: 1.12rem;
+}
+
+.life-card .demo-label {
+    opacity: 0.7;
+}
+
+.status-line {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    --fit-max: 0.8rem;
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.08em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+}
+
+.status-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    flex: 0 0 auto;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-content: start;
+}
+
+.chip {
+    flex: 0 0 auto;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid color-mix(in srgb, currentColor calc(45% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: inherit;
+    --fit-max: 0.85rem;
+    --fit-chars: 8;
+    line-height: calc(1.2 + var(--leading-extra, 0) + var(--look-leading, 0));
+    cursor: pointer;
+}
+
+.chip[aria-pressed="true"] {
+    border-color: currentColor;
+    background: color-mix(in srgb, currentColor 16%, transparent);
+    font-weight: 700;
+}
+
+.chip:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* --- CONTAINER RESPONSE ---------------------------------------------- */
+/*
+ * These grids used to key off the viewport, which is a lie the moment the
+ * same card lives in a dashboard tile, a slide, or a 22rem ribbon panel.
+ * at.layout.css names the panels as containers; the components ask the
+ * panel how much room they actually got.
+ */
+
+/* minmax(0, …) rather than minmax(15rem, …): the container query has already
+   decided there is room for two columns, so the tracks' only remaining job is
+   to be shrinkable. A rem-based minimum here is exactly what lets a wide
+   display face push a track past the edge of the page. */
+@container panel (min-width: 46rem) {
+    .hero-split {
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+    }
+}
+
+@container panel (min-width: 34rem) {
+    .metric-strip {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .flow-rowwise {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@container panel (min-width: 44rem) {
+    .layout-pair {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .flow-rowwise {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Capping at four is a COMPONENT decision -- these three know they read badly
+   past four across -- so it is stated here, not as a local. The [data-cols]
+   in each selector is the specificity step that lets a component override the
+   local it opted into: at.local.css is unlayered and loads last, so a bare
+   class would tie and lose. Once the axes move into @layer this reads
+   `.flow-columns` again and the layer order does the work. */
+@container panel (min-width: 62rem) {
+    .flow-columns[data-cols],
+    .feature-grid[data-cols],
+    .frame-sample-grid[data-cols] {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .life-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* --- REFERENCE COMPONENTS -------------------------------------------- */
+/* The page documents itself, so the reference material is a component like
+   any other: a card per layer, a definition list per contract, and one code
+   block. Nothing here knows what a look is. */
+
+/* .layer-grid's geometry is data-cols="fit" data-gap="close" in the markup. */
+
+.layer-card {
+    min-width: 0;
+    display: grid;
+    align-content: start;
+    gap: calc(0.4rem * var(--look-density, 1));
+    padding: calc(0.9rem * var(--look-density, 1));
+    border: 1px solid color-mix(in srgb, currentColor calc(18% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.layer-card strong {
+    display: block;
+    --fit-max: 1.12em;
+}
+
+.layer-card p {
+    margin: 0;
+    line-height: calc(1.45 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+/* The one line that matters most on each card: what that layer is not
+   allowed to do. A rule you can state is a rule you can enforce. */
+.layer-card .layer-rule {
+    margin-top: 0.15rem;
+    padding-top: 0.45rem;
+    border-top: 1px dashed color-mix(in srgb, currentColor calc(24% * var(--stroke-strength, 1)), transparent);
+    --fit-max: 0.86em;
+    opacity: 0.85;
+}
+
+.contract-group {
+    container-type: inline-size;
+    container-name: fit;
+    display: grid;
+    gap: calc(0.5rem * var(--look-density, 1));
+    align-content: start;
+    min-width: 0;
+    padding: calc(0.9rem * var(--look-density, 1));
+    border: 1px solid color-mix(in srgb, currentColor calc(18% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+}
+
+.contract-group > h3 {
+    margin: 0;
+    --fit-max: 1.02rem;
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.09em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+}
+
+/* Two columns where there is room for two, one where there is not -- the
+   term and its consequence, never split across a scroll. */
+.contract-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem 0.9rem;
+    margin: 0;
+    --fit-max: 0.88rem;
+    line-height: calc(1.4 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.contract-list dt {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    hyphens: none;
+}
+
+.contract-list dd {
+    margin: 0 0 0.45rem;
+    opacity: 0.82;
+}
+
+/* The group, not the section: three 17rem groups can sit in a 60rem section,
+   and it is the group that has to hold a term beside its consequence. */
+@container fit (min-width: 26rem) {
+    /* A fraction, not `auto`: an `auto` term column sizes to max-content, and
+       in a look whose glyphs are an em wide that leaves the definition column
+       with 68px and nowhere to put a word. */
+    .contract-list {
+        grid-template-columns: minmax(6rem, 0.45fr) minmax(0, 1fr);
+    }
+
+    /* Both columns are measured against the whole group, because a container
+       cannot be a fraction of itself. So each claims the characters it would
+       need if the group were all it had: the term column is 0.45fr of 1.45fr,
+       or 31%, and 12 characters in 31% of the room costs 39. Inside min(),
+       which means it only ever binds in a look wide enough to need it. */
+    .contract-list dt {
+        grid-column: 1;
+        --fit-chars: 39;
+    }
+
+    .contract-list dd {
+        grid-column: 2;
+        margin-bottom: 0.15rem;
+        --fit-chars: 17;    /* the remaining 69% */
+    }
+}
+
+.contract-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: 0.75rem;
+    align-items: start;
+}
+
+/* Code is the one thing on the page that must not be re-flowed, re-fitted or
+   balanced. It scrolls instead. */
+.code-block {
+    margin: 0;
+    padding: calc(0.9rem * var(--look-density, 1)) calc(1rem * var(--look-density, 1));
+    overflow-x: auto;
+    border: 1px solid color-mix(in srgb, currentColor calc(24% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, currentColor 7%, transparent);
+    font-family: ui-monospace, "SF Mono", "Share Tech Mono", "Courier New", monospace;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    tab-size: 2;
+}
+
+.code-block code {
+    overflow-wrap: normal;
+    white-space: pre;
+}
+
+/* The measure demo. Both samples hold the same word in the same box; the only
+   difference is whether the box was told how long the word is.
+
+   The box is deliberately narrow -- 11rem is about what a metric cell gets in
+   a four-up strip, which is exactly where this failed. A demo of a tight-box
+   problem staged in a wide box demonstrates nothing. */
+.fit-sample {
+    min-width: 0;
+    min-height: 9rem;
+    align-content: start;
+}
+
+.fit-sample strong {
+    --fit-max: 2.4rem;
+    display: block;
+    line-height: calc(1.05 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+/* Compound with .plane so this outranks the generic .plane p below: the
+   caption is supporting text, not the thing being demonstrated. */
+.plane.fit-sample p {
+    --fit-max: 0.72rem;
+}
+
+.fit-sample[data-fit="off"] {
+    border-style: dashed;
+}
+
+/* ====================================================================== */
+/* THE DEPTH CONTRACT  --  --z                                            */
+/*                                                                        */
+/* Depth is not a seventh axis. It is one number, --z, and each of the      */
+/* participating sheets already has an obvious job with it:                */
+/*                                                                        */
+/*   components  makes a box that can BE on a plane        (this section)  */
+/*   lattice     places the camera and spaces the planes    --camera,      */
+/*                                                          --depth-unit   */
+/*   look        paints the air between them                --haze         */
+/*   life        moves the camera                           --depth-drift  */
+/*   layer       stands a projected frame in front of the   --layer-z,     */
+/*               page, and the page that far behind it      --page-far     */
+/*                                                                        */
+/* That last one is the newest and it is the argument for the contract:    */
+/* a summons is a yes or a no, but WHERE a projection lands is a distance, */
+/* and the moment it is written as a distance the other four sheets can    */
+/* spend it without being told a drawer exists.                            */
+/*                                                                        */
+/* --z is in planes, not pixels. 0 is the page surface -- the glass you    */
+/* are looking through. Negative is behind it, positive is in front. Two   */
+/* derived numbers save every consumer from re-deriving them:              */
+/*                                                                        */
+/*   --depth   distance from the camera, sign-corrected (-z)               */
+/*   --far     the same, floored at 0, because only things BEHIND the      */
+/*             glass collect haze -- something in front of it is between   */
+/*             you and the air, not on the other side of it                */
+/*                                                                        */
+/* Everything else is arithmetic on those. One number in; parallax rate,   */
+/* haze, focus and elevation out.                                          */
+/* ====================================================================== */
+
+@property --z {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0;
+}
+
+.plane {
+    --depth: calc(var(--z) * -1);
+    --far: max(0, calc(var(--z) * -1));
+
+    position: relative;
+    min-width: 0;
+    display: grid;
+    align-content: start;
+    gap: 0.4rem;
+    padding: calc(clamp(0.8rem, 2vw, 1.15rem) * var(--look-density, 1));
+    border: 1px solid color-mix(in srgb, currentColor calc(22% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--bg, #000) 82%, transparent);
+
+    /* Elevation is not a separate design decision. A thing that is nearer
+       casts a longer, softer shadow, and that is the same --z. */
+    box-shadow:
+        0 calc(0.18rem + var(--z) * 0.3rem) calc(0.5rem + var(--z) * 0.85rem)
+        rgba(0, 0, 0, 0.35);
+}
+
+.plane strong {
+    display: block;
+}
+
+.plane p {
+    margin: 0;
+    --fit-max: 0.85em;
+    line-height: calc(1.4 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.plane .demo-label {
+    opacity: 0.7;
+}
+
+/* The haze plate. Components gives it a box that covers the plane exactly;
+   at.look.css decides what is in the air and how much of it there is. */
+.plane::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+/* A scene is a box with a camera in it. Where the camera goes is Lattice's
+   call; that it is a stacking arena with a floor is this file's. */
+/* 24rem, not 18: the fan below moves the furthest plane by --z * 2.7rem, and
+   the stage is what has to hold that travel. A transform does not grow a box,
+   so a stage sized to the stack's LAID-OUT height lets the end of the deck
+   slide out over whatever is next to it. A deeper scene needs a taller room,
+   and four planes is deeper than the three this was first sized for. */
+.depth-stage {
+    position: relative;
+    min-height: 24rem;
+    display: grid;
+    place-items: center;
+    padding: calc(clamp(1rem, 3vw, 2.25rem) * var(--look-density, 1));
+    border: 1px solid color-mix(in srgb, currentColor calc(22% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-lg);
+}
+
+/* Every plane in the stack occupies the same cell. What separates them is
+   --z and nothing else -- which is the entire demonstration. */
+.depth-stack {
+    display: grid;
+    grid-template-areas: "stack";
+    place-items: center;
+    width: min(100%, 26rem);
+}
+
+/* Fanned like a deck: each plane shows one row of itself, which is all it
+   needs to say which plane it is. */
+.depth-stack > .plane {
+    grid-area: stack;
+    width: 100%;
+    min-height: 3.6rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.3rem 0.6rem;
+}
+
+.plane-z {
+    font-variant-numeric: tabular-nums;
+    --fit-max: 0.8em;
+    opacity: 0.7;
+    white-space: nowrap;
+}
+
+/* The ladder is the flat control group: same content, same size, no camera --
+   only the air changes. It isolates atmospheric perspective from perspective. */
+.depth-ladder {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
+    gap: 0.6rem;
+    align-items: stretch;
+}
+
+.depth-ladder .plane {
+    box-shadow: none;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    min-height: 5rem;
+}
+
+.depth-notes {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    container-type: inline-size;
+    container-name: fit;
+}
+
+.depth-notes > h3 {
+    margin: 0;
+    --fit-max: 1.05rem;
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.09em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+}
+
+.depth-readout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+    margin: 0;
+    --fit-max: 0.78rem;
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.08em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+    opacity: 0.75;
+}
+
+/* --- FLOW RAIL (Lattice progress indicator) -------------------------- */
+
+.flow-rail {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 900;
+    display: none;
+    height: 3px;
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    pointer-events: none;
+}
+
+.flow-rail-bar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    background: currentColor;
+}
+
+/* --- THE FRAME PARTS -------------------------------------------------- */
+/* A track is the sequence inside a frame. Components gives it the one shape
+   every Lattice starts from -- a grid of views in order -- and nothing else:
+   which way it runs, whether it snaps, and how big a view gets are the path's
+   business, and the path is at.lattice.css.
+
+   .panel-track is the same part when the frame is a rail rather than the page.
+   It exists because a rail's own padding belongs to Layout, so the track has to
+   be the thing that stretches, or a paged panel's views would each be inset by
+   a page's worth of gutter and never fill their frame. */
+
+[data-track] {
+    min-width: 0;
+    display: grid;
+}
+
+.panel-track {
+    align-content: start;
+    gap: inherit;
+}
+
+/* A frame that pages, stacks or slides needs its track to own the whole box:
+   the rail's padding would otherwise be counted once per view. */
+[data-frame][data-lattice]:not([data-lattice="continuous"]) {
+    padding: 0;
+}
+
+[data-frame][data-lattice]:not([data-lattice="continuous"]) > .panel-track {
+    height: 100%;
+    gap: 0;
+}
+
+/* --- COMPOSITION PRESETS ---------------------------------------------- */
+/* A coordinate in the mixture space, offered as a control. It is a
+   data-role="select" like any other choice, so every Life score already knows
+   how it should feel to press one. */
+
+.compose-card {
+    min-width: 0;
+    display: grid;
+    align-content: start;
+    gap: calc(0.3rem * var(--look-density, 1));
+    padding: calc(0.85rem * var(--look-density, 1));
+    border: 1px solid color-mix(in srgb, currentColor calc(24% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, currentColor 4%, transparent);
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+.compose-card strong {
+    display: block;
+    --fit-chars: 14;
+    --fit-max: 1.05em;
+}
+
+.compose-card .compose-coords {
+    --fit-max: 0.76em;
+    letter-spacing: calc(0.04em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+    text-transform: var(--caps, uppercase);
+    opacity: 0.72;
+}
+
+.compose-card .compose-note {
+    --fit-max: 0.85em;
+    line-height: calc(1.4 + var(--leading-extra, 0) + var(--look-leading, 0));
+    opacity: 0.9;
+}
+
+/* --- CROSSING TABLE --------------------------------------------------- */
+/* Two axes on two edges and their product in the cell. Four equal tracks,
+   because a comparison whose columns are different widths is not one. */
+
+.crossing-table {
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+    overflow-x: auto;
+    border: 1px solid color-mix(in srgb, currentColor calc(20% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+}
+
+.crossing-row {
+    display: grid;
+    grid-template-columns: minmax(6rem, 0.8fr) repeat(3, minmax(7rem, 1fr));
+    gap: 1px;
+}
+
+.crossing-row > * {
+    min-width: 0;
+    padding: 0.5rem 0.65rem;
+    --fit-max: 0.82em;
+    line-height: calc(1.35 + var(--leading-extra, 0) + var(--look-leading, 0));
+    box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.crossing-row [role="columnheader"],
+.crossing-row [role="rowheader"] {
+    font-weight: 700;
+    letter-spacing: calc(0.02em + var(--tracking-extra, 0em));
+}
+
+.crossing-head > * {
+    background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+@container panel (max-width: 34rem) {
+    .crossing-row {
+        grid-template-columns: minmax(5rem, 0.9fr) repeat(3, minmax(5.5rem, 1fr));
+    }
+}
+
+/* Page stamp: Pages, Card Stack and App each give it a job. */
+.page-stamp {
+    display: none;
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0.9rem;
+    text-align: center;
+    --fit-max: 0.7rem;
+    letter-spacing: calc(0.28em * var(--caps-tracking, 1) + var(--tracking-extra, 0em));
+    text-transform: var(--caps, uppercase);
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* --- TABS ------------------------------------------------------------ */
+/* Shape only. Where the list sits relative to the panel is a layout choice
+   ([data-tabs]); how the change feels is a life choice. */
+
+.tab-set {
+    display: grid;
+    gap: var(--layout-gap, 1rem);
+    min-width: 0;
+}
+
+.tab-list {
+    grid-area: list;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-content: start;
+    min-width: 0;
+}
+
+.tab-panels {
+    grid-area: panels;
+    min-width: 0;
+}
+
+.tab {
+    flex: 0 0 auto;
+    max-width: 100%;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid color-mix(in srgb, currentColor calc(30% * var(--stroke-strength, 1)), transparent);
+    background: transparent;
+    color: inherit;
+    --fit-max: 0.9rem;
+    --fit-chars: 7;
+    line-height: calc(1.2 + var(--leading-extra, 0) + var(--look-leading, 0));
+    text-align: left;
+    cursor: pointer;
+}
+
+.tab[aria-selected="true"] {
+    border-color: currentColor;
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    font-weight: 700;
+}
+
+.tab:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.tab-panel {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    min-width: 0;
+    min-height: 9rem;
+    padding: calc(clamp(0.9rem, 2vw, 1.4rem) * var(--look-density, 1));
+    border: 1px solid color-mix(in srgb, currentColor calc(24% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-lg);
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.tab-panel[hidden] {
+    display: none;
+}
+
+.tab-panel p {
+    margin: 0;
+    line-height: calc(1.5 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.tab-figure {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+}
+
+.tab-figure span {
+    padding: 0.55rem 0.7rem;
+    border: 1px dashed color-mix(in srgb, currentColor calc(30% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-sm);
+    --fit-max: 0.82rem;
+}
+
+/* ====================================================================== */
+/* THE MINI FRAME  --  a bounded box any path can run through             */
+/*                                                                        */
+/* The page's central claim is that a Lattice traverses whichever FRAME    */
+/* carries it, and that the page's own frame is not special. The only      */
+/* honest way to show that is to run all eight paths at once, side by      */
+/* side, in frames that are not the page.                                  */
+/*                                                                        */
+/* So this is a component and not a Lattice mode: it supplies the one      */
+/* thing a bounded path needs and cannot ask for -- a DEFINITE box -- and  */
+/* then says nothing at all about what happens inside it. Every scroll,    */
+/* snap, column and stagger in the gallery comes from at.lattice.css,      */
+/* which contains no rule that mentions this class.                        */
+/*                                                                        */
+/* Two of the frame's published measurements are supplied here for the     */
+/* same reason. --lattice-viewport and --lattice-inset are measured by     */
+/* script for the ROOT frame, because only script can know how tall a      */
+/* viewport is. A mini frame knows its own height from its own rule, so    */
+/* it declares them and the card-stack path needs no script at all.        */
+/* ====================================================================== */
+
+.lattice-cell {
+    min-width: 0;
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+    margin: 0;
+    container-type: inline-size;
+    container-name: fit;
+    --fit-chars: 14;
+}
+
+.lattice-cell figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.2rem 0.6rem;
+}
+
+.lattice-cell .cell-note {
+    --fit-max: 0.72rem;
+    opacity: 0.62;
+}
+
+.mini-frame {
+    --mini-frame-block: 11.5rem;
+    --lattice-viewport: var(--mini-frame-block);
+    --lattice-inset: 0.35rem;
+
+    container-type: inline-size;
+    container-name: panel;
+    position: relative;
+    min-width: 0;
+    block-size: var(--mini-frame-block);
+    border: 1px solid color-mix(in srgb, currentColor calc(24% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+/* Every view in a mini frame is a fit container of its own, so the same
+   copy sets itself at gallery scale without a second set of strings. */
+.mini-view {
+    container-type: inline-size;
+    container-name: fit;
+    --fit-chars: 11;
+    --fit-max: 0.78rem;
+    align-content: start;
+    gap: 0.2rem;
+}
+
+.mini-view strong {
+    display: block;
+    --fit-max: 0.95rem;
+    line-height: calc(1.1 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+.mini-view p {
+    margin: 0;
+    --fit-max: 0.72rem;
+    line-height: calc(1.35 + var(--leading-extra, 0) + var(--look-leading, 0));
+    opacity: 0.8;
+}
+
+/* A continuous frame keeps whatever padding it was given, so this is the one
+   case where the mini frame supplies its own gutter. Every other path zeroes
+   it and insets each view instead -- see the panel-scale query in
+   at.lattice.css, which is where "this frame is panel-sized" is answered for
+   every path at once rather than here, for this class. */
+.mini-frame:not([data-lattice]) > [data-track] {
+    gap: 0.5rem;
+    padding: 0.55rem 0.65rem;
+}
+
+/* Three paths size themselves from a property rather than from a rule, which
+   means a small frame does not have to override the rule -- it just declares
+   a smaller quantity. That is the whole point of publishing them. */
+.mini-frame[data-lattice="app"] {
+    --app-panel-min: 6.5rem;
+    --app-panel-block: 4.6rem;
+}
+
+.mini-frame[data-lattice="control"] {
+    --control-tile-min: 5rem;
+}
+
+.mini-frame[data-lattice="card-stack"] {
+    --lattice-depth-step: 0.12rem;
+}
+
+/* Ribbon is the exception: a ribbon panel's width is a rule, not a property,
+   because a variable-width panel has no single number to publish. The extra
+   [data-frame] is the specificity step that lets a component outrank the
+   path's default while at.components.css still loads first. */
+.mini-frame[data-frame][data-lattice="ribbon"] > [data-track] > [data-view] {
+    width: 9.5rem;
+}
+
+/* Pages, Card Stack and App stamp a counter into every view. At gallery
+   scale that stamp is larger than the view it is counting. */
+.mini-frame .page-stamp {
+    display: none !important;
+}
+
+/* ====================================================================== */
+/* SWATCHES  --  one control per value of an axis                         */
+/* ====================================================================== */
+
+.swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 7.5rem), 1fr));
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.swatch {
+    min-width: 0;
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid color-mix(in srgb, currentColor calc(24% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+    container-type: inline-size;
+    container-name: fit;
+    --fit-chars: 12;
+}
+
+.swatch strong {
+    display: block;
+    --fit-max: 0.86rem;
+    line-height: calc(1.2 + var(--leading-extra, 0) + var(--look-leading, 0));
+}
+
+/* A swatch shows the look it names, by carrying it: the markup puts
+   data-theme on the button, and at.look.css declares --bg, --text, --accent,
+   --font and --face-aspect on exactly that attribute. So the swatch inherits
+   a complete look locally and paints itself with it.
+
+   Nothing here knows a look's name, and at.look.css was not told a swatch
+   exists. It also means the measure contract is on display twenty-eight times
+   at once: --face-aspect arrives with the face, so the fit above sizes each
+   label for the face it is actually set in. */
+/* The compound is a specificity step, not decoration. at.look.css skins every
+   button.theme-btn as a CONTROL in the active look -- accent on a tenth of
+   white -- which is right for the drawer and wrong here: a swatch is not a
+   control wearing the page's look, it is a sample wearing its own. One class
+   more than that rule, and the sample wins while the selected state, the
+   focus ring and the look's own --selected-mark badge all still apply. */
+.swatch.theme-btn {
+    display: grid;
+    padding: 0.5rem 0.6rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 1em;
+    border-color: color-mix(in srgb, var(--text) 40%, transparent);
+}
+
+.swatch .swatch-chip {
+    height: 0.4rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent, currentColor);
+}
+
+.swatch[aria-pressed="true"],
+.swatch.is-selected {
+    border-color: currentColor;
+    background: color-mix(in srgb, currentColor 14%, transparent);
+    font-weight: 700;
+}
+
+.swatch:focus-visible,
+.compose-card:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.compose-card[aria-pressed="true"],
+.compose-card.is-selected {
+    border-color: currentColor;
+    background: color-mix(in srgb, currentColor 13%, transparent);
+}
+
+/* ====================================================================== */
+/* THE LEDGER  --  a sheet, its question, and the line it may not cross   */
+/* ====================================================================== */
+
+.ledger {
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+    overflow-x: auto;
+    border: 1px solid color-mix(in srgb, currentColor calc(20% * var(--stroke-strength, 1)), transparent);
+    border-radius: var(--radius-md);
+}
+
+.ledger-row {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 0.6fr) minmax(8rem, 1fr) minmax(8rem, 1fr) minmax(7rem, 0.9fr);
+    gap: 1px;
+}
+
+.ledger-row > * {
+    min-width: 0;
+    padding: 0.5rem 0.7rem;
+    --fit-max: 0.82em;
+    line-height: calc(1.4 + var(--leading-extra, 0) + var(--look-leading, 0));
+    box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.ledger-row [role="columnheader"],
+.ledger-row [role="rowheader"] {
+    font-weight: 700;
+}
+
+.ledger-head > * {
+    background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.ledger-row .ledger-not {
+    opacity: 0.78;
+}
+
+@container panel (max-width: 42rem) {
+    .ledger-row {
+        grid-template-columns: minmax(4.5rem, 0.7fr) repeat(3, minmax(6.5rem, 1fr));
+    }
+
+    .ledger-row > * {
+        --fit-max: 0.76em;
+    }
+}
+
+/* ====================================================================== */
+/* THE VOCABULARY STRIP  --  the words the markup actually uses           */
+/* ====================================================================== */
+
+.vocab-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.vocab {
+    min-width: 0;
+    display: grid;
+    gap: 0.2rem;
+    align-content: start;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid color-mix(in srgb, currentColor calc(20% * var(--stroke-strength, 1)), transparent);
+    border-left-width: 3px;
+    border-radius: var(--radius-sm);
+    container-type: inline-size;
+    container-name: fit;
+    --fit-chars: 13;
+}
+
+.vocab code {
+    --fit-max: 0.8rem;
+    font-weight: 700;
+}
+
+.vocab p {
+    margin: 0;
+    --fit-max: 0.78rem;
+    line-height: calc(1.4 + var(--leading-extra, 0) + var(--look-leading, 0));
+    opacity: 0.82;
+}
+
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */

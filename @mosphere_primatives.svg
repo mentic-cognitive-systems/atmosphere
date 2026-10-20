@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <title>made framework free using @mosphere</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@800&amp;display=swap');
+  </style>
+
+  <!-- Look: Surface Material -->
+  <rect width="200" height="60" rx="12" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Spatial Geometry Matrix (Scaled 1.4x) -->
+  <g transform="translate(34, 34) scale(1.4)">
+    <!-- Layer: Z-Strata Bottom Plane -->
+    <path d="M 0 12 L 16 4 L 0 -4 L -16 4 Z" fill="none" stroke="#475569" stroke-width="0.5"/>
+    
+    <!-- Lattice: Traversal Matrix Middle Plane -->
+    <path d="M 0 6 L 16 -2 L 0 -10 L -16 -2 Z" fill="none" stroke="#94a3b8" stroke-width="0.5"/>
+    
+    <!-- Layout: 2D Flat Plane Top -->
+    <path d="M 0 0 L 16 -8 L 0 -16 L -16 -8 Z" fill="none" stroke="#38bdf8" stroke-width="0.5"/>
+
+    <!-- Life: Temporal Dynamics Orbit -->
+    <circle cx="-1" cy="-3" r="18.0" fill="none" stroke="#818cf8" stroke-width="1" stroke-dasharray="3 3" transform="rotate(20)"/>
+  </g>
+
+ <text transform="scale(0.8, 1)" x="100" y="14" font-family="Inter, sans-serif" font-size="8" font-weight="800" fill="#a8a8a8" letter-spacing="1">
+    made framework free using
+  </text>
+
+  <!-- Look: Typography (Vertical stretch 200%) -->
+  <text transform="scale(1, 2)" x="68" y="24" font-family="Inter, sans-serif" font-size="20" font-weight="800" fill="#f8fafc" letter-spacing="1">
+    <tspan fill="#38bdf8">@</tspan>mosphere
+  </text>
+
+</svg>

@@ -1,0 +1,1048 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.lattice.css - the path through a frame */
+
+/*
+ * ============================ THE FRAME CONTRACT ===========================
+ *
+ * Layout, Layer and Lattice are NOT divided by which part of the page each is
+ * allowed to touch. That razor was stated by SUBJECT -- "Layout owns the page,
+ * Lattice owns Main, Layer owns the asides" -- and a subject razor is a
+ * partition of the DOM. Two axes defined over disjoint sets of elements can
+ * never meet, and two things that never meet cannot compose. The count of
+ * their combinations goes up; the composition does not.
+ *
+ * So the razor is stated by QUESTION instead, and all three ask theirs about
+ * the same noun: a FRAME -- the box content is seen through.
+ *
+ *   Layout    which frames exist, what shape they are, where they sit
+ *   Layer     is this frame in the plan, or on call -- and where it lands
+ *   Lattice   how content travels THROUGH a frame
+ *
+ * Resolved in that order: PRESENCE, then PLACEMENT, then PATH. A frame that is
+ * not present has nowhere to sit, and a frame with nowhere to sit has no path
+ * through it. That order is also the sheet order, so the cascade enforces it.
+ *
+ * ------------------------------- the markup -------------------------------
+ *
+ *   data-frame="root"   the page's own frame. Takes the ROOT data-lattice.
+ *   data-frame          any other frame. Takes its OWN data-lattice, or is
+ *                       continuous. A nested frame must ASK for a path rather
+ *                       than inheriting the page's, because a paged panel
+ *                       inside a slide deck is a composition someone chose,
+ *                       not an accident of nesting.
+ *   data-track          the sequence inside a frame
+ *   data-view           one view in that sequence
+ *   data-view="stage"   the view a panel lattice puts on the stage
+ *
+ * Every mode below is written over three selectors -- the frame, its track,
+ * its views -- and the first of them IS the scoping mechanism:
+ *
+ *   :is(.Layout[data-lattice="X"] [data-frame="root"],
+ *       [data-frame][data-lattice="X"])
+ *
+ * CSS has no way to say "inherit this attribute", so that pair is written out
+ * once per mode. It is the only repetition in this file, and it buys the one
+ * thing the old razor forbade: A LATTICE INSIDE A LAYER. The Guide panel in
+ * atmosphere.html carries data-lattice="pages", and it pages whether it is
+ * inline in Layout's grid or projected as an edge drawer -- same sheet, same
+ * rules, different frame.
+ *
+ * --------------------------------- modes ----------------------------------
+ *
+ *   continuous  ordinary document flow; deliberately neutral
+ *   pages       vertical, snapped and numbered sheets
+ *   slides      horizontal, viewport-sized sheets
+ *   ribbon      horizontal, variable-width panels
+ *   card-stack  sticky cards ordered by --lattice-index
+ *   spotlight   vertical, centered near-full-view chapters
+ *   control     a bounded instrument grid; the tiles divide one glass and
+ *               each keeps its own overflow, but the glass never moves
+ *   app         a panel wall; every view is itself a frame and holds its
+ *               own scroll, so panels can have interior paths of their own
+ *
+ * What Lattice may not do is unchanged, and is now a statement about the
+ * question rather than about the address: it may not decide whether a frame
+ * EXISTS (Layout) or whether it is PRESENT (Layer). It may not redeclare
+ * --grid-areas / --grid-cols / --grid-rows, and it may not hide a rail.
+ *
+ * ------------------------------ IN-PLANE, AND THE CAMERA ------------------
+ *
+ * A LATTICE DOES NOT TRAVEL THROUGH LAYERS. --lattice-axis is `block` or
+ * `inline` and never anything else: a path runs across the plane it is on.
+ * What crosses between planes is a different question with a different owner,
+ * and the three answers do not overlap:
+ *
+ *   Layer    slices the z axis into PLANES, and says how many planes forward
+ *            a projected frame stands            --layer-z, --page-far
+ *   Lattice  places the CAMERA -- where you stand, and how far apart two
+ *            planes are                          --camera, --depth-unit
+ *   Life     TIMES the crossing between them     --layer-travel, --layer-swing
+ *
+ * So Lattice does own depth, but it owns the SCALE of it rather than any
+ * traversal of it. Layer spends a distance in that scale; Life spends a
+ * duration crossing it; Look paints the air in between (--haze). Read the
+ * order out loud and the division is obvious: the plan, then the planes,
+ * then the camera, then the path across whichever plane you are standing on.
+ *
+ * That is also why card-stack is not a counter-example. Its cards carry --z
+ * and really do sit on different planes -- but the READER still travels the
+ * block axis, and the depth is scenery the camera resolves. Nobody scrolls
+ * along z.
+ *
+ * Published for the other axes to read, by every mode:
+ *   --lattice-scale      the pacing mode's type scale
+ *   --lattice-axis       block or inline; which way this path runs
+ *   --lattice-index      a view's place in the sequence (declared by markup)
+ *   --lattice-count      how many views this frame holds (published by script)
+ *   --lattice-viewport   used size of the frame's scrollport
+ *   --lattice-inset      safe edge inside that scrollport
+ *   --lattice-stick-top  per-card sticky edge for variable-height cards
+ *   --camera --depth-unit  where you stand, and how far apart two planes are
+ */
+
+/* The flow timeline is visible to fixed furniture such as .flow-rail even
+   though its source is the nested root frame. */
+.Layout {
+    timeline-scope: --flow;
+}
+
+/* Continuous is the identity Lattice: whatever geometry Layout gave the frame
+   is left exactly as it is. It is also what an unmarked nested frame gets. */
+[data-lattice="continuous"],
+[data-frame]:not([data-lattice]) {
+    --lattice-scale: 1;
+    --lattice-axis: block;
+}
+
+/* A frame is a box content is seen through, whatever else it is. Nothing here
+   decides where it sits -- only that it can hold a path without leaking. */
+[data-frame] {
+    min-width: 0;
+    min-height: 0;
+}
+
+/* ==================================================================== */
+/* A BOUNDED PATH NEEDS A BOUNDED FRAME                                  */
+/*                                                                      */
+/* Every mode below that snaps, pages or tiles asks its views to fill    */
+/* the frame. That question only has an answer if the frame has a size.  */
+/*                                                                      */
+/* The ROOT frame always does -- the page budget below gives it one. A   */
+/* NESTED frame is given its size by whatever contains it, and an inline */
+/* rail sitting in a document-height grid row is given nothing definite. */
+/* A paged rail in that position resolves `min-height: 100%` against an  */
+/* indefinite height, gets `auto` for it, and grows to the SUM of its    */
+/* pages -- and because it is a grid item, the page grows with it. That  */
+/* is the one way a nested frame can take the document with it, and it   */
+/* is a Lattice problem: nothing else offered the path a box.            */
+/*                                                                      */
+/* The viewport is the largest bound that is always true, so that is the */
+/* fallback. Where something upstream knows a tighter one it publishes   */
+/* --frame-block-max and this spends it: Layout does exactly that for a  */
+/* rail, because Layout placed the rail and knows what sits above it.    */
+/* Two sheets writing max-block-size on one box is a race decided by     */
+/* link order; one sheet writing it and another naming the number is a   */
+/* handshake, and it is the same handshake --layer-z and --face-aspect   */
+/* already use. It changes nothing for a frame that was given a definite */
+/* size -- a projected drawer, a dashboard tile, a gallery cell -- since */
+/* each of those is smaller and states its own size at higher weight.    */
+/* ==================================================================== */
+
+[data-frame]:not([data-frame="root"]):is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"],
+    [data-lattice="control"],
+    [data-lattice="app"]
+) {
+    max-block-size: var(--frame-block-max, 100svb);
+}
+
+/* ==================================================================== */
+/* THE PAGE BUDGET - the root frame only                                 */
+/*                                                                      */
+/* A bounded mode on the ROOT bounds the document to the viewport. The   */
+/* same mode on a nested frame must not: that frame was already given a  */
+/* size by whatever contains it, and a panel that seizes 100svh inside a */
+/* drawer is a panel that has decided it is the page.                    */
+/* ==================================================================== */
+
+.Layout:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"],
+    [data-lattice="control"],
+    [data-lattice="app"]
+) {
+    height: 100svh;
+    max-height: 100svh;
+    overflow: hidden;
+}
+
+.Layout:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"],
+    [data-lattice="control"],
+    [data-lattice="app"]
+) :is(.Main, .Sidebar, .UtilityRail) {
+    min-height: 0;
+}
+
+.Layout:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"],
+    [data-lattice="control"],
+    [data-lattice="app"]
+) :is(.Sidebar, .UtilityRail) {
+    overflow: auto;
+}
+
+/* In one-column structures the rails occupy their own auto rows. Cap those
+   rows so inline furniture remains reachable without consuming the entire
+   bounded stage; wider multi-column Layouts keep full-height rails. */
+@media (max-width: 639px) {
+    .Layout:is(
+        [data-lattice="pages"],
+        [data-lattice="slides"],
+        [data-lattice="ribbon"],
+        [data-lattice="card-stack"],
+        [data-lattice="spotlight"],
+        [data-lattice="control"],
+        [data-lattice="app"]
+    ) :is(.Sidebar, .UtilityRail) {
+        max-block-size: min(18svh, 12rem);
+    }
+}
+
+.Layout[data-layout="stacked"]:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"],
+    [data-lattice="control"],
+    [data-lattice="app"]
+) :is(.Sidebar, .UtilityRail) {
+    max-block-size: min(18svh, 12rem);
+}
+
+/* The page's traversal selects the masthead readout's orientation. The
+   component consumes these tokens; nested frame paths do not change it. */
+.Layout:is([data-lattice="continuous"], [data-lattice="ribbon"]) > .Header .composition-readout {
+    --composition-direction: row;
+    --composition-align: center;
+    --composition-separator-display: inline;
+}
+
+.Layout:is([data-lattice="pages"], [data-lattice="slides"]) > .Header .composition-readout {
+    --composition-direction: column;
+    --composition-align: flex-start;
+    --composition-separator-display: none;
+}
+
+/* Pages groups navigation above a horizontal row of composition chips. */
+.Layout[data-lattice="pages"] > .Header .masthead-controls .composition-readout {
+    --composition-direction: row;
+    --composition-align: center;
+}
+
+/* Ribbon shares one masthead row between navigation and composition.
+   Layout consumes the placement tokens. */
+.Layout[data-lattice="ribbon"] > .Header {
+    --brand-display: grid;
+    --brand-columns: minmax(0, 1fr) minmax(0, 1fr);
+    --brand-nav-column: 1;
+    --brand-readout-column: 2;
+    --brand-readout-justify: flex-end;
+}
+
+/* The masthead and footer compact, but remain in whichever areas Layout gave
+   them. Lattice changes their budget, never their placement. */
+.Layout:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"],
+    [data-lattice="control"],
+    [data-lattice="app"]
+) .Header {
+    padding-block: 0.6rem;
+    gap: 0.6rem;
+}
+
+.Layout:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"],
+    [data-lattice="control"],
+    [data-lattice="app"]
+) :is(
+    .Header > .brand-block > p:not(.composition-readout),
+    .viewport-label
+) {
+    display: none;
+}
+
+.Layout:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"],
+    [data-lattice="control"],
+    [data-lattice="app"]
+) .Footer {
+    padding-block: 0.5rem;
+}
+
+/* Control and App have no linear journey, so neither has a progress rail. */
+.Layout:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"]
+) .flow-rail {
+    display: block;
+}
+
+/* Only the ROOT frame publishes --flow. A nested frame scrolls on its own and
+   has no claim on the page's progress rail. */
+@supports (animation-timeline: scroll()) {
+    .Layout:is(
+        [data-lattice="pages"],
+        [data-lattice="slides"],
+        [data-lattice="ribbon"],
+        [data-lattice="card-stack"],
+        [data-lattice="spotlight"]
+    ) [data-frame="root"] {
+        scroll-timeline-name: --flow;
+    }
+
+    .Layout:is(
+        [data-lattice="pages"],
+        [data-lattice="card-stack"],
+        [data-lattice="spotlight"]
+    ) [data-frame="root"] {
+        scroll-timeline-axis: block;
+    }
+
+    .Layout:is(
+        [data-lattice="slides"],
+        [data-lattice="ribbon"]
+    ) [data-frame="root"] {
+        scroll-timeline-axis: inline;
+    }
+
+    /* Life may score --flow; Lattice only publishes its source and axis. */
+}
+
+/* ==================================================================== */
+/* PAGES - boxed vertical sheets                                         */
+/* ==================================================================== */
+
+:is(
+    .Layout[data-lattice="pages"] [data-frame="root"],
+    [data-frame][data-lattice="pages"]
+) {
+    --lattice-scale: 0.92;
+    --lattice-axis: block;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0;
+    /* Proximity lets a page taller than the port remain readable. */
+    scroll-snap-type: y proximity;
+    overscroll-behavior-y: contain;
+    counter-reset: lattice-page;
+}
+
+:is(
+    .Layout[data-lattice="pages"] [data-frame="root"],
+    [data-frame][data-lattice="pages"]
+) > [data-track] {
+    display: block;
+    height: 100%;
+}
+
+:is(
+    .Layout[data-lattice="pages"] [data-frame="root"],
+    [data-frame][data-lattice="pages"]
+) > [data-track] > [data-view] {
+    position: relative;
+    counter-increment: lattice-page;
+    scroll-snap-align: start;
+    min-height: 100%;
+    width: min(100%, 54rem);
+    margin-inline: auto;
+    display: grid;
+    align-content: center;
+    gap: var(--layout-gap);
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3.5rem) 3rem;
+}
+
+:is(
+    .Layout[data-lattice="pages"] [data-frame="root"],
+    [data-frame][data-lattice="pages"]
+) > [data-track] > [data-view] > .page-stamp {
+    display: block;
+}
+
+:is(
+    .Layout[data-lattice="pages"] [data-frame="root"],
+    [data-frame][data-lattice="pages"]
+) > [data-track] > [data-view] > .page-stamp::after {
+    content: "Page " counter(lattice-page);
+}
+
+/* ==================================================================== */
+/* PANEL SCALE - the same path, in a frame the size of a panel           */
+/*                                                                      */
+/* Every mode above states its gutters for a PAGE, because that is the   */
+/* frame most of them will be asked about. In a frame narrower than a    */
+/* reading measure those same numbers are gutters wider than the content */
+/* they surround -- a 4rem inset inside a 15rem cell leaves 7rem of      */
+/* copy -- and `min-height: 100%` per view turns a rail into the sum of  */
+/* its pages. Neither is a different path. It is the same path at a      */
+/* different scale, so it is one query rather than a mode.               */
+/*                                                                      */
+/* The scoping pair is repeated in every selector here rather than       */
+/* shortened to [data-frame][data-lattice="X"], and that is not          */
+/* stylistic. The rules these have to beat are written over that pair,   */
+/* so anything shorter loses the cascade by one attribute and the query  */
+/* silently does nothing -- which is exactly what the one rule that used  */
+/* to live here did, for as long as it existed.                          */
+/* ==================================================================== */
+
+@container panel (max-width: 30rem) {
+    :is(
+        .Layout[data-lattice="pages"] [data-frame="root"],
+        [data-frame][data-lattice="pages"]
+    ) > [data-track] > [data-view] {
+        min-height: 0;
+        width: 100%;
+        padding: var(--layout-gap);
+        align-content: start;
+    }
+
+    :is(
+        .Layout[data-lattice="slides"] [data-frame="root"],
+        [data-frame][data-lattice="slides"]
+    ) > [data-track] > [data-view],
+    :is(
+        .Layout[data-lattice="ribbon"] [data-frame="root"],
+        [data-frame][data-lattice="ribbon"]
+    ) > [data-track] > [data-view],
+    :is(
+        .Layout[data-lattice="card-stack"] [data-frame="root"],
+        [data-frame][data-lattice="card-stack"]
+    ) > [data-track] > [data-view],
+    :is(
+        .Layout[data-lattice="control"] [data-frame="root"],
+        [data-frame][data-lattice="control"]
+    ) > [data-track] > [data-view],
+    :is(
+        .Layout[data-lattice="app"] [data-frame="root"],
+        [data-frame][data-lattice="app"]
+    ) > [data-track] > [data-view] {
+        padding: var(--layout-gap);
+    }
+
+    /* Spotlight centres a near-full-view chapter. At panel scale there is no
+       "near full view" worth centring, so it starts at the top like the rest
+       and keeps only its snapping. */
+    :is(
+        .Layout[data-lattice="spotlight"] [data-frame="root"],
+        [data-frame][data-lattice="spotlight"]
+    ) > [data-track] > [data-view] {
+        padding: var(--layout-gap);
+        align-content: start;
+    }
+
+    :is(
+        .Layout[data-lattice="spotlight"] [data-frame="root"],
+        [data-frame][data-lattice="spotlight"]
+    ) > [data-track] {
+        gap: var(--layout-gap);
+    }
+}
+
+/* ==================================================================== */
+/* SLIDES - horizontal full-port sheets                                  */
+/* ==================================================================== */
+
+:is(
+    .Layout[data-lattice="slides"] [data-frame="root"],
+    [data-frame][data-lattice="slides"]
+) {
+    --lattice-axis: inline;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+}
+
+:is(
+    .Layout[data-lattice="slides"] [data-frame="root"],
+    [data-frame][data-lattice="slides"]
+) > [data-track] {
+    height: 100%;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    gap: 0;
+}
+
+:is(
+    .Layout[data-lattice="slides"] [data-frame="root"],
+    [data-frame][data-lattice="slides"]
+) > [data-track] > [data-view] {
+    position: relative;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    min-width: 0;
+    height: 100%;
+    overflow-y: auto;
+    display: grid;
+    align-content: center;
+    gap: var(--layout-gap);
+    padding: clamp(1.5rem, 5vw, 4rem);
+}
+
+:is(
+    .Layout[data-lattice="slides"] [data-frame="root"],
+    [data-frame][data-lattice="slides"]
+) > [data-track] > [data-view] > * {
+    width: min(100%, 72rem);
+    margin-inline: auto;
+}
+
+/* ==================================================================== */
+/* RIBBON - horizontal variable-width panels                             */
+/* ==================================================================== */
+
+:is(
+    .Layout[data-lattice="ribbon"] [data-frame="root"],
+    [data-frame][data-lattice="ribbon"]
+) {
+    --lattice-axis: inline;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: var(--layout-gap);
+    overscroll-behavior-x: contain;
+}
+
+:is(
+    .Layout[data-lattice="ribbon"] [data-frame="root"],
+    [data-frame][data-lattice="ribbon"]
+) > [data-track] {
+    display: flex;
+    height: 100%;
+    width: max-content;
+    max-width: none;
+    align-items: stretch;
+    gap: var(--layout-gap);
+}
+
+:is(
+    .Layout[data-lattice="ribbon"] [data-frame="root"],
+    [data-frame][data-lattice="ribbon"]
+) > [data-track] > [data-view] {
+    width: clamp(22rem, 60vw, 46rem);
+    align-content: start;
+    overflow-y: auto;
+    padding: clamp(1rem, 2vw, 1.75rem);
+}
+
+/* ==================================================================== */
+/* CARD STACK - sticky cards ordered independently from physical depth   */
+/* ==================================================================== */
+
+:is(
+    .Layout[data-lattice="card-stack"] [data-frame="root"],
+    [data-frame][data-lattice="card-stack"]
+) {
+    --lattice-scale: 0.94;
+    --lattice-axis: block;
+    --lattice-depth-step: 0.2rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0;
+    scroll-padding-top: var(--lattice-inset, var(--layout-gap));
+    overscroll-behavior-y: contain;
+}
+
+:is(
+    .Layout[data-lattice="card-stack"] [data-frame="root"],
+    [data-frame][data-lattice="card-stack"]
+) > [data-track] {
+    width: 100%;
+    max-width: none;
+    gap: var(--layout-gap);
+    padding: var(--lattice-inset, var(--layout-gap));
+    padding-bottom: var(--lattice-viewport, 100svh);
+    perspective: 120rem;
+    perspective-origin: 50% 0;
+    transform-style: preserve-3d;
+    counter-reset: lattice-card;
+}
+
+:is(
+    .Layout[data-lattice="card-stack"] [data-frame="root"],
+    [data-frame][data-lattice="card-stack"]
+) > [data-track] > [data-view] {
+    position: sticky;
+    top: var(--lattice-stick-top, var(--lattice-inset, var(--layout-gap)));
+    z-index: var(--lattice-index, 1);
+    width: min(100%, 72rem);
+    min-height: calc(
+        var(--lattice-viewport, 100svh)
+        - var(--lattice-inset, var(--layout-gap))
+        - var(--lattice-inset, var(--layout-gap))
+    );
+    margin-inline: auto;
+    padding: clamp(1.35rem, 4vw, 3.5rem);
+    align-content: center;
+    isolation: isolate;
+    transform: translateZ(calc(var(--lattice-index, 1) * var(--lattice-depth-step)));
+    transform-style: preserve-3d;
+    counter-increment: lattice-card;
+}
+
+/* The active hook is semantic state published by the controller. Look may
+   paint it; Lattice only supplies the correct scroll alignment. */
+:is(
+    .Layout[data-lattice="card-stack"] [data-frame="root"],
+    [data-frame][data-lattice="card-stack"]
+) > [data-track] > [data-view][data-lattice-active] {
+    scroll-margin-block-start: var(--lattice-inset, var(--layout-gap));
+}
+
+:is(
+    .Layout[data-lattice="card-stack"] [data-frame="root"],
+    [data-frame][data-lattice="card-stack"]
+) > [data-track] > [data-view] > .page-stamp {
+    display: block;
+    inset-inline: auto 1.25rem;
+    width: auto;
+    text-align: end;
+}
+
+:is(
+    .Layout[data-lattice="card-stack"] [data-frame="root"],
+    [data-frame][data-lattice="card-stack"]
+) > [data-track] > [data-view] > .page-stamp::after {
+    content: "Card " counter(lattice-card);
+}
+
+/* ==================================================================== */
+/* SPOTLIGHT - centered chapters crossing a vertical stage               */
+/* ==================================================================== */
+
+:is(
+    .Layout[data-lattice="spotlight"] [data-frame="root"],
+    [data-frame][data-lattice="spotlight"]
+) {
+    --lattice-scale: 0.94;
+    --lattice-axis: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: var(--layout-gap);
+    scroll-snap-type: y mandatory;
+    scroll-padding-block: var(--layout-gap);
+    overscroll-behavior-y: contain;
+}
+
+:is(
+    .Layout[data-lattice="spotlight"] [data-frame="root"],
+    [data-frame][data-lattice="spotlight"]
+) > [data-track] {
+    width: 100%;
+    max-width: none;
+    gap: clamp(2rem, 12svh, 8rem);
+    padding-block: var(--layout-gap);
+}
+
+:is(
+    .Layout[data-lattice="spotlight"] [data-frame="root"],
+    [data-frame][data-lattice="spotlight"]
+) > [data-track] > [data-view] {
+    position: relative;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    width: min(100%, 64rem);
+    min-height: calc(100% - (var(--layout-gap) * 2));
+    margin-inline: auto;
+    display: grid;
+    align-content: center;
+    gap: var(--layout-gap);
+    padding: clamp(1.5rem, 5vw, 4rem);
+}
+
+.Layout[data-lattice="spotlight"] [data-frame="root"] > [data-track] > [data-view] {
+    min-height: calc(100svh - (var(--layout-gap) * 2));
+}
+
+.Layout[data-lattice="spotlight"] [data-frame="root"] > [data-track] > [data-view="stage"] {
+    min-height: calc(100svh - (var(--layout-gap) * 2));
+}
+
+/* ==================================================================== */
+/* CONTROL - a bounded instrument grid                                   */
+/*                                                                      */
+/* One glass. Every view is on it at once, the glass itself does not     */
+/* move, and each tile keeps its own overflow -- so what separates       */
+/* Control from App is not whether a panel scrolls (both do) but         */
+/* whether the WALL does:                                                */
+/*                                                                      */
+/*   control  the frame is bounded and the tiles divide it. Reading      */
+/*            tile four never costs you sight of tile one.               */
+/*   app      the frame is a wall of fixed-size panels and the wall      */
+/*            itself scrolls. There can be more panels than fit.         */
+/*                                                                      */
+/* This used to carry a hand-placed twelve-by-four map naming seven      */
+/* sections of one document, plus a list of four more to hide. The file  */
+/* said at the time that this belonged in at.local.css. It belonged      */
+/* nowhere: an instrument grid that has to be told the names of its      */
+/* instruments is a preset. Equal auto-fit tracks and one promoted       */
+/* stage -- the same data-view="stage" App already reads -- produce the  */
+/* dashboard from any document, including one this file has never seen.  */
+/* ==================================================================== */
+
+:is(
+    .Layout[data-lattice="control"] [data-frame="root"],
+    [data-frame][data-lattice="control"]
+) {
+    --lattice-scale: 0.8;
+    --lattice-axis: block;
+    overflow: hidden;
+    padding: var(--layout-gap);
+}
+
+/* Equal tracks and equal rows: the tiles DIVIDE the glass rather than being
+   placed on it. grid-auto-rows in fr is what bounds every row against the
+   frame's own height, so no tile can push another off the instrument. */
+:is(
+    .Layout[data-lattice="control"] [data-frame="root"],
+    [data-frame][data-lattice="control"]
+) > [data-track] {
+    height: 100%;
+    width: 100%;
+    max-width: none;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--control-tile-min, 16rem)), 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    grid-auto-flow: row dense;
+    gap: var(--layout-gap);
+}
+
+/* A tile is a frame's worth of content in a box that will not grow: it shows
+   what fits and keeps the rest, which is the whole reason a dashboard can
+   hold nine things without becoming a scrolling page of nine things. */
+:is(
+    .Layout[data-lattice="control"] [data-frame="root"],
+    [data-frame][data-lattice="control"]
+) > [data-track] > [data-view] {
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    align-content: start;
+    padding: clamp(0.75rem, 1.5vw, 1.15rem);
+}
+
+/* The one tile the instrument is actually about. Markup says which -- the
+   same data-view="stage" App reads -- so neither mode learns a class name. */
+@media (min-width: 60rem) {
+    :is(
+        .Layout[data-lattice="control"] [data-frame="root"],
+        [data-frame][data-lattice="control"]
+    ) > [data-track] > [data-view="stage"] {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+}
+
+/* A compact viewport cannot honestly divide one glass nine ways, so the
+   tiles keep their identity and return to a scrolling sequence. */
+@media (max-width: 899px) {
+    :is(
+        .Layout[data-lattice="control"] [data-frame="root"],
+        [data-frame][data-lattice="control"]
+    ) {
+        overflow: auto;
+    }
+
+    :is(
+        .Layout[data-lattice="control"] [data-frame="root"],
+        [data-frame][data-lattice="control"]
+    ) > [data-track] {
+        height: auto;
+        grid-auto-rows: minmax(11rem, min-content);
+    }
+}
+
+/* ==================================================================== */
+/* APP - a panel wall, where every view is itself a frame                */
+/*                                                                      */
+/* The other seven modes make a view a STOP ON A PATH: you arrive, you   */
+/* read, you move on, and only one of them is really the subject at a    */
+/* time. App makes a view a PANEL -- simultaneous, bounded, and holding  */
+/* its own scroll. That last clause is the whole of the difference, and  */
+/* it is what the revised razor made expressible: a panel that holds its */
+/* own scroll is a frame, and a frame can be given a path of its own.    */
+/* A dashboard is this mode with data-view panels; a shelf app is this   */
+/* mode composed with a Layer projection on the rails.                   */
+/*                                                                      */
+/* App does not summon anything. Whether the rails slide out is Layer's  */
+/* question and is answered on its own axis -- which is why              */
+/* app x inline and app x edge-drawer are two different products from    */
+/* one document, and neither is a mode this file had to add.             */
+/* ==================================================================== */
+
+:is(
+    .Layout[data-lattice="app"] [data-frame="root"],
+    [data-frame][data-lattice="app"]
+) {
+    --lattice-scale: 0.86;
+    --lattice-axis: block;
+    --app-panel-min: 24rem;
+    --app-panel-block: clamp(13rem, 34svh, 24rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: var(--layout-gap);
+    overscroll-behavior-y: contain;
+}
+
+:is(
+    .Layout[data-lattice="app"] [data-frame="root"],
+    [data-frame][data-lattice="app"]
+) > [data-track] {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--app-panel-min)), 1fr));
+    grid-auto-rows: var(--app-panel-block);
+    grid-auto-flow: row dense;
+    gap: var(--layout-gap);
+    counter-reset: lattice-panel;
+}
+
+/* A panel is a frame: bounded, and it keeps what does not fit rather than
+   showing only what does. Everything else here is ordinary box work. */
+:is(
+    .Layout[data-lattice="app"] [data-frame="root"],
+    [data-frame][data-lattice="app"]
+) > [data-track] > [data-view] {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    align-content: start;
+    gap: calc(var(--layout-gap) * 0.75);
+    padding: clamp(0.85rem, 1.8vw, 1.4rem);
+    counter-increment: lattice-panel;
+}
+
+/* The stage is the one panel the workspace is actually about. It is markup
+   that says so -- data-view="stage" -- not a class this sheet had to learn. */
+@media (min-width: 60rem) {
+    :is(
+        .Layout[data-lattice="app"] [data-frame="root"],
+        [data-frame][data-lattice="app"]
+    ) > [data-track] > [data-view="stage"] {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+}
+
+:is(
+    .Layout[data-lattice="app"] [data-frame="root"],
+    [data-frame][data-lattice="app"]
+) > [data-track] > [data-view] > .page-stamp {
+    display: block;
+    inset-inline: auto 0.9rem;
+    width: auto;
+    text-align: end;
+}
+
+:is(
+    .Layout[data-lattice="app"] [data-frame="root"],
+    [data-frame][data-lattice="app"]
+) > [data-track] > [data-view] > .page-stamp::after {
+    content: "Panel " counter(lattice-panel);
+}
+
+
+/* ==================================================================== */
+/* THE CAMERA - Lattice's half of the depth contract                     */
+/* ==================================================================== */
+
+@property --camera {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 900px;
+}
+
+@property --depth-unit {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 62px;
+}
+
+.Layout {
+    --camera: 900px;
+    --depth-unit: 62px;
+}
+
+/* Perspective is scoped to an opted-in scene. Putting it on a frame would
+   turn that frame into the containing block for fixed overlays. */
+.depth-stage {
+    perspective: var(--camera);
+    perspective-origin:
+        calc(50% + var(--pointer-x, 0) * 26% * var(--depth-motion, 1))
+        calc(50% + var(--pointer-y, 0) * 18% * var(--depth-motion, 1));
+}
+
+.depth-stack {
+    transform-style: preserve-3d;
+}
+
+.depth-stack > .plane {
+    transform:
+        translate3d(
+            calc(var(--z) * -0.5rem),
+            calc(var(--z) * -2.7rem),
+            calc(var(--z) * var(--depth-unit))
+        );
+}
+
+.depth-ladder {
+    perspective: none;
+}
+
+@container panel (max-width: 30rem) {
+    .depth-stage {
+        --depth-unit: 40px;
+    }
+
+    .depth-stack > .plane {
+        transform:
+            translate3d(
+                calc(var(--z) * -0.25rem),
+                calc(var(--z) * -2.2rem),
+                calc(var(--z) * var(--depth-unit))
+            );
+    }
+}
+
+/* ==================================================================== */
+/* PRINT - every frame returns to one complete paged document            */
+/* ==================================================================== */
+
+@media print {
+    .Layout {
+        --grid-areas:
+            "Header"
+            "Main"
+            "Sidebar"
+            "UtilityRail"
+            "Footer" !important;
+        --grid-cols: minmax(0, 1fr) !important;
+        --grid-rows: auto auto auto auto auto !important;
+        --sidebar-display: grid !important;
+        --utility-display: grid !important;
+        --content-max: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0;
+        overflow: visible !important;
+    }
+
+    /* Controls, progress and the painted canvas are screen furniture. */
+    .flow-rail,
+    .Surface,
+    .page-stamp,
+    atheme-drawer,
+    atheme-tray {
+        display: none !important;
+    }
+
+    [data-frame] {
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        scroll-snap-type: none !important;
+        overscroll-behavior: auto !important;
+    }
+
+    .Sidebar,
+    .UtilityRail {
+        overflow: visible !important;
+    }
+
+    .Header > .brand-block > p:not(.composition-readout),
+    .viewport-label {
+        display: revert !important;
+    }
+
+    [data-track] {
+        display: block !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        padding: 0 !important;
+        perspective: none !important;
+        transform-style: flat !important;
+    }
+
+    [data-view],
+    .Layout[data-lattice="control"] :is(.about-demo, .contract-demo, .adopt-demo, .compose-demo) {
+        display: grid !important;
+        position: static !important;
+        inset: auto !important;
+        z-index: auto !important;
+        grid-area: auto !important;
+        break-inside: avoid;
+        width: 100% !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+        transform: none !important;
+        translate: none !important;
+        scale: none !important;
+        rotate: none !important;
+    }
+
+    [data-frame="root"] > [data-track] > [data-view] {
+        break-after: page;
+    }
+
+    [data-frame="root"] > [data-track] > [data-view]:last-child {
+        break-after: auto;
+    }
+
+    .Header {
+        position: static !important;
+    }
+}
+
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */

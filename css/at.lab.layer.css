@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.lab.layer.css -- how the lab page's masthead stands to the plane.
+ *
+ * The masthead is a plane of its own that content passes beneath (shared
+ * Layout already makes it sticky from tablet up). A plane in front of
+ * moving content relates to it through the glass between them, and that
+ * relation -- backdrop-filter -- is Layer's. What colour the glass is
+ * tinted stays the Look's (--lab-glass in at.lab.look.css).
+ */
+
+.Header.masthead {
+    isolation: isolate;
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+}
+
+/* Each tile is its own small stack, so a tile's decorative glow can never
+   paint over a neighbour. */
+.bento-tile {
+    isolation: isolate;
+}

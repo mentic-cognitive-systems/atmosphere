@@ -1,0 +1,88 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Tutorial look: semantic lesson/controls/evidence contract. */
+
+.tutorial-banner {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: var(--radius-md, .5rem);
+}
+
+.tutorial-lesson-card {
+  background: var(--card-fill, color-mix(in srgb, currentColor 5%, transparent));
+  border-left: 4px solid currentColor;
+  border-radius: 0 var(--radius-md, .5rem) var(--radius-md, .5rem) 0;
+}
+
+.lesson-meta {
+  font-size: .8rem;
+  opacity: .9;
+  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.lesson-meta strong {
+  opacity: .7;
+  text-transform: uppercase;
+  font-size: .72rem;
+}
+
+.tutorial-track {
+  min-block-size: 100%;
+}
+
+.tutorial-view {
+  --col-chars: 60;
+}
+
+.tutorial-lesson,
+    .docs-sidebar .callout,
+    atmosphere-navigator,
+    atmosphere-stage,
+    atmosphere-inspector,
+    atmosphere-context {
+  font-size: 1rem;
+}
+
+.docs-heading .eyebrow {
+  --fit-max: 0.72rem;
+}
+
+.tutorial-lesson {
+  min-inline-size: 0;
+}
+
+.tutorial-title {
+  font-size: 1.4rem;
+}
+
+.tutorial-summary {
+  font-size: .88rem;
+}
+
+.tutorial-toolbar {
+  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.tutorial-position {
+  font-size: .82rem;
+}
+
+.tutorial-progress {
+  background: color-mix(in srgb, currentColor 15%, transparent);
+  border-radius: 999px;
+}
+
+.tutorial-progress-value {
+  background: currentColor;
+}
+
+.tutorial-step-label {
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  opacity: .75;
+}
+
+.tutorial-next-canvas {
+  font-weight: 700;
+}

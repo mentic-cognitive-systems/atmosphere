@@ -1,0 +1,50 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Workspace local: semantic place/part consumers; tokens preserve the existing design. */
+
+[data-gap="none"] {
+  gap: 0;
+}
+
+[data-gap="tight"] {
+  gap: calc(var(--layout-gap) * 0.25);
+}
+
+[data-gap="close"] {
+  gap: calc(var(--layout-gap) * 0.5);
+}
+
+[data-gap="even"] {
+  gap: var(--layout-gap);
+}
+
+[data-gap="open"] {
+  gap: calc(var(--layout-gap) * 1.5);
+}
+
+[data-gap="wide"] {
+  gap: calc(var(--layout-gap) * 2);
+}
+
+[data-pad="none"] {
+  padding: 0;
+}
+
+[data-pad="tight"] {
+  padding: calc(var(--layout-pad) * 0.25);
+}
+
+[data-pad="close"] {
+  padding: calc(var(--layout-pad) * 0.5);
+}
+
+[data-pad="even"] {
+  padding: var(--layout-pad);
+}
+
+[data-pad="open"] {
+  padding: calc(var(--layout-pad) * 1.5);
+}
+
+[data-pad="wide"] {
+  padding: calc(var(--layout-pad) * 2);
+}

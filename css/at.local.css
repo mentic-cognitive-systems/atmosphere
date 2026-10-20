@@ -1,0 +1,199 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.local.css - quantity at the call site */
+
+/*
+ * =========================== THE LOCAL CONTRACT ===========================
+ *
+ * A local sets the QUANTITY of something an axis already defines -- how many
+ * columns, how many units of space, which depth plane.
+ *
+ * A local MAY NOT introduce a value. No colour, no font, no duration, no raw
+ * length. It selects a step on a scale the axes own.
+ *
+ *   THE RAZOR: if changing data-look or data-density does not move it, it is
+ *   not a local -- it is a hardcode, and it belongs nowhere.
+ *
+ * That razor is the only thing keeping this file from slowly becoming a
+ * utility framework. The failure mode is gradual and obvious: someone adds
+ * data-color, then data-speed, and eighteen months later the cascade is gone
+ * and nobody can point at the commit that did it.
+ *
+ * Three rules follow from the contract:
+ *
+ *   1. NAMED, NOT NUMBERED.  data-gap="open", never data-gap="4". A number is
+ *      a value; a name is a position in a scale. This is what makes the razor
+ *      self-enforcing -- there is no step called "13px", so it cannot be
+ *      written. data-density and --motion-duration-* already work this way.
+ *
+ *   2. TOKENS, NEVER LENGTHS.  Every right-hand side below is calc() over a
+ *      custom property an axis declares. --layout-gap already carries
+ *      density; --face-aspect already carries the look's face. A local spends
+ *      those. It never mints new ones.
+ *
+ *   3. A BOUNDED ENUMERATION.  No JIT, no arbitrary-value syntax, no build
+ *      step. This file is a few dozen rules and it does not grow with the
+ *      app -- which is the same property Tailwind needs a compiler to get.
+ *
+ * WHAT A LOCAL IS NOT: a replacement for a class. A class says what a thing
+ * IS, and it is the only handle a distant sheet has to address it -- the
+ * newspaper look needs to name these wrappers to make them subgrids; life's
+ * 3D mode needs to name them to give them preserve-3d. So the local carries
+ * the quantity and the class keeps the identity. They were never one job.
+ *
+ * LOAD ORDER: this file loads LAST and is deliberately UNLAYERED. Unlayered
+ * styles beat all layered styles, so locals cannot move into @layer until all
+ * six L-axis sheets do -- a layered local would be the weakest rule on the page,
+ * which is exactly backwards. See "Putting the Cascade back" in
+ * Why Atmosphere.md. Until that migration, a component that needs to override
+ * a local does it by name AND attribute (.feature-grid[data-cols]), which is
+ * one specificity step and reads as what it is.
+ *
+ * ==========================================================================
+ */
+
+
+/* ====================================================================== */
+/* THE SPACE SCALE                                                        */
+/*                                                                        */
+/* One scale, two properties. --layout-gap and --layout-pad are declared   */
+/* on .Layout and already multiplied by --density-scale, so a reader on    */
+/* "compact" and a reader on "roomy" get a proportional result from the    */
+/* same markup. "even" is 1x -- the composition's own rhythm, the same     */
+/* space the page uses between its regions. Everything else is a multiple. */
+/* ====================================================================== */
+
+[data-gap="none"]  { gap: 0; }
+[data-gap="tight"] { gap: calc(var(--layout-gap, 1rem) * 0.25); }
+[data-gap="close"] { gap: calc(var(--layout-gap, 1rem) * 0.5); }
+[data-gap="even"]  { gap: var(--layout-gap, 1rem); }
+[data-gap="open"]  { gap: calc(var(--layout-gap, 1rem) * 1.5); }
+[data-gap="wide"]  { gap: calc(var(--layout-gap, 1rem) * 2); }
+
+[data-pad="none"]  { padding: 0; }
+[data-pad="tight"] { padding: calc(var(--layout-pad, 1rem) * 0.25); }
+[data-pad="close"] { padding: calc(var(--layout-pad, 1rem) * 0.5); }
+[data-pad="even"]  { padding: var(--layout-pad, 1rem); }
+[data-pad="open"]  { padding: calc(var(--layout-pad, 1rem) * 1.5); }
+[data-pad="wide"]  { padding: calc(var(--layout-pad, 1rem) * 2); }
+
+
+/* ====================================================================== */
+/* TRACKS                                                                 */
+/*                                                                        */
+/* THE MEASURE CONTRACT, applied to columns instead of type.              */
+/*                                                                        */
+/* at.components.css already solves font-size by asking how many           */
+/* characters a component must hold and what a character costs in this     */
+/* look's face. A grid track is the same question one level up: a card     */
+/* column has a minimum width because of the WORDS in it, not because      */
+/* 16rem is a nice number.                                                 */
+/*                                                                        */
+/*   --col-chars     how many characters a column needs, declared by       */
+/*                   whoever knows the content                             */
+/*   --face-aspect   what a character costs in this face (at.look.css)     */
+/*                                                                         */
+/* So the same markup gives 16rem tracks in cyberpunk (aspect 0.40) and    */
+/* collapses to a single column in arcade (aspect 1.00) -- because Press   */
+/* Start 2P genuinely needs that room, and four columns of it would break  */
+/* every word. A rem-based minimum cannot know that. This is the thing a   */
+/* utility class literally cannot express: the value does not exist until  */
+/* the look is known.                                                      */
+/*                                                                        */
+/* min(100%, ...) keeps a single column from overflowing a narrow panel.   */
+/*                                                                        */
+/* The unit is rem, not em, and that is load-bearing. A grid wrapper       */
+/* inherits its font-size from whatever section it landed in -- measured   */
+/* at 28.8px here against a 16px root -- so an em-denominated track would  */
+/* silently be 1.8x too wide and drop a column. rem still carries the      */
+/* reader's --size-scale through the root font-size. Optical face           */
+/* compensation applies to text boxes instead, so it cannot distort tracks. */
+/* ====================================================================== */
+
+[data-cols] {
+    display: grid;
+    min-width: 0;
+}
+
+[data-cols~="fit"] {
+    grid-template-columns: repeat(auto-fit, minmax(
+        min(100%, calc(var(--col-chars, 24) * var(--face-aspect, 0.55) * 1rem)),
+        1fr));
+}
+
+/* An upper bound on a fitted grid, written alongside it: data-cols="fit max-3".
+   `fit` answers HOW MANY WILL FIT, which is a question about the box and the
+   face and belongs to the cascade. This answers HOW MANY SHOULD, which is a
+   question about the content and belongs to the call site -- six coordinate
+   cards read as a menu at three across and as a toolbar at six, and no amount
+   of measuring the box will tell you which one you meant.
+
+   It is still a local by the razor: every step is a count on the same scale
+   `fit` is already resolving, and each takes effect only once the container
+   is genuinely wide enough for that many columns -- so a narrow panel keeps
+   `fit`'s answer and nothing here can force a column into a box too small to
+   hold one. at.components.css states the same kind of cap for three specific
+   parts that know they read badly past four; this is the version a call site
+   can reach for without minting a class to hang it on. */
+@container panel (min-width: 30rem) {
+    [data-cols~="max-2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container panel (min-width: 46rem) {
+    [data-cols~="max-3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@container panel (min-width: 62rem) {
+    [data-cols~="max-4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Exact counts. minmax(0, 1fr) rather than a rem minimum: whoever asked for
+   N columns has already decided there is room for N, so the tracks' only
+   remaining job is to be shrinkable. A rem minimum here is what lets a wide
+   display face push a track past the edge of the page. */
+[data-cols="1"] { grid-template-columns: minmax(0, 1fr); }
+[data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+[data-cols="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* A lead/support split: one story gets twice the measure of its neighbour. */
+[data-cols="lead"] { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+
+/* The child side of the same question. */
+[data-span="1"]   { grid-column: span 1; }
+[data-span="2"]   { grid-column: span 2; }
+[data-span="3"]   { grid-column: span 3; }
+[data-span="all"] { grid-column: 1 / -1; }
+
+
+/* ====================================================================== */
+/* DEPTH                                                                  */
+/*                                                                        */
+/* --z is registered in at.components.css and read by four participants:   */
+/* Lattice places its plane, Look paints haze, Life spends it on parallax   */
+/* rate and focus, and Components uses it for elevation. One number in,     */
+/* four behaviours out -- which is precisely                                */
+/* why it belongs here rather than in a style attribute where no contract  */
+/* can see it.                                                             */
+/*                                                                        */
+/* Scoped to the plane range on purpose. The <section> ordinals in         */
+/* atmosphere.html uses --lattice-index: 1 through 10 for its SEQUENCE.     */
+/* That is deliberately separate: a local names a physical plane; it does  */
+/* not count document views.                                                */
+/* ====================================================================== */
+
+[data-z="-4"] { --z: -4; }
+[data-z="-3"] { --z: -3; }
+[data-z="-2"] { --z: -2; }
+[data-z="-1"] { --z: -1; }
+[data-z="0"]  { --z: 0; }
+[data-z="1"]  { --z: 1; }
+[data-z="2"]  { --z: 2; }
+[data-z="3"]  { --z: 3; }
+
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */

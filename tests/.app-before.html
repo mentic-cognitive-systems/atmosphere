@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<!---
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */
+-->
+<html lang="en" data-theme="solaris-ember" data-look="solaris-ember" data-density="cozy" data-size="m">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Atmosphere App — IDE Workspace</title>
+
+    <!-- Typography: Space Grotesk & JetBrains Mono for Solaris Ember, Outfit & Fira Code for Boreal Aurora -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           ATMOSPHERE SEPARATION OF CONCERNS (The Six-L Architecture)
+           
+           1. Layout: owns page plan, grid areas, tracks, region display, gap/pad scales.
+              Layout NEVER sets color, background, font-family, or transitions.
+           2. Look: owns materials, palette, typography, borders, shadows, surfaces.
+              Look NEVER sets region positions, display, or geometry.
+           3. Local: sets quantity (data-gap, data-pad, data-cols) via axis tokens.
+           ========================================================================== */
+
+        /* --- 1. RESET & BASE --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100vh;
+            height: 100svh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: calc(14px * var(--size-scale, 1));
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+        }
+
+        /* --- 2. DENSITY & SIZE SCALES --- */
+        [data-density="compact"] {
+            --density-scale: 0.82;
+            --layout-gap: calc(0.35rem * var(--density-scale, 1) * var(--look-density, 1));
+            --layout-pad: calc(0.5rem * var(--density-scale, 1) * var(--look-density, 1));
+        }
+        [data-density="cozy"] {
+            --density-scale: 1;
+            --layout-gap: calc(0.55rem * var(--density-scale, 1) * var(--look-density, 1));
+            --layout-pad: calc(0.85rem * var(--density-scale, 1) * var(--look-density, 1));
+        }
+        [data-density="roomy"] {
+            --density-scale: 1.2;
+            --layout-gap: calc(0.85rem * var(--density-scale, 1) * var(--look-density, 1));
+            --layout-pad: calc(1.2rem * var(--density-scale, 1) * var(--look-density, 1));
+        }
+
+        [data-size="xs"] { --size-scale: 0.8; }
+        [data-size="s"]  { --size-scale: 0.9; }
+        [data-size="m"]  { --size-scale: 1; }
+        [data-size="l"]  { --size-scale: 1.12; }
+        [data-size="xl"] { --size-scale: 1.25; }
+
+        /* --- 3. THE LOCAL CONTRACT (at.local.css rules) --- */
+        [data-gap="none"]  { gap: 0; }
+        [data-gap="tight"] { gap: calc(var(--layout-gap) * 0.4); }
+        [data-gap="close"] { gap: calc(var(--layout-gap) * 0.7); }
+        [data-gap="even"]  { gap: var(--layout-gap); }
+        [data-gap="open"]  { gap: calc(var(--layout-gap) * 1.5); }
+        [data-gap="wide"]  { gap: calc(var(--layout-gap) * 2.2); }
+
+        [data-pad="none"]  { padding: 0; }
+        [data-pad="tight"] { padding: calc(var(--layout-pad) * 0.4); }
+        [data-pad="close"] { padding: calc(var(--layout-pad) * 0.7); }
+        [data-pad="even"]  { padding: var(--layout-pad); }
+        [data-pad="open"]  { padding: calc(var(--layout-pad) * 1.5); }
+        [data-pad="wide"]  { padding: calc(var(--layout-pad) * 2.2); }
+
+        /* ==========================================================================
+           RESPONSIVE LAYOUT ENGINE USING CSS VARIABLES (.Layout)
+           The layout is declared ONCE on .Layout. Media queries ONLY redefine
+           the custom properties: --grid-areas, --grid-cols, --grid-rows, and
+           region display variables.
+           ========================================================================== */
+        .Layout {
+            /* Default variables (Desktop baseline) */
+            --grid-areas:
+                "Area Header Header Context"
+                "Sidebar ListNav Main Main"
+                "Sidebar ListNav Summary Summary"
+                "Footer Footer Footer Footer";
+            --grid-cols: minmax(110px, 10vw) minmax(180px, 20vw) minmax(0, 1fr) minmax(180px, 20vw);
+            --grid-rows: 3.2em 2fr 1fr 2.6em;
+
+            /* Region Display Variables: unplaced regions resolve to none */
+            --area-display: flex;
+            --context-display: flex;
+            --header-display: flex;
+            --sidebar-display: flex;
+            --main-display: flex;
+            --flowernav-display: none;
+            --listnav-display: flex;
+            --summary-display: flex;
+            --section-display: none;
+            --footer-display: flex;
+
+            display: grid;
+            height: 100vh;
+            height: 100svh;
+            width: 100vw;
+            grid-template-areas: var(--grid-areas);
+            grid-template-columns: var(--grid-cols);
+            grid-template-rows: var(--grid-rows);
+            gap: var(--layout-gap);
+            padding: var(--layout-gap);
+            background: var(--bg);
+            box-sizing: border-box;
+        }
+
+        /* --- BREAKPOINT 1: Mobile Phone (<= 600px) --- */
+        @media (max-width: 600px) {
+            .Layout {
+                --grid-areas:
+                    "Area Context"
+                    "Main Main"
+                    "FlowerNav ListNav";
+                --grid-cols: 1fr 1fr;
+                --grid-rows: 3em 1fr 1fr;
+
+                --area-display: flex;
+                --context-display: flex;
+                --header-display: none;
+                --sidebar-display: none;
+                --main-display: flex;
+                --flowernav-display: flex;
+                --listnav-display: flex;
+                --summary-display: none;
+                --section-display: none;
+                --footer-display: none;
+            }
+        }
+
+        /* --- BREAKPOINT 2: Tablet (601px - 1024px) --- */
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .Layout {
+                --grid-areas:
+                    "Area Header Header Context"
+                    "Main Main Main Main"
+                    "ListNav Summary Summary Summary"
+                    "ListNav Footer Footer Footer";
+                --grid-cols: minmax(130px, 220px) 1.2fr 2fr 2fr;
+                --grid-rows: 3.2em 1.6fr 1fr 2.6em;
+
+                --area-display: flex;
+                --context-display: flex;
+                --header-display: flex;
+                --sidebar-display: none;
+                --main-display: flex;
+                --flowernav-display: none;
+                --listnav-display: flex;
+                --summary-display: flex;
+                --section-display: none;
+                --footer-display: flex;
+            }
+        }
+
+        /* --- BREAKPOINT 3: Desktop (1025px - 1600px) --- */
+        @media (min-width: 1025px) and (max-width: 1600px) {
+            .Layout {
+                --grid-areas:
+                    "Area Header Header Context"
+                    "Sidebar ListNav Main Main"
+                    "Sidebar ListNav Summary Summary"
+                    "Footer Footer Footer Footer";
+                --grid-cols: minmax(120px, 10vw) minmax(180px, 20vw) minmax(0, 1fr) minmax(180px, 20vw);
+                --grid-rows: 3.2em 2fr 1fr 2.6em;
+
+                --area-display: flex;
+                --context-display: flex;
+                --header-display: flex;
+                --sidebar-display: flex;
+                --main-display: flex;
+                --flowernav-display: none;
+                --listnav-display: flex;
+                --summary-display: flex;
+                --section-display: none;
+                --footer-display: flex;
+            }
+        }
+
+        /* --- BREAKPOINT 4: TV & Ultra-wide (>= 1601px) --- */
+        @media (min-width: 1601px) {
+            .Layout {
+                --grid-areas:
+                    "Area Header Header Header Context"
+                    "Sidebar ListNav Main Main Section"
+                    "Sidebar ListNav Summary Summary Section"
+                    "Footer Footer Footer Footer Footer";
+                --grid-cols: minmax(140px, 10vw) minmax(200px, 18vw) minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(220px, 18vw);
+                --grid-rows: 3.2em 2fr 1fr 2.6em;
+
+                --area-display: flex;
+                --context-display: flex;
+                --header-display: flex;
+                --sidebar-display: flex;
+                --main-display: flex;
+                --flowernav-display: none;
+                --listnav-display: flex;
+                --summary-display: flex;
+                --section-display: flex;
+                --footer-display: flex;
+            }
+        }
+
+        /* ==========================================================================
+           REGION BINDINGS & CONTRACT ASSIGNMENTS
+           Every region binds to its grid-area and display variable.
+           Visual treatment resolves through Theme Look Variables.
+           ========================================================================== */
+        .Area, .Context, .Header, .Sidebar, .Main,
+        .FlowerNav, .ListNav, .Summary, .Section, .Footer {
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--surface-shadow);
+            transition: background-color var(--transition-speed) ease,
+                        border-color var(--transition-speed) ease,
+                        box-shadow var(--transition-speed) ease;
+        }
+
+        .Area {
+            grid-area: Area;
+            display: var(--area-display, flex);
+            align-items: center;
+            justify-content: center;
+            padding: 0 var(--layout-pad);
+            background: var(--surface-raised);
+        }
+
+        .Context {
+            grid-area: Context;
+            display: var(--context-display, flex);
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--layout-pad);
+            background: var(--surface-raised);
+        }
+
+        .Header {
+            grid-area: Header;
+            display: var(--header-display, flex);
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--layout-pad);
+            background: var(--surface-raised);
+            gap: 0.75rem;
+        }
+
+        .Sidebar {
+            grid-area: Sidebar;
+            display: var(--sidebar-display, flex);
+            flex-direction: column;
+            padding: var(--layout-pad);
+            gap: 0.5rem;
+        }
+
+        .Main {
+            grid-area: Main;
+            display: var(--main-display, flex);
+            flex-direction: column;
+            padding: var(--layout-pad);
+            gap: 0.75rem;
+            background: var(--surface-main);
+            position: relative;
+        }
+
+        .FlowerNav {
+            grid-area: FlowerNav;
+            display: var(--flowernav-display, flex);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--layout-pad);
+            background: var(--surface-raised);
+        }
+
+        .ListNav {
+            grid-area: ListNav;
+            display: var(--listnav-display, flex);
+            flex-direction: column;
+            padding: var(--layout-pad);
+            gap: 0.5rem;
+        }
+
+        .Summary {
+            grid-area: Summary;
+            display: var(--summary-display, flex);
+            flex-direction: column;
+            padding: var(--layout-pad);
+            gap: 0.5rem;
+        }
+
+        .Section {
+            grid-area: Section;
+            display: var(--section-display, flex);
+            flex-direction: column;
+            padding: var(--layout-pad);
+            gap: 0.5rem;
+        }
+
+        .Footer {
+            grid-area: Footer;
+            display: var(--footer-display, flex);
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--layout-pad);
+            background: var(--surface-sunken);
+            font-size: 0.85em;
+        }
+
+        /* ==========================================================================
+           THEME 1: SOLARIS EMBER (data-theme="solaris-ember")
+           Volcanic obsidian, magma ember accents, solar gold, warm bronze glow.
+           Original Theme 1 - NOT part of Atmosphere's built-in looks.
+           ========================================================================== */
+        :root,
+        [data-theme="solaris-ember"],
+        [data-look="solaris-ember"] {
+            --look-density: 1;
+            --face-aspect: 0.52;
+            --transition-speed: 0.35s;
+
+            /* Base Palette */
+            --bg: #0a090d;
+            --surface: #131218;
+            --surface-main: #100f14;
+            --surface-raised: #1a1822;
+            --surface-sunken: #0c0b0f;
+            --surface-hover: #242230;
+
+            /* Typography */
+            --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-display: 'Space Grotesk', sans-serif;
+
+            /* Text Tokens */
+            --text-primary: #f5f2eb;
+            --text-secondary: #aba193;
+            --text-muted: #6e6559;
+            --text-code: #fbd38d;
+
+            /* Accent Tokens */
+            --accent: #ff6b35;
+            --accent-hover: #ff8552;
+            --accent-secondary: #f7a400;
+            --accent-tertiary: #ffd166;
+            --accent-glow: rgba(255, 107, 53, 0.28);
+
+            /* Borders & Shadows */
+            --border-color: rgba(255, 107, 53, 0.18);
+            --border-subtle: rgba(255, 255, 255, 0.07);
+            --border-focus: #ff6b35;
+            --surface-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 107, 53, 0.25);
+            --glow-card: 0 0 16px rgba(255, 107, 53, 0.15);
+
+            /* Radii */
+            --radius-sm: 4px;
+            --radius-md: 7px;
+            --radius-lg: 12px;
+            --radius-pill: 9999px;
+
+            /* Visual Accents */
+            --badge-bg: rgba(255, 107, 53, 0.16);
+            --badge-text: #ff8552;
+            --badge-border: rgba(255, 107, 53, 0.35);
+            --status-ok: #10b981;
+            --status-warn: #f59e0b;
+        }
+
+        /* ==========================================================================
+           THEME 2: BOREAL AURORA (data-theme="boreal-aurora")
+           Deep sub-zero ocean, electric polar mint, crystalline cyan, cryogenic glow.
+           Original Theme 2 - NOT part of Atmosphere's built-in looks.
+           ========================================================================== */
+        [data-theme="boreal-aurora"],
+        [data-look="boreal-aurora"] {
+            --look-density: 0.95;
+            --face-aspect: 0.50;
+            --transition-speed: 0.35s;
+
+            /* Base Palette */
+            --bg: #04090e;
+            --surface: #0a1620;
+            --surface-main: #071018;
+            --surface-raised: #0f2232;
+            --surface-sunken: #050d14;
+            --surface-hover: #162f44;
+
+            /* Typography */
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            --font-display: 'Outfit', sans-serif;
+
+            /* Text Tokens */
+            --text-primary: #e2f8f6;
+            --text-secondary: #87b9b7;
+            --text-muted: #4e7777;
+            --text-code: #5eead4;
+
+            /* Accent Tokens */
+            --accent: #00f5d4;
+            --accent-hover: #38ef7d;
+            --accent-secondary: #38bdf8;
+            --accent-tertiary: #a7f3d0;
+            --accent-glow: rgba(0, 245, 212, 0.28);
+
+            /* Borders & Shadows */
+            --border-color: rgba(0, 245, 212, 0.22);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-focus: #00f5d4;
+            --surface-shadow: 0 4px 24px rgba(0, 0, 0, 0.65), 0 0 1px rgba(0, 245, 212, 0.3);
+            --glow-card: 0 0 18px rgba(0, 245, 212, 0.16);
+
+            /* Radii */
+            --radius-sm: 5px;
+            --radius-md: 9px;
+            --radius-lg: 14px;
+            --radius-pill: 9999px;
+
+            /* Visual Accents */
+            --badge-bg: rgba(0, 245, 212, 0.15);
+            --badge-text: #00f5d4;
+            --badge-border: rgba(0, 245, 212, 0.35);
+            --status-ok: #00f5d4;
+            --status-warn: #fbbf24;
+        }
+
+        /* ==========================================================================
+           INTERNAL COMPONENT STYLING & SEMANTIC DATA ROLES
+           ========================================================================== */
+        
+        /* Typography Elements */
+        h1, h2, h3, h4 {
+            font-family: var(--font-display);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+        h1 { font-size: 1.15rem; }
+        h2 { font-size: 1.05rem; }
+        h3 { font-size: 0.95rem; }
+
+        /* Links & Buttons */
+        a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+        a:hover {
+            color: var(--accent);
+        }
+
+        button {
+            font-family: var(--font-sans);
+            font-size: 0.82rem;
+            font-weight: 500;
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--surface-raised);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all 0.15s ease;
+        }
+        button:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Controls & Theme Switcher */
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .theme-toggle-btn {
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            color: var(--text-secondary);
+        }
+        .theme-toggle-btn[aria-pressed="true"] {
+            background: var(--badge-bg);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .density-toggle-btn {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+        }
+        .density-toggle-btn[aria-pressed="true"] {
+            background: var(--badge-bg);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Area & Context Badges */
+        .area-badge {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.25rem 0.55rem;
+            border-radius: var(--radius-sm);
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            border: 1px solid var(--badge-border);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--status-ok);
+            box-shadow: 0 0 6px var(--status-ok);
+        }
+
+        /* Main Navigation */
+        #mainHorzMenu ul {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        #mainHorzMenu a {
+            font-weight: 500;
+            font-size: 0.88rem;
+        }
+        #mainHorzMenu a.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Search Bar */
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--surface-sunken);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 0.25rem 0.6rem;
+            font-size: 0.82rem;
+        }
+        .search-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+        .search-box input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            width: 130px;
+        }
+        .search-box kbd {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            background: var(--surface-raised);
+            border: 1px solid var(--border-subtle);
+            border-radius: 3px;
+            padding: 0.1rem 0.3rem;
+            color: var(--text-muted);
+        }
+
+        /* Sidebar & Tree View */
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        .tree-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            overflow-y: auto;
+        }
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .tree-item:hover {
+            background: var(--surface-hover);
+            color: var(--text-primary);
+        }
+        .tree-item.active {
+            background: var(--badge-bg);
+            color: var(--accent);
+            border: 1px solid var(--badge-border);
+        }
+
+        /* Editor & Code Mock */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            background: var(--surface-sunken);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+        .editor-tabs {
+            display: flex;
+            background: var(--surface-raised);
+            border-bottom: 1px solid var(--border-subtle);
+            overflow-x: auto;
+        }
+        .editor-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.8rem;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            border-right: 1px solid var(--border-subtle);
+            cursor: pointer;
+        }
+        .editor-tab.active {
+            background: var(--surface-sunken);
+            color: var(--text-primary);
+            border-top: 2px solid var(--accent);
+        }
+        .editor-body {
+            flex: 1;
+            padding: 0.75rem;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            line-height: 1.6;
+            overflow-y: auto;
+            color: var(--text-primary);
+        }
+        .editor-body pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .code-keyword { color: var(--accent); font-weight: 600; }
+        .code-string { color: var(--text-code); }
+        .code-comment { color: var(--text-muted); font-style: italic; }
+        .code-func { color: var(--accent-secondary); }
+
+        /* Flower / Radial Nav Hub */
+        .flower-hub {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.4rem;
+            width: 100%;
+            max-width: 180px;
+        }
+        .flower-node {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .flower-node:hover, .flower-node.center {
+            background: var(--badge-bg);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Metric & Telemetry Cards */
+        .metric-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            background: var(--surface-sunken);
+            border: 1px solid var(--border-subtle);
+        }
+        .metric-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .metric-val {
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        #statusReadout { color: var(--status-ok); }
+        #statusReadout[data-state="warn"] { color: var(--status-warn); }
+
+        /* Interaction states (app controller) */
+        .tree-list { min-height: 0; }
+        .tree-item[hidden] { display: none; }
+        .editor-body { min-height: 0; }
+        .editor-empty { color: var(--text-muted); font-family: var(--font-sans); }
+        .code-line { display: block; border-radius: 3px; padding-left: 3.2em; text-indent: -3.2em; }
+        .code-ln {
+            display: inline-block;
+            width: 2.2em;
+            margin-right: 1em;
+            text-indent: 0;
+            text-align: right;
+            color: var(--text-muted);
+            opacity: 0.6;
+            user-select: none;
+        }
+        .code-line.current { background: var(--surface-hover); }
+        .code-line.flash { animation: line-flash 1.2s ease-out; }
+        @keyframes line-flash {
+            from { background: var(--accent-glow); box-shadow: inset 2px 0 0 var(--accent); }
+        }
+        .tab-close {
+            font-size: 0.8rem;
+            line-height: 1;
+            padding: 0 0.15rem;
+            border-radius: 3px;
+            color: var(--text-muted);
+        }
+        .tab-close:hover { color: var(--accent); background: var(--surface-hover); }
+        .tree-item:focus-visible, .editor-tab:focus-visible, .tab-close:focus-visible,
+        .flower-node:focus-visible, button:focus-visible, #mainHorzMenu a:focus-visible {
+            outline: 2px solid var(--border-focus);
+            outline-offset: -2px;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .code-line.flash { animation: none; }
+        }
+    </style>
+</head>
+<body class="Layout" data-role="surface">
+
+    <!-- 1. AREA: Project & Workspace Metadata -->
+    <div class="Area" data-role="surface" aria-label="Workspace Scope">
+        <div class="area-badge" data-role="select">
+            <span class="status-dot"></span>
+            <span>CORE::ATMOSPHERE</span>
+        </div>
+    </div>
+
+    <!-- 2. CONTEXT: Current Symbol & Environment Breadcrumb -->
+    <div class="Context" data-role="surface" aria-label="Context Bar">
+        <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-secondary);">
+            <strong id="ctxFile" style="color: var(--accent);">app.html</strong> &rsaquo; <span id="ctxScope">layout::engine</span>
+        </span>
+        <span class="area-badge" style="font-size: 0.72rem;">v2.4.0</span>
+    </div>
+
+    <!-- 3. HEADER: Navigation, Search & Theme Switcher -->
+    <header class="Header" data-role="masthead">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <h1 data-role="voice" data-breathe="land" style="display: flex; align-items: center; gap: 0.4rem;">
+                <span style="color: var(--accent);">⬡</span>
+                <span>Atmosphere IDE</span>
+            </h1>
+            <nav id="mainHorzMenu" aria-label="Main Navigation">
+                <ul>
+                    <li><a href="#" class="active" aria-current="page" data-nav="workspace">Workspace</a></li>
+                    <li><a href="atmosphere.html">Atmosphere Spec</a></li>
+                    <li><a href="README.md" data-nav="docs">Docs</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="search-box">
+            <span style="color: var(--text-muted);">🔍</span>
+            <input type="text" id="search" placeholder="Search symbols..." aria-label="Search">
+            <kbd>⌘K</kbd>
+        </div>
+
+        <!-- Interactive Look/Theme & Density Switchers -->
+        <div class="controls-group">
+            <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Theme:</span>
+            <button type="button" class="theme-toggle-btn" data-set-theme="solaris-ember" aria-pressed="true" onclick="setTheme('solaris-ember')">
+                🔥 Solaris Ember
+            </button>
+            <button type="button" class="theme-toggle-btn" data-set-theme="boreal-aurora" aria-pressed="false" onclick="setTheme('boreal-aurora')">
+                ❄️ Boreal Aurora
+            </button>
+
+            <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-left: 0.4rem;">Air:</span>
+            <button type="button" class="density-toggle-btn" data-density-val="compact" aria-pressed="false" onclick="setDensity('compact')">Compact</button>
+            <button type="button" class="density-toggle-btn" data-density-val="cozy" aria-pressed="true" onclick="setDensity('cozy')">Cozy</button>
+            <button type="button" class="density-toggle-btn" data-density-val="roomy" aria-pressed="false" onclick="setDensity('roomy')">Roomy</button>
+        </div>
+    </header>
+
+    <!-- 4. SIDEBAR: File Tree & Project Explorer -->
+    <aside class="Sidebar" data-role="surface" aria-label="File Explorer">
+        <div class="panel-header">
+            <span>Explorer</span>
+            <span>📂</span>
+        </div>
+        <ul class="tree-list" id="contextualVertMenu" role="tree" aria-label="Project files">
+            <li class="tree-item active" role="treeitem" aria-level="1" aria-selected="true" tabindex="0" data-file="app.html">📄 app.html</li>
+            <li class="tree-item" role="treeitem" aria-level="1" aria-selected="false" tabindex="0" data-file="atmosphere.html">📄 atmosphere.html</li>
+            <li class="tree-item" role="treeitem" aria-level="1" aria-expanded="true" tabindex="0" data-folder="css"><span class="tree-icon" aria-hidden="true">📂</span> css/</li>
+            <li class="tree-item" role="treeitem" aria-level="2" aria-selected="false" tabindex="0" data-parent="css" data-file="css/at.layout.css" style="padding-left: 1.2rem;">🎨 at.layout.css</li>
+            <li class="tree-item" role="treeitem" aria-level="2" aria-selected="false" tabindex="0" data-parent="css" data-file="css/at.look.css" style="padding-left: 1.2rem;">🎨 at.look.css</li>
+            <li class="tree-item" role="treeitem" aria-level="2" aria-selected="false" tabindex="0" data-parent="css" data-file="css/at.local.css" style="padding-left: 1.2rem;">🎨 at.local.css</li>
+            <li class="tree-item" role="treeitem" aria-level="1" aria-expanded="true" tabindex="0" data-folder="js"><span class="tree-icon" aria-hidden="true">📂</span> js/</li>
+            <li class="tree-item" role="treeitem" aria-level="2" aria-selected="false" tabindex="0" data-parent="js" data-file="js/atmosphere.js" style="padding-left: 1.2rem;">⚡ atmosphere.js</li>
+        </ul>
+    </aside>
+
+    <!-- 5. MAIN: Primary Code & Interaction Workspace -->
+    <main class="Main" data-frame="root" data-role="surface" aria-label="Code Editor">
+        <div class="editor-container">
+            <div class="editor-tabs" role="tablist" aria-label="Open files">
+                <div class="editor-tab active">app.html <span style="font-size: 0.7rem;">&times;</span></div>
+                <div class="editor-tab">at.layout.css</div>
+                <div class="editor-tab">at.look.css</div>
+            </div>
+            <div class="editor-body" role="tabpanel" aria-label="Editor">
+<pre><code><span class="code-comment">/* Atmosphere CSS Variable Responsive Engine */</span>
+<span class="code-keyword">.Layout</span> {
+  <span class="code-func">--grid-areas</span>: <span class="code-string">"Area Header Header Context" "Sidebar ListNav Main Main" ...</span>;
+  <span class="code-func">--grid-cols</span>: <span class="code-string">minmax(120px, 10vw) minmax(180px, 20vw) minmax(0, 1fr) ...</span>;
+  <span class="code-func">--layout-gap</span>: <span class="code-string">calc(0.55rem * var(--density-scale, 1))</span>;
+  
+  <span class="code-keyword">display</span>: grid;
+  <span class="code-keyword">grid-template-areas</span>: <span class="code-func">var</span>(--grid-areas);
+  <span class="code-keyword">grid-template-columns</span>: <span class="code-func">var</span>(--grid-cols);
+}
+
+<span class="code-comment">/* Original Themes: Solaris Ember & Boreal Aurora */</span>
+<span class="code-keyword">[data-theme="solaris-ember"]</span> { <span class="code-func">--accent</span>: <span class="code-string">#ff6b35</span>; <span class="code-func">--bg</span>: <span class="code-string">#0a090d</span>; }
+<span class="code-keyword">[data-theme="boreal-aurora"]</span>  { <span class="code-func">--accent</span>: <span class="code-string">#00f5d4</span>; <span class="code-func">--bg</span>: <span class="code-string">#04090e</span>; }</code></pre>
+            </div>
+        </div>
+    </main>
+
+    <!-- 6. FLOWER NAV: Radial Navigation Compass (Mobile & Tablet) -->
+    <div class="FlowerNav" data-role="surface" aria-label="Radial Compass Nav">
+        <div class="panel-header" style="width: 100%; text-align: center; margin-bottom: 0.5rem;">
+            <span>Compass</span>
+        </div>
+        <div class="flower-hub">
+            <div class="flower-node" role="button" tabindex="0" data-dir="NW">NW</div>
+            <div class="flower-node" role="button" tabindex="0" data-dir="N">N</div>
+            <div class="flower-node" role="button" tabindex="0" data-dir="NE">NE</div>
+            <div class="flower-node" role="button" tabindex="0" data-dir="W">W</div>
+            <div class="flower-node center" role="button" tabindex="0" data-dir="home">⬡</div>
+            <div class="flower-node" role="button" tabindex="0" data-dir="E">E</div>
+            <div class="flower-node" role="button" tabindex="0" data-dir="SW">SW</div>
+            <div class="flower-node" role="button" tabindex="0" data-dir="S">S</div>
+            <div class="flower-node" role="button" tabindex="0" data-dir="SE">SE</div>
+        </div>
+    </div>
+
+    <!-- 7. LIST NAV: Outline & Symbol Index -->
+    <div class="ListNav" data-role="surface" aria-label="Symbol Outline">
+        <div class="panel-header">
+            <span>Symbols</span>
+            <span>📑</span>
+        </div>
+        <ul class="tree-list" id="symbolList" aria-label="Symbols">
+            <li class="tree-item" role="button" tabindex="0" data-symbol=".Layout">◈ .Layout</li>
+            <li class="tree-item" role="button" tabindex="0" data-symbol="--grid-areas">◇ --grid-areas</li>
+            <li class="tree-item" role="button" tabindex="0" data-symbol="--layout-gap">◇ --layout-gap</li>
+            <li class="tree-item" role="button" tabindex="0" data-symbol="--layout-pad">◇ --layout-pad</li>
+            <li class="tree-item" role="button" tabindex="0" data-symbol="setTheme">◈ setTheme()</li>
+            <li class="tree-item" role="button" tabindex="0" data-symbol="setDensity">◈ setDensity()</li>
+            <li class="tree-item" role="button" tabindex="0" data-symbol="fullscreen">◈ fullscreen()</li>
+        </ul>
+    </div>
+
+    <!-- 8. SUMMARY: Diagnostics & Inspector -->
+    <section class="Summary" data-role="surface" aria-label="Diagnostics Summary">
+        <div class="panel-header">
+            <span>Inspector &amp; Metrics</span>
+            <span>⚡</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;">
+            <div class="metric-card">
+                <span class="metric-label">Breakpoints</span>
+                <span class="metric-val" id="activeBreakpoint">Desktop</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Engine</span>
+                <span class="metric-val">CSS Vars</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Active Look</span>
+                <span class="metric-val" id="activeLookReadout" style="font-size: 0.78rem;">Solaris Ember</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Status</span>
+                <span class="metric-val" id="statusReadout" aria-live="polite">Clean 0 err</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. SECTION: Telemetry & Profiler (TV / Ultra-wide >= 1601px) -->
+    <section class="Section" data-role="surface" aria-label="Live Telemetry">
+        <div class="panel-header">
+            <span>Live Profiler</span>
+            <span>📊</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div class="metric-card">
+                <span class="metric-label">Frame Budget</span>
+                <span class="metric-val">60 fps (16.6ms)</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Memory Footprint</span>
+                <span class="metric-val">2.4 MB</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Active Sheets</span>
+                <span class="metric-val">Layout &times; Look</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. FOOTER: Status Line & Fullscreen Controller -->
+    <footer class="Footer" data-role="surface">
+        <div style="display: flex; align-items: center; gap: 1rem; color: var(--text-muted);">
+            <span>🌿 <strong style="color: var(--text-secondary);">main</strong></span>
+            <span>UTF-8</span>
+            <span id="cursorPos">Ln 1, Col 1</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="color: var(--text-muted);">&copy; 2026 MENTIC LLC</span>
+            <button type="button" onclick="fullscreen(this);" title="Toggle Fullscreen" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                🖥️ <span id="fsText">Fullscreen</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Atmosphere App Controller -->
+    <script>
+    function setTheme(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        document.documentElement.setAttribute('data-look', themeName);
+        document.body.setAttribute('data-theme', themeName);
+        document.body.setAttribute('data-look', themeName);
+
+        // Update Theme buttons aria-pressed
+        document.querySelectorAll('[data-set-theme]').forEach(btn => {
+            const isMatch = btn.getAttribute('data-set-theme') === themeName;
+            btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        });
+
+        // Update readout
+        const readout = document.getElementById('activeLookReadout');
+        if (readout) {
+            readout.textContent = themeName === 'solaris-ember' ? 'Solaris Ember' : 'Boreal Aurora';
+        }
+    }
+
+    function setDensity(densityName) {
+        document.documentElement.setAttribute('data-density', densityName);
+        document.body.setAttribute('data-density', densityName);
+
+        document.querySelectorAll('[data-density-val]').forEach(btn => {
+            const isMatch = btn.getAttribute('data-density-val') === densityName;
+            btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        });
+    }
+
+    function updateBreakpointReadout() {
+        const w = window.innerWidth;
+        const bp = document.getElementById('activeBreakpoint');
+        if (!bp) return;
+        if (w <= 600) bp.textContent = 'Phone (<600px)';
+        else if (w <= 1024) bp.textContent = 'Tablet (<1024px)';
+        else if (w <= 1600) bp.textContent = 'Desktop (<1600px)';
+        else bp.textContent = 'TV (1601px+)';
+    }
+
+    window.addEventListener('resize', updateBreakpointReadout);
+    document.addEventListener('DOMContentLoaded', updateBreakpointReadout);
+
+    function fullscreen(src) {
+        const fsText = document.getElementById('fsText');
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+            if (fsText) fsText.textContent = 'Fullscreen';
+        } else {
+            document.documentElement.requestFullscreen();
+            if (fsText) fsText.textContent = 'Exit Fullscreen';
+        }
+    }
+
+    /* ======================================================================
+       WORKSPACE CONTROLLER: explorer, tabs, editor, symbols, search, compass.
+       Excerpts are embedded (no fetch) so the demo works from file://.
+       ====================================================================== */
+    const FILES = {
+        'app.html': { lang: 'html', scope: 'layout::engine', text: `
+/* --- 2. DENSITY & SIZE SCALES --- */
+[data-density="cozy"] {
+    --density-scale: 1;
+    --layout-gap: calc(0.55rem * var(--density-scale, 1) * var(--look-density, 1));
+    --layout-pad: calc(0.85rem * var(--density-scale, 1) * var(--look-density, 1));
+}
+
+.Layout {
+    --grid-areas:
+        "Area Header Header Context"
+        "Sidebar ListNav Main Main"
+        "Sidebar ListNav Summary Summary"
+        "Footer Footer Footer Footer";
+    --grid-cols: minmax(110px, 10vw) minmax(180px, 20vw) minmax(0, 1fr) minmax(180px, 20vw);
+    display: grid;
+    grid-template-areas: var(--grid-areas);
+    gap: var(--layout-gap);
+    padding: var(--layout-gap);
+}
+
+<script>
+function setTheme(themeName) {
+    document.documentElement.setAttribute('data-theme', themeName);
+    document.documentElement.setAttribute('data-look', themeName);
+}
+function setDensity(densityName) {
+    document.documentElement.setAttribute('data-density', densityName);
+    btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+}
+function fullscreen(src) {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+}
+<\/script>` },
+        'atmosphere.html': { lang: 'html', scope: 'lab::document', text: `
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive laboratory for Atmosphere's Layout, Lattice, Layer, Look, Life, and Lens CSS architecture.">
+    <meta name="theme-color" content="#0d1b3e" id="theme-color-meta">
+    <title>Atmosphere &mdash; Layout, Lattice, Layer, Look, Life, &amp; Lens</title>
+</head>
+<body class="Layout" data-layout="default" data-lattice="continuous" data-layer="inline" data-look="blueprint" …>
+
+<header class="Header" data-role="masthead">
+    <div class="brand-block theme-box">
+        <div class="brand-line">
+            <span class="brand-kicker" data-role="voice">Layout &middot; Lattice &middot; Layer &middot; Look &middot; Life &middot; Lens</span>
+            <span class="viewport-label">phone / tablet / desk / TV</span>
+        </div>
+        <h1 class="title-text" data-role="voice">Atmosphere</h1>
+        <nav class="site-nav" aria-label="Atmosphere documentation">
+            <a href="tutorial.html">Tutorial</a>
+            <a href="atmosphere.html" aria-current="page">Laboratory</a>` },
+        'css/at.layout.css': { lang: 'css', scope: 'layout::plan', text: `
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.layout.css - which frames exist, and where they sit */
+
+/* --- RESPONSIVE LAYOUT ENGINE USING CSS VARIABLES --- */
+.Layout {
+    --layout-gap: calc(clamp(0.75rem, 2vw, 1.5rem) * var(--density-scale, 1) * var(--look-density, 1));
+    --layout-pad: calc(clamp(1rem, 3vw, 2.5rem) * var(--density-scale, 1) * var(--look-density, 1));
+    --sidebar-size: clamp(13rem, 22vw, 42rem);
+    --utility-size: clamp(12rem, 20vw, 20rem);
+    --content-max: 84rem;
+
+    --grid-areas:
+        "Header"
+        "Main"
+        "Sidebar"
+        "UtilityRail"
+        "Footer";
+    --grid-cols: minmax(0, 1fr);
+    --grid-rows: auto 1fr auto auto auto;
+
+    min-height: 100svh;
+    display: grid;
+    grid-template-areas: var(--grid-areas);
+    grid-template-columns: var(--grid-cols);
+    grid-template-rows: var(--grid-rows);
+}` },
+        'css/at.look.css': { lang: 'css', scope: 'look::contract', text: `
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.look.css - colour, typography, texture */
+
+/*
+ * ============================ THE LOOK CONTRACT ============================
+ *
+ * A look MAY paint: colour, font, background, border, shadow, filter, and its
+ * own decorative surface layer. That is the whole job.
+ *
+ * A look MAY NOT:
+ *   - set position / overflow / display / padding on a page REGION
+ *       -> Layout, Lattice, and Layer own geometry and scrolling.
+ */
+
+:root {
+  --frame-border-color: var(--accent);
+  --frame-border-width: 2px;
+  --frame-border-radius: 6px;
+  --frame-border-style: solid;
+  --face-aspect: 0.55;
+  --haze: var(--bg, #000);
+}` },
+        'css/at.local.css': { lang: 'css', scope: 'local::contract', text: `
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.local.css - quantity at the call site */
+
+/*
+ * A local sets the QUANTITY of something an axis already defines -- how many
+ * columns, how many units of space, which depth plane.
+ */
+
+[data-gap="none"]  { gap: 0; }
+[data-gap="tight"] { gap: calc(var(--layout-gap, 1rem) * 0.25); }
+[data-gap="close"] { gap: calc(var(--layout-gap, 1rem) * 0.5); }
+[data-gap="even"]  { gap: var(--layout-gap, 1rem); }
+[data-gap="open"]  { gap: calc(var(--layout-gap, 1rem) * 1.5); }
+[data-gap="wide"]  { gap: calc(var(--layout-gap, 1rem) * 2); }
+
+[data-pad="none"]  { padding: 0; }
+[data-pad="tight"] { padding: calc(var(--layout-pad, 1rem) * 0.25); }
+[data-pad="close"] { padding: calc(var(--layout-pad, 1rem) * 0.5); }
+[data-pad="even"]  { padding: var(--layout-pad, 1rem); }
+[data-pad="open"]  { padding: calc(var(--layout-pad, 1rem) * 1.5); }
+[data-pad="wide"]  { padding: calc(var(--layout-pad, 1rem) * 2); }` },
+        'js/atmosphere.js': { lang: 'js', scope: 'controller::axes', text: `
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/*
+ * atmosphere.js - composition controller
+ */
+
+function setAxisAttribute(axis, value, drawer, method) {
+  if (drawer && method && typeof drawer[method] === 'function') {
+    drawer[method](value, { emit: false });
+    return;
+  }
+  document.documentElement.setAttribute('data-' + axis, value);
+  document.body.setAttribute('data-' + axis, value);
+  const storageKey = {
+    'scroll-flow': 'selectedScrollFlow',
+    'inout-flow': 'selectedInoutFlow',
+    size: 'selected-size',
+    tabs: 'selected-tabs',
+    lens: 'selected-lens'
+  }[axis] || ('selected' + axis.charAt(0).toUpperCase() + axis.slice(1));
+  try {
+    localStorage.setItem(storageKey, value);
+  } catch (e) {}
+}` },
+        'README.md': { lang: 'md', scope: 'docs::readme', text: `
+# @mosphere
+
+**Describe the meaning once. Compose how people encounter it.**
+
+Atmosphere is a design methodology and reference implementation for interfaces
+whose presentation can change while their meaning and working state remain
+coherent. Reading, dashboards, panels, and slides are possible compositions of
+shared structure and behavior.
+
+HTML describes what exists. CSS resolves how it relates under current
+conditions. JavaScript connects actions to changes. SVG describes explicit
+visual geometry.
+
+## Start with the vision
+
+1. Read [Why Atmosphere](./docs/WHY-ATMOSPHERE.md) for the philosophy,
+   synthesis, and trade-offs.
+2. Explore [\`atmosphere.html\`](./atmosphere.html) for the working laboratory,
+   including frames with their own traversal inside projected panels.` }
+    };
+    Object.values(FILES).forEach(f => { f.lines = f.text.replace(/^\n/, '').split('\n'); });
+
+    /* Symbol -> text that marks its defining line. */
+    const SYMBOLS = {
+        '.Layout': '.Layout {',
+        '--grid-areas': '--grid-areas:',
+        '--layout-gap': '--layout-gap:',
+        '--layout-pad': '--layout-pad:',
+        'setTheme': 'function setTheme',
+        'setDensity': 'function setDensity',
+        'fullscreen': 'function fullscreen'
+    };
+
+    const state = { open: ['app.html', 'css/at.layout.css', 'css/at.look.css'], active: 'app.html', symbol: null, query: '', hits: 0 };
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const baseName = path => path.split('/').pop();
+    const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const escapeHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const span = (cls, s) => '<span class="' + cls + '">' + escapeHtml(s) + '</span>';
+
+    /* Tiny line painter: comments, strings, custom properties, JS keywords, CSS selectors. */
+    /* "\x3C!--" spells an HTML comment opener without putting one inside this script element. */
+    const TOKEN = /(\/\*.*?(?:\*\/|$)|\x3C!--.*?(?:-->|$)|\/\/.*$)|("[^"]*"|'[^']*')|(--[\w-]+)|\b(function|const|let|return|if|else|typeof|try|catch)\b|(^\s*[.\[:][^{;]*?(?=\s*\{))/g;
+    function paintLine(raw, lang, st) {
+        if (lang === 'md') return /^#/.test(raw) ? span('code-keyword', raw) : escapeHtml(raw);
+        let out = '', rest = raw;
+        if (st.close) {
+            const end = raw.indexOf(st.close);
+            if (end < 0) return span('code-comment', raw);
+            out = span('code-comment', raw.slice(0, end + st.close.length));
+            rest = raw.slice(end + st.close.length);
+            st.close = null;
+        }
+        let last = 0;
+        rest.replace(TOKEN, (m, comment, str, prop, kw, sel, idx) => {
+            out += escapeHtml(rest.slice(last, idx));
+            if (comment) {
+                out += span('code-comment', m);
+                if (m.startsWith('/*') && !m.endsWith('*/')) st.close = '*/';
+                else if (m.startsWith('\x3C!--') && !m.endsWith('-->')) st.close = '-->';
+            } else if (str) out += span('code-string', m);
+            else if (prop) out += span('code-func', m);
+            else out += span('code-keyword', m);
+            last = idx + m.length;
+            return m;
+        });
+        return out + escapeHtml(rest.slice(last));
+    }
+
+    /* Scroll an element into the middle of its own scroller without moving the page grid. */
+    function scrollWithin(container, el, center) {
+        if (!container || !el) return;
+        const c = container.getBoundingClientRect(), r = el.getBoundingClientRect();
+        let top = container.scrollTop + (r.top - c.top);
+        if (center) top -= (container.clientHeight - r.height) / 2;
+        else if (r.top >= c.top && r.bottom <= c.bottom) return;
+        container.scrollTo({ top: Math.max(0, top), behavior: reducedMotion() ? 'auto' : 'smooth' });
+    }
+
+    function setCursor(ln, col) {
+        const el = $('#cursorPos');
+        if (el) el.textContent = 'Ln ' + ln + ', Col ' + col;
+    }
+
+    function setContext(scope) {
+        $('#ctxFile').textContent = state.active ? baseName(state.active) : 'no file';
+        $('#ctxScope').textContent = scope || (state.active ? FILES[state.active].scope : 'workspace');
+    }
+
+    function updateStatus() {
+        const el = $('#statusReadout');
+        if (!el) return;
+        if (state.query) {
+            el.textContent = state.hits + (state.hits === 1 ? ' match' : ' matches');
+            el.dataset.state = state.hits ? 'ok' : 'warn';
+        } else {
+            el.textContent = 'Clean · ' + state.open.length + ' open';
+            el.dataset.state = 'ok';
+        }
+    }
+
+    function renderTabs() {
+        const bar = $('.editor-tabs');
+        const hadFocus = bar.contains(document.activeElement);
+        bar.innerHTML = state.open.map(path => {
+            const on = path === state.active, name = escapeHtml(baseName(path));
+            return '<div class="editor-tab' + (on ? ' active' : '') + '" role="tab" tabindex="0" aria-selected="' + on +
+                '" data-file="' + escapeHtml(path) + '" title="' + escapeHtml(path) + '">' + name +
+                ' <span class="tab-close" role="button" tabindex="0" aria-label="Close ' + name + '">&times;</span></div>';
+        }).join('');
+        const active = $('.editor-tab.active', bar);
+        if (hadFocus && active) active.focus();
+        if (active) active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+
+    function renderEditor() {
+        const body = $('.editor-body');
+        const file = FILES[state.active];
+        if (!file) {
+            body.innerHTML = '<p class="editor-empty">No file open. Pick one in the Explorer.</p>';
+            return;
+        }
+        const st = {};
+        body.innerHTML = '<pre><code>' + file.lines.map((line, i) =>
+            '<span class="code-line" data-line="' + (i + 1) + '"><span class="code-ln" aria-hidden="true">' + (i + 1) +
+            '</span><span class="code-text">' + (paintLine(line, file.lang, st) || ' ') + '</span></span>'
+        ).join('') + '</code></pre>';
+        body.scrollTop = 0;
+    }
+
+    function syncExplorer() {
+        $$('#contextualVertMenu [data-file]').forEach(item => {
+            const on = item.dataset.file === state.active;
+            item.classList.toggle('active', on);
+            item.setAttribute('aria-selected', on ? 'true' : 'false');
+            if (on && item.dataset.parent) {
+                const folder = $('#contextualVertMenu [data-folder="' + item.dataset.parent + '"]');
+                if (folder && folder.getAttribute('aria-expanded') !== 'true') toggleFolder(folder, true);
+            }
+            if (on) scrollWithin($('#contextualVertMenu'), item, false);
+        });
+    }
+
+    function syncSymbols() {
+        $$('#symbolList [data-symbol]').forEach(item => item.classList.toggle('active', item.dataset.symbol === state.symbol));
+    }
+
+    function refresh(scope) {
+        renderTabs();
+        renderEditor();
+        syncExplorer();
+        syncSymbols();
+        setContext(scope);
+        setCursor(1, 1);
+        updateStatus();
+    }
+
+    function openFile(path) {
+        if (!FILES[path]) return;
+        if (!state.open.includes(path)) state.open.push(path);
+        if (path !== state.active) state.symbol = null;
+        state.active = path;
+        refresh();
+    }
+
+    function closeFile(path) {
+        const i = state.open.indexOf(path);
+        if (i < 0) return;
+        state.open.splice(i, 1);
+        if (state.active === path) {
+            state.active = state.open[Math.min(i, state.open.length - 1)] || null;
+            state.symbol = null;
+        }
+        refresh();
+    }
+
+    function toggleFolder(folder, open) {
+        const expanded = typeof open === 'boolean' ? open : folder.getAttribute('aria-expanded') !== 'true';
+        folder.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        const icon = $('.tree-icon', folder);
+        if (icon) icon.textContent = expanded ? '📂' : '📁';
+        applyFilter();
+    }
+
+    function markLine(lineEl, flash) {
+        $$('.editor-body .code-line.current').forEach(el => el.classList.remove('current', 'flash'));
+        if (!lineEl) return;
+        lineEl.classList.add('current');
+        if (flash) {
+            void lineEl.offsetWidth; /* restart the animation */
+            lineEl.classList.add('flash');
+        }
+    }
+
+    function jumpToSymbol(name) {
+        const needle = SYMBOLS[name];
+        if (!needle) return;
+        const inActive = state.active && FILES[state.active].lines.some(l => l.includes(needle));
+        const path = inActive ? state.active : 'app.html';
+        if (path !== state.active) openFile(path);
+        state.symbol = name;
+        syncSymbols();
+        const idx = FILES[path].lines.findIndex(l => l.includes(needle));
+        const lineEl = $('.editor-body .code-line[data-line="' + (idx + 1) + '"]');
+        markLine(lineEl, true);
+        scrollWithin($('.editor-body'), lineEl, true);
+        setCursor(idx + 1, FILES[path].lines[idx].indexOf(needle) + 1);
+        setContext(name);
+    }
+
+    function applyFilter() {
+        const q = ($('#search').value || '').trim().toLowerCase();
+        const matches = el => el.textContent.toLowerCase().includes(q);
+        const tree = $$('#contextualVertMenu .tree-item');
+        let hits = 0;
+        tree.forEach(item => {
+            let show;
+            if (item.dataset.folder) {
+                show = !q || matches(item) || tree.some(c => c.dataset.parent === item.dataset.folder && matches(c));
+            } else if (q) {
+                show = matches(item);
+                if (show) hits++;
+            } else {
+                const folder = item.dataset.parent && $('#contextualVertMenu [data-folder="' + item.dataset.parent + '"]');
+                show = !folder || folder.getAttribute('aria-expanded') === 'true';
+            }
+            item.hidden = !show;
+        });
+        $$('#symbolList .tree-item').forEach(item => {
+            const show = !q || matches(item);
+            item.hidden = !show;
+            if (q && show) hits++;
+        });
+        state.query = q;
+        state.hits = hits;
+        updateStatus();
+    }
+
+    function visible(sel) { return $$(sel).filter(el => !el.hidden); }
+
+    function step(list, current, delta) {
+        if (!list.length) return null;
+        const i = list.indexOf(current);
+        if (i < 0) return delta > 0 ? list[0] : list[list.length - 1];
+        return list[(i + delta + list.length) % list.length];
+    }
+
+    const COMPASS = {
+        N:    ['Previous file in Explorer', () => openFile(step(visible('#contextualVertMenu [data-file]').map(el => el.dataset.file), state.active, -1))],
+        S:    ['Next file in Explorer', () => openFile(step(visible('#contextualVertMenu [data-file]').map(el => el.dataset.file), state.active, 1))],
+        W:    ['Previous tab', () => openFile(step(state.open, state.active, -1))],
+        E:    ['Next tab', () => openFile(step(state.open, state.active, 1))],
+        NW:   ['Previous symbol', () => jumpToSymbol(step(visible('#symbolList [data-symbol]').map(el => el.dataset.symbol), state.symbol, -1))],
+        NE:   ['Next symbol', () => jumpToSymbol(step(visible('#symbolList [data-symbol]').map(el => el.dataset.symbol), state.symbol, 1))],
+        SW:   ['Toggle theme', () => setTheme(document.documentElement.getAttribute('data-theme') === 'boreal-aurora' ? 'solaris-ember' : 'boreal-aurora')],
+        SE:   ['Cycle density', () => {
+            const order = ['compact', 'cozy', 'roomy'];
+            setDensity(step(order, document.documentElement.getAttribute('data-density'), 1));
+        }],
+        home: ['Back to app.html', () => openFile('app.html')]
+    };
+
+    /* Click + Enter/Space on any matching child of a container. */
+    function onActivate(container, selector, handler) {
+        if (!container) return;
+        container.addEventListener('click', e => {
+            const el = e.target.closest(selector);
+            if (el && container.contains(el)) handler(el, e);
+        });
+        container.addEventListener('keydown', e => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const el = e.target.closest(selector);
+            if (!el || el !== e.target) return;
+            e.preventDefault();
+            handler(el, e);
+        });
+    }
+
+    function initWorkspace() {
+        onActivate($('#contextualVertMenu'), '.tree-item', item => {
+            if (item.dataset.folder) toggleFolder(item);
+            else openFile(item.dataset.file);
+        });
+
+        const tabs = $('.editor-tabs');
+        onActivate(tabs, '.tab-close', (btn, e) => {
+            e.stopPropagation();
+            closeFile(btn.closest('.editor-tab').dataset.file);
+        });
+        onActivate(tabs, '.editor-tab', (tab, e) => {
+            if (e.target.closest('.tab-close')) return;
+            openFile(tab.dataset.file);
+        });
+        tabs.addEventListener('keydown', e => {
+            const tab = e.target.closest('.editor-tab');
+            if (tab && e.target === tab && e.key === 'Delete') closeFile(tab.dataset.file);
+        });
+
+        onActivate($('#symbolList'), '.tree-item', item => jumpToSymbol(item.dataset.symbol));
+
+        $$('.flower-node[data-dir]').forEach(node => {
+            const entry = COMPASS[node.dataset.dir];
+            if (entry) { node.title = entry[0]; node.setAttribute('aria-label', entry[0]); }
+        });
+        onActivate($('.flower-hub'), '.flower-node', node => {
+            const entry = COMPASS[node.dataset.dir];
+            if (entry) entry[1]();
+        });
+
+        $('#mainHorzMenu').addEventListener('click', e => {
+            const link = e.target.closest('a[data-nav]');
+            if (!link) return;
+            e.preventDefault();
+            if (link.dataset.nav === 'docs') openFile('README.md');
+            else {
+                if (!state.active) openFile('app.html');
+                const tab = $('.editor-tab.active');
+                if (tab) tab.focus();
+            }
+        });
+
+        /* Clicking a code line moves the cursor readout there. */
+        $('.editor-body').addEventListener('click', e => {
+            const line = e.target.closest('.code-line');
+            if (!line) return;
+            let col = 1;
+            const sel = window.getSelection();
+            const text = $('.code-text', line);
+            if (sel && sel.rangeCount && sel.isCollapsed && text.contains(sel.anchorNode)) {
+                const range = document.createRange();
+                range.selectNodeContents(text);
+                range.setEnd(sel.anchorNode, sel.anchorOffset);
+                col = range.toString().length + 1;
+            }
+            markLine(line, false);
+            setCursor(Number(line.dataset.line), col);
+        });
+
+        const search = $('#search');
+        search.addEventListener('input', applyFilter);
+        search.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                if (search.value) { search.value = ''; applyFilter(); }
+                else search.blur();
+            } else if (e.key === 'Enter') {
+                const first = visible('#symbolList [data-symbol]')[0] || visible('#contextualVertMenu [data-file]')[0];
+                if (!first) return;
+                if (first.dataset.symbol) jumpToSymbol(first.dataset.symbol);
+                else openFile(first.dataset.file);
+            }
+        });
+        document.addEventListener('keydown', e => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                search.focus();
+                search.select();
+            }
+        });
+
+        refresh();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initWorkspace);
+    else initWorkspace();
+    </script>
+    <atmospheric-lander floating></atmospheric-lander>
+    <script src="/atmosphere/webcomp/atmospheric-lander.js" defer></script>
+</body>
+</html>

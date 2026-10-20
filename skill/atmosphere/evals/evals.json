@@ -1,0 +1,41 @@
+{
+  "skill_name": "atmosphere",
+  "evals": [
+    {
+      "id": 1,
+      "name": "refactor-utility-class-pricing",
+      "prompt": "can you make the pricing section in evals/files/pricing atmospheric? this project doesn't have the Atmosphere sheets in it, our css prefix is app. it needs to work in a dark theme and a compact density without me editing the html each time.",
+      "expected_output": "index.html reduced to identity classes, roles, real state and locals: no utility or appearance classes (bg-gray, p-6, text-blue, grid-cols-3), no modifier classes (card--dark, card--light), no inline visual styles, and the Choose controls are real buttons with aria-pressed. CSS split into app.* concern sheets linked in order with app.local.css last. Colours live only as tokens in look profiles (at least a light and a dark one) and no profile names a component. Gap and padding come from named locals that resolve through --layout-gap / --layout-pad and move with data-density. Hover motion is written once against a role in the Life sheet and is switched off by data-life=\"still\" and prefers-reduced-motion. The script sets attributes and ARIA state only; it writes no colour. The featured plan is expressed as state or role, not as an inline transform. The reply ends with a short concern map, what was verified, and any intentional hardcodes.",
+      "files": [
+        "evals/files/pricing/index.html",
+        "evals/files/pricing/styles.css"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "new-page-on-reference-sheets",
+      "prompt": "I'd like a new page, changelog.html, next to atmosphere.html in the atmosphere folder. It should be atmospheric and use the existing sheets and controller. Three releases as sections in the main area, a guide in the sidebar that pages through 'how to read this log', and a couple of buttons that switch between reading it as an article and as a slide deck.",
+      "expected_output": "A changelog.html that links the eight at.*.css sheets in the documented order and js/atmosphere.js, with class=\"Layout\" and the axis attributes on body, a Header with data-role=\"masthead\", a .Surface outside .Main, a root frame (data-frame=\"root\" > data-track > three data-view sections, one of them the stage, with --lattice-index), and a Sidebar that is its own frame with data-lattice=\"pages\" and data-layer-panel. The switch buttons are data-compose buttons (no new click handler). No new CSS is needed beyond at most an identity class added to an existing rule; no inline visual styles; no new sheet. No existing sheet or the controller is changed in a way that affects the other pages. The reply says what was verified, including that the sibling pages were not affected.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "review-planted-violations",
+      "prompt": "is this atmospheric? we're trying to follow Atmosphere on the notices component and I want a review before it merges: evals/files/review-me (notice.html, app.look.css, app.life.css, notices.js)",
+      "expected_output": "Finds, names and gives the fix for: the numbered local data-gap=\"4\"; the inline border style and the appearance class text-lg; the modifier class notice--warning duplicating data-state=\"alert\"; a span with onclick used as a button; the look profile setting position, overflow and padding on a region; a look selector that names a Life value ([data-look][data-life]) and starts an animation nothing can stop; a raw colour inside the look's keyframes instead of a token; transform on a text role instead of --tilt and rotate; the Life sheet naming a component (.notice.is-leaving), writing colour with !important, and animating height and margin directly instead of publishing a number for Layout to spend; no still or reduced-motion cutoff for the alert shake; the script branching on the look and writing background and transition inline. It also says what is already right (roles on the surfaces, the token-driven notice paint, the role-scored hover). Findings are grouped by concern.",
+      "files": [
+        "evals/files/review-me/notice.html",
+        "evals/files/review-me/app.look.css",
+        "evals/files/review-me/app.life.css",
+        "evals/files/review-me/notices.js"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "semantic-contract-continuity",
+      "prompt": "Build a small atmospheric experiment with explanation, demonstration, editable notes, and optional evidence. It needs reading and presentation compositions without replacing its controls. Show two independent instances and use the same subject for one instance across mode changes.",
+      "expected_output": "Declares identity/kind/place/part/role/state/constraint separately; documents required and optional parts, inputs/actions, state authority, tokens and fallback. Scoped data-part selectors in light DOM or native part selectors in shadow DOM have real CSS consumers split by concern. Names repeat across independent instances; IDs remain unique. A single authored DOM tree survives composition, Look, density, and width changes with draft value, node identity, selection and usable focus retained. Optional evidence can be absent. No class encodes appearance, no duplicated mode-specific templates, no component-specific Look profile rules, no unbounded part selectors capturing nested instances.",
+      "files": []
+    }
+  ]
+}

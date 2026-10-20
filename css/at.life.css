@@ -1,0 +1,1393 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.life.css - Motion, Micro-interactions, and Transitions */
+
+/*
+ * ============================ THE LIFE CONTRACT ============================
+ *
+ * Life owns time. Keyframes, transitions, transforms, scroll-driven effects,
+ * and the transition BETWEEN two compositions. It introduces no colour, no
+ * font, no size and no position the page did not already have.
+ *
+ * Life never names a component. It scores ROLES that the markup declares, so
+ * a card added tomorrow is animated today:
+ *
+ *   [data-role="surface"]   a panel      -> how does it greet a pointer?
+ *   [data-role="select"]    a choice     -> how does choosing feel?
+ *   [data-role="voice"]     a heading    -> how does it breathe?
+ *   [data-role="reading"]   a number     -> how does it hold attention?
+ *   [data-role="masthead"]  a header     -> how does it leave the stage?
+ *   [data-state="alert"]    needs you    -> how does it ask?
+ *   [data-state="live"]     updating     -> how does it show it is awake?
+ *
+ * Life also owns two clocks that are not its own animations:
+ *
+ *   --look-motion   at.look.css gates its ambient surface texture on this.
+ *                   The material belongs to the look; whether it ticks is
+ *                   life's call, which is what makes "still" actually still.
+ *
+ *   ::view-transition  swapping any axis is a state change, and how the page
+ *                   crosses between two states is motion like any other.
+ *
+ * ==========================================================================
+ */
+
+:root {
+  /* ==========================================================================
+     1. THE DURATION PALETTE (Time Blocks)
+     ========================================================================== */
+  --motion-duration-instinct: 100ms; /* Instant feedback: hovers, clicks */
+  --motion-duration-swift:    200ms; /* Standard transitions: fades, collapses */
+  --motion-duration-flow:     300ms; /* Larger structural items: drawers, menus */
+  --motion-duration-scenic:   500ms; /* Big layout shifts, modal entries */
+
+  /* ==========================================================================
+     2. THE EASING PALETTE (The "Vibe" / Physics Curves)
+     ========================================================================== */
+  /* Linear & Standard */
+  --motion-ease-linear:   cubic-bezier(0, 0, 1, 1);
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);     /* Clean, clean flow */
+  
+  /* Bouncy / Springy (The Facebook Pop vibe) */
+  --motion-ease-spring:   cubic-bezier(0.43, 0.07, 0.2, 1.45); /* Mild pop */
+  --motion-ease-rubber:   cubic-bezier(0.5, -0.5, 0.1, 1.5);   /* Heavy wind-up & bounce */
+  
+  /* Mechanical / Aggressive (Premium, ultra-snappy tech) */
+  --motion-ease-snappy:   cubic-bezier(0.15, 0.85, 0.35, 1);   /* Decelerates violently */
+  --motion-ease-strike:   cubic-bezier(0.85, 0, 0.15, 1);      /* Fast mid-flight */
+  --motion-ease-slam:     cubic-bezier(0.16, 1.54, 0.38, 1);   /* Arrives past the mark, rebounds */
+
+  /* ==========================================================================
+     3. COMPOSITE MOTION TOKENS (Mixing the palette into a "Theme")
+     ========================================================================== */
+  /* Default Theme: Standard, Professional, Fluid */
+  --transition-interaction: var(--motion-duration-instinct) var(--motion-ease-standard);
+  --transition-element:     var(--motion-duration-swift)    var(--motion-ease-standard);
+  --transition-structural:  var(--motion-duration-flow)     var(--motion-ease-standard);
+  
+  /* Stagger delays for ordered content */
+  --motion-delay-stagger-1: 40ms;
+  --motion-delay-stagger-2: 80ms;
+  --motion-delay-stagger-3: 120ms;
+}
+
+[data-life] {
+  --life-ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --life-spring: cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  --life-accent: var(--accent, #3ad29f);
+  --look-motion: running;
+
+  /* The gain on every camera in the document. Lattice places the camera and
+     Look paints what it sees through; whether it is allowed to MOVE is the
+     same call as --look-motion, and belongs to the same file. */
+  --depth-motion: 1;
+}
+
+[data-life="hyper-tech"] {
+  --transition-interaction: var(--motion-duration-instinct) var(--motion-ease-snappy);
+  --transition-element:     var(--motion-duration-instinct) var(--motion-ease-strike);
+  --transition-structural:  var(--motion-duration-swift)    var(--motion-ease-snappy);
+}
+
+[data-life="playful"] {
+  --transition-interaction: var(--motion-duration-swift)    var(--motion-ease-spring);
+  --transition-element:     var(--motion-duration-flow)     var(--motion-ease-spring);
+  --transition-structural:  var(--motion-duration-scenic)   var(--motion-ease-rubber);
+}
+
+
+
+/* --- STILL (Static / Zero Motion) ----------------------------------- */
+/* Nothing to switch off: every score below is scoped to its own [data-life].
+   Still only has to stop the transitions other layers declare, and stop the
+   look's ambient clock. The flow rail is exempt -- it is a position readout,
+   not an animation. */
+[data-life="still"] {
+  --look-motion: paused;
+  --depth-motion: 0;
+}
+
+[data-life="still"] *:not(.flow-rail-bar) {
+  transition: none !important;
+}
+
+[data-life="still"]::view-transition-group(*),
+[data-life="still"]::view-transition-old(*),
+[data-life="still"]::view-transition-new(*) {
+  animation: none !important;
+}
+
+/* A web component keeps its internal button private, so Life crosses the
+   shadow boundary with inherited animation tokens. The drawer owns the
+   internal shape and keyframes; this sheet alone decides whether clocks run. */
+:is(atheme-drawer, atheme-tray)[heartbeat="true"] {
+  --atheme-tab-heartbeat: atheme-tab-heartbeat 1.8s ease-in-out infinite;
+}
+
+:is(atheme-drawer, atheme-tray)[flap="true"] {
+  --atheme-tab-flap: atheme-tab-flap 5s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+
+/* --- SHARED KEYFRAME LIBRARY ---------------------------------------- */
+/* Rotations fold in var(--tilt) so a look's tilt survives being animated;
+   on anything without a tilt it resolves to 0deg. */
+
+@keyframes life-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0.5rem color-mix(in srgb, var(--life-accent) 30%, transparent);
+    scale: 1;
+  }
+  50% {
+    box-shadow: 0 0 1.4rem color-mix(in srgb, var(--life-accent) 70%, transparent);
+    scale: 1.015;
+  }
+}
+
+@keyframes life-breathe-opacity {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+@keyframes life-attention-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--life-accent) 55%, transparent); }
+  70% { box-shadow: 0 0 0 0.7rem color-mix(in srgb, var(--life-accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--life-accent) 0%, transparent); }
+}
+
+@keyframes life-blink {
+  0%, 44% { opacity: 1; }
+  50%, 94% { opacity: 0.25; }
+  100% { opacity: 1; }
+}
+
+@keyframes life-wiggle-keyframes {
+  0%, 100% { rotate: var(--tilt, 0deg); }
+  25% { rotate: calc(var(--tilt, 0deg) - 2.5deg); scale: 1.02; }
+  75% { rotate: calc(var(--tilt, 0deg) + 2.5deg); scale: 1.02; }
+}
+
+@keyframes life-bounce-badge {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -4px; }
+}
+
+@keyframes life-shake {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -4px 0; rotate: calc(var(--tilt, 0deg) - 1deg); }
+  40% { translate: 4px 0; rotate: calc(var(--tilt, 0deg) + 1deg); }
+  60% { translate: -2px 0; }
+  80% { translate: 2px 0; }
+}
+
+@keyframes life-float-3d {
+  0%, 100% { transform: translateY(0) rotateX(0deg); }
+  50% { transform: translateY(-6px) rotateX(2deg); }
+}
+
+@keyframes life-glitch-jitter {
+  0%, 100% { translate: 0 0; }
+  20% { translate: -2px 1px; }
+  40% { translate: 2px -1px; }
+  60% { translate: -1px -1px; }
+  80% { translate: 1px 2px; }
+}
+
+@keyframes life-scanline-flicker {
+  0%, 100% { opacity: 0.96; }
+  50% { opacity: 1; }
+  52% { opacity: 0.88; }
+  54% { opacity: 1; }
+}
+
+@keyframes life-drop-in {
+  from { opacity: 0; translate: 0 2.5rem; scale: 0.97; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+@keyframes life-fly-in {
+  from { opacity: 0; translate: 6vw 0; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* Depth by rate. The amplitude is not a constant here -- it is --depth-drift
+   multiplied by how far from the glass the element sits, so two planes moving
+   through the same scroll cover different distances. That difference IS the
+   effect; a single shared amplitude, however large, is just a wobble. */
+@keyframes life-plane-drift {
+  from { translate: 0 calc(var(--depth) * var(--depth-drift) * -1); }
+  to   { translate: 0 calc(var(--depth) * var(--depth-drift)); }
+}
+
+@keyframes life-plane-drift-inline {
+  from { translate: calc(var(--depth) * var(--depth-drift) * -1) 0; }
+  to   { translate: calc(var(--depth) * var(--depth-drift)) 0; }
+}
+
+/* The furthest plane on the page is the one nobody thinks of as an element:
+   the painted canvas behind everything. It has room to move that a card in a
+   grid track never has, which is why it carries most of the effect. */
+@keyframes life-surface-drift {
+  from { background-position: 50% calc(50% - 9vh); }
+  to   { background-position: 50% calc(50% + 9vh); }
+}
+
+@keyframes life-parallax-lead {
+  from { translate: 0 2.25rem; opacity: 0.35; }
+  to { translate: 0 -0.75rem; opacity: 1; }
+}
+
+@keyframes life-hue-shimmer {
+  0%, 100% { filter: hue-rotate(-14deg); }
+  50% { filter: hue-rotate(14deg); }
+}
+
+@keyframes life-hue-cycle {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+@keyframes life-marquee {
+  from { translate: 0 0; }
+  to { translate: -0.6em 0; }
+}
+
+@keyframes life-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes life-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Header Fold is two scores that have to agree with a third thing neither of
+   them can see: the page's own travel.
+
+   The masthead's row stays where Layout put it and stays pinned, so the
+   content below it arrives at the top edge on a straight line -- one pixel of
+   scroll for one pixel of rise. The box therefore has to close on that same
+   straight line, or its bottom edge and the content's top edge drift apart:
+   a rotateX through a perspective closes on a curve, which leaves the box
+   hanging over the content early in the fold and a band of bare background
+   under it late in the fold. So the BOX does exactly one thing, linearly,
+   and the range is its own height -- scaleY(1 - progress) is scroll travel
+   expressed as a height, and the two edges stay together at every offset.
+
+   The fold's character lives in the copy instead, which is what the copy
+   score was always for: it keeps the perspective, the rotation, the skew and
+   the blur, and it is under no obligation to be linear about any of them.
+
+   The root-scroll version adds one term the stationary version omits: it
+   translates by the exact length of its own range, cancelling the document's
+   travel so the top edge holds still where Layout has not pinned it. */
+@keyframes life-header-fold-root {
+  0% {
+    translate: 0 0;
+    transform: scaleY(1);
+  }
+  100% {
+    translate: 0 var(--header-fold-travel);
+    transform: scaleY(0);
+  }
+}
+
+@keyframes life-header-fold-stationary {
+  0% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(0);
+  }
+}
+
+/* In a page-budget Lattice the masthead's row is not travelled past -- the
+   page is one viewport tall and .Main scrolls inside it -- so a box that only
+   LOOKS closed leaves its row standing empty. The row is Layout's, and Life
+   may not resize it; what Life can do is say how open the masthead is and let
+   Layout spend that on the track. 1 is fully present, 0 is gone. It runs on
+   the same clock, over the same range, as linearly as the box's own scaleY,
+   so the track's bottom edge and the box's bottom edge are one line at every
+   offset. Registered, because an untyped custom property cannot interpolate;
+   inherited, because the rails beside the masthead spend it too. */
+@property --masthead-open {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@keyframes life-masthead-close {
+  0% { --masthead-open: 1; }
+  100% { --masthead-open: 0; }
+}
+
+/* The box supplies the collapse, so the copy no longer has to squash itself
+   flat on top of it -- it only has to leave, on the z-axis, out of focus. It
+   carries its own perspective now that the masthead's transform is plane. */
+@keyframes life-header-copy-fold {
+  0%, 16% {
+    transform: perspective(70rem) rotateX(0deg) translateZ(0) scaleY(1) skewX(0deg);
+    filter: blur(0);
+    opacity: 1;
+  }
+  58% {
+    transform: perspective(70rem) rotateX(-30deg) translateY(-0.3rem) translateZ(1.25rem)
+               scaleY(0.94) skewX(-3deg);
+    filter: blur(0.15px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: perspective(70rem) rotateX(-86deg) translateY(-0.9rem) translateZ(-2rem)
+               scaleY(0.6) skewX(-12deg);
+    filter: blur(1.5px);
+    opacity: 0;
+  }
+}
+
+@keyframes life-header-fold-enter {
+  from { opacity: 0; transform: perspective(70rem) rotateX(-9deg) scaleY(0.92); }
+  to { opacity: 1; transform: perspective(70rem) rotateX(0deg) scaleY(1); }
+}
+
+/* ==================================================================== */
+/* PULSE - gentle breathing, ambient glow, a calm lift on hover          */
+/* ==================================================================== */
+
+[data-life="pulse"] [data-role="surface"],
+[data-life="pulse"] [data-role="select"] {
+  transition:
+    translate 0.35s var(--life-ease),
+    box-shadow 0.35s var(--life-ease);
+}
+
+[data-life="pulse"] [data-role="surface"]:hover {
+  translate: 0 -3px;
+  box-shadow: 0 0.75rem 1.5rem color-mix(in srgb, var(--life-accent) 25%, transparent);
+}
+
+[data-life="pulse"] [data-role="select"]:hover {
+  translate: 0 -1px;
+}
+
+[data-life="pulse"] [data-role="select"][aria-pressed="true"],
+[data-life="pulse"] [data-role="reading"] {
+  animation: life-pulse-glow 3.2s ease-in-out infinite;
+}
+
+[data-life="pulse"] [data-state="alert"] {
+  animation: life-attention-ring 2.4s ease-out infinite;
+}
+
+[data-life="pulse"] [data-state="live"] .status-dot {
+  animation: life-blink 1.8s ease-in-out infinite;
+}
+
+[data-life="pulse"] [data-role="voice"] {
+  animation: life-breathe-opacity 4s ease-in-out infinite;
+}
+
+/* ==================================================================== */
+/* WIGGLE - playful, bouncy, slightly impatient                          */
+/* ==================================================================== */
+
+[data-life="wiggle"] [data-role="surface"]:hover,
+[data-life="wiggle"] [data-role="select"]:hover {
+  animation: life-wiggle-keyframes 0.4s ease-in-out;
+}
+
+[data-life="wiggle"] [data-role="select"][aria-pressed="true"],
+[data-life="wiggle"] .viewport-icon {
+  animation: life-bounce-badge 2s var(--life-spring) infinite;
+}
+
+[data-life="wiggle"] [data-state="alert"] {
+  animation: life-shake 2.6s ease-in-out infinite;
+}
+
+[data-life="wiggle"] [data-state="live"] .status-dot {
+  animation: life-bounce-badge 0.9s ease-in-out infinite;
+}
+
+[data-life="wiggle"] [data-role="voice"] {
+  transform-origin: left center;
+  animation: life-bounce-badge 5s ease-in-out infinite;
+}
+
+/* ==================================================================== */
+/* 3D - perspective, elevation, physical depth                           */
+/* ==================================================================== */
+
+/* Perspective lives on .Main, not the root: putting it on <body> would make
+   the body a containing block and drag every position:fixed overlay with it. */
+[data-life="3d"] .Main {
+  perspective: 1200px;
+}
+
+/* [data-cols] IS the role here -- "a collection laid out in tracks" -- so a
+   grid added tomorrow is in the scene today. This used to be a hand-kept list
+   of four class names, and it was already wrong: .layer-grid is five cards in
+   a grid and it stayed flat in 3D mode because nobody remembered to add it.
+   The named survivors are the ones that are not track collections yet. */
+[data-life="3d"] [data-cols],
+[data-life="3d"] .hero-split,
+[data-life="3d"] .life-grid,
+[data-life="3d"] .layout-pair {
+  transform-style: preserve-3d;
+}
+
+[data-life="3d"] [data-role="surface"],
+[data-life="3d"] [data-role="select"] {
+  transition:
+    transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+    box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transform-style: preserve-3d;
+  box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.22);
+}
+
+[data-life="3d"] [data-role="surface"]:hover {
+  transform: translateY(-8px) rotateX(4deg) rotateY(-3deg) translateZ(12px);
+  box-shadow:
+    -0.5rem 1.2rem 2.2rem rgba(0, 0, 0, 0.38),
+    0 0 1rem color-mix(in srgb, var(--life-accent) 35%, transparent);
+}
+
+/* A chosen chip presses INTO the page instead of rising off it. */
+[data-life="3d"] [data-role="select"][aria-pressed="true"] {
+  transform: translateZ(-6px) scale(0.97);
+  box-shadow: inset 0 0.2rem 0.5rem rgba(0, 0, 0, 0.35);
+}
+
+[data-life="3d"] [data-state="alert"] {
+  transform: translateZ(24px);
+  box-shadow: 0 1.4rem 2.4rem rgba(0, 0, 0, 0.42);
+  animation: life-float-3d 3s ease-in-out infinite;
+}
+
+[data-life="3d"] [data-state="live"] .status-dot {
+  animation: life-blink 1.4s ease-in-out infinite;
+}
+
+[data-life="3d"] [data-role="reading"] {
+  animation: life-float-3d 4.5s ease-in-out infinite;
+}
+
+/* skewX is re-stated because `transform` replaces the look's shared rule;
+   `rotate` needs no such help, which is exactly why --tilt uses it. */
+[data-life="3d"] [data-role="voice"] {
+  transform: translateZ(30px) skewX(var(--skew, 0deg));
+}
+
+/* ==================================================================== */
+/* GLITCH - cyber jitter, scanlines, signal loss                         */
+/* ==================================================================== */
+
+[data-life="glitch"] [data-role="voice"] {
+  animation: life-scanline-flicker 2.5s steps(2, start) infinite;
+}
+
+[data-life="glitch"] [data-role="surface"]:hover,
+[data-life="glitch"] [data-role="select"]:hover {
+  animation: life-glitch-jitter 0.25s linear infinite;
+  box-shadow:
+    2px 0 0 var(--life-accent),
+    -2px 0 0 color-mix(in srgb, var(--life-accent) 50%, red);
+}
+
+[data-life="glitch"] [data-role="select"][aria-pressed="true"] {
+  animation: life-scanline-flicker 1.1s steps(2, start) infinite;
+  box-shadow: 1px 0 0 var(--life-accent), -1px 0 0 color-mix(in srgb, var(--life-accent) 50%, red);
+}
+
+[data-life="glitch"] [data-state="alert"] {
+  animation: life-glitch-jitter 1.6s steps(3, end) infinite;
+  box-shadow: 3px 0 0 color-mix(in srgb, red 70%, var(--life-accent)), -3px 0 0 var(--life-accent);
+}
+
+[data-life="glitch"] [data-state="live"] .status-dot {
+  animation: life-blink 0.4s steps(2, start) infinite;
+}
+
+/* ==================================================================== */
+/* REVEAL - content drops into place as it enters the viewport           */
+/* ==================================================================== */
+
+[data-scroll-flow="reveal"] [data-role="surface"],
+[data-scroll-flow="reveal"] [data-role="select"] {
+  transition: translate 0.28s var(--life-ease), box-shadow 0.28s var(--life-ease);
+}
+
+[data-scroll-flow="reveal"] [data-role="surface"]:hover {
+  translate: 0 -2px;
+  box-shadow: 0 0.6rem 1.4rem color-mix(in srgb, var(--life-accent) 22%, transparent);
+}
+
+[data-scroll-flow="reveal"] [data-role="select"][aria-pressed="true"] {
+  translate: 0 -2px;
+  box-shadow: 0 0.3rem 0 color-mix(in srgb, var(--life-accent) 55%, transparent);
+}
+
+[data-scroll-flow="reveal"] [data-state="alert"] {
+  animation: life-attention-ring 3s ease-out infinite;
+}
+
+[data-scroll-flow="reveal"] [data-state="live"] .status-dot {
+  animation: life-blink 2s ease-in-out infinite;
+}
+
+/* Lattice publishes the local scroll timeline; Life turns it into a progress
+   reading. This remains active under reduced motion because it reports state
+   rather than adding autonomous motion. */
+@keyframes life-flow-rail-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@supports (animation-timeline: scroll()) {
+  :is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"]
+  ) .flow-rail-bar {
+    animation: life-flow-rail-fill linear both;
+    animation-timeline: --flow;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  [data-scroll-flow="reveal"] [data-role="surface"],
+  [data-scroll-flow="reveal"] [data-role="reading"],
+  [data-scroll-flow="reveal"] .layout-section-header,
+  [data-scroll-flow="reveal"] .chip-row {
+    animation: life-drop-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 65%;
+  }
+
+  /* Sideways scrollers get a sideways entrance. */
+  [data-scroll-flow="reveal"][data-lattice="slides"] [data-role="surface"],
+  [data-scroll-flow="reveal"][data-lattice="slides"] [data-role="reading"],
+  [data-scroll-flow="reveal"][data-lattice="slides"] .layout-section-header,
+  [data-scroll-flow="reveal"][data-lattice="ribbon"] [data-role="surface"],
+  [data-scroll-flow="reveal"][data-lattice="ribbon"] [data-role="reading"],
+  [data-scroll-flow="reveal"][data-lattice="ribbon"] .layout-section-header {
+    animation-name: life-fly-in;
+    animation-timeline: view(inline);
+    animation-range: entry 0% entry 70%;
+  }
+}
+
+/* ==================================================================== */
+/* PARALLAX - depth by scroll rate; the page moves at several speeds     */
+/*                                                                      */
+/* This score used to move everything 1.1rem in the same direction and   */
+/* call it depth. Two things were wrong with that, and they were the     */
+/* same thing twice: there was only ever ONE rate. Parallax is not       */
+/* motion, it is DIFFERENCE in motion, and a difference of zero is       */
+/* invisible however far you push the amplitude.                        */
+/*                                                                      */
+/* So the score assigns --z and lets the shared depth contract do the    */
+/* arithmetic. Rate, order and atmosphere all fall out of that one       */
+/* number, and things at different depths necessarily disagree about     */
+/* how fast the page is going -- which is the effect.                    */
+/*                                                                      */
+/* A page-wide score cannot put a perspective on a region: perspective   */
+/* makes that region the containing block for every fixed overlay in it, */
+/* which is the trap already documented on [data-life="3d"] and the      */
+/* reason .flow-rail lives outside .Main. So this works in RATE. Real    */
+/* projection is scoped to a box that opted in -- see .depth-stage.      */
+/* ==================================================================== */
+
+[data-scroll-flow="parallax"] {
+  --depth-drift: 1.15rem;   /* per plane, per crossing */
+}
+
+/* The default plane assignment. Nothing in the markup mentions depth; the
+   score reads the roles that are already there and decides where each one
+   stands. A card added tomorrow with data-role="surface" is already on the
+   right plane. */
+[data-scroll-flow="parallax"] .Surface        { --z: -3; }
+[data-scroll-flow="parallax"] [data-role="surface"] { --z: -1; }
+[data-scroll-flow="parallax"] [data-role="reading"] { --z: -0.4; }
+[data-scroll-flow="parallax"] [data-role="select"]  { --z: 0.4; }
+[data-scroll-flow="parallax"] .layout-section-header,
+[data-scroll-flow="parallax"] .hero-copy      { --z: 1; }
+[data-scroll-flow="parallax"] [data-state="alert"]  { --z: 1.8; }
+
+/* The masthead is furniture, not scenery: it does not sit on a plane, and
+   [data-header-fold="true"] already has an opinion about what it does. */
+[data-scroll-flow="parallax"] [data-role="masthead"] { --z: 0; }
+
+/* One place derives the two working numbers, so no consumer below has to
+   remember which way the sign points. */
+[data-scroll-flow="parallax"] :is([data-role], [data-state], .Surface,
+                           .layout-section-header, .hero-copy) {
+  --depth: calc(var(--z) * -1);
+  --far: max(0, calc(var(--z) * -1));
+}
+
+/* Atmosphere, page-wide and deliberately quiet: the demonstration of what
+   haze can do belongs in the depth section, not in every card on the page.
+   At --z: -1 this is a 6% wash -- enough to seat a card behind a heading,
+   not enough to look like a rendering bug. */
+[data-scroll-flow="parallax"] [data-role="surface"] {
+  opacity: calc(1 - var(--far) * 0.06);
+}
+
+[data-scroll-flow="parallax"] [data-role="surface"],
+[data-scroll-flow="parallax"] [data-role="select"] {
+  transition: scale 0.3s var(--life-ease), box-shadow 0.3s var(--life-ease);
+}
+
+/* Hovering pulls a plane toward the camera, so the lift is a change of
+   depth rather than a decoration bolted on beside one. */
+[data-scroll-flow="parallax"] [data-role="surface"]:hover {
+  scale: 1.02;
+  opacity: 1;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.28);
+}
+
+[data-scroll-flow="parallax"] [data-role="select"][aria-pressed="true"] {
+  scale: 1.06;
+}
+
+[data-scroll-flow="parallax"] [data-state="alert"] {
+  animation: life-attention-ring 2.8s ease-out infinite;
+}
+
+[data-scroll-flow="parallax"] [data-state="live"] .status-dot {
+  animation: life-blink 1.6s ease-in-out infinite;
+}
+
+@supports (animation-timeline: view()) {
+  /* Every plane is scored by the same keyframes. What separates a heading
+     from the card under it is --z and nothing else. */
+  [data-scroll-flow="parallax"] :is([data-role="surface"], [data-role="reading"],
+                             [data-role="select"], .layout-section-header,
+                             .hero-copy) {
+    animation: life-plane-drift linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+  }
+
+  /* Sideways scrollers get sideways depth. The same list, not a looser one:
+     `[data-role]` on its own would sweep up the masthead, which is not on a
+     plane and has its own score. */
+  [data-scroll-flow="parallax"][data-lattice="slides"] :is([data-role="surface"], [data-role="reading"],
+                                                   [data-role="select"], .layout-section-header,
+                                                   .hero-copy),
+  [data-scroll-flow="parallax"][data-lattice="ribbon"] :is([data-role="surface"], [data-role="reading"],
+                                                   [data-role="select"], .layout-section-header,
+                                                   .hero-copy) {
+    animation-name: life-plane-drift-inline;
+    animation-timeline: view(inline);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  /* The canvas tracks the PAGE, not its own crossing -- a background that
+     re-parallaxes per section is a background that stutters per section. */
+  [data-scroll-flow="parallax"] .Surface {
+    animation: life-surface-drift linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  [data-scroll-flow="parallax"][data-lattice="pages"] .Surface,
+  [data-scroll-flow="parallax"][data-lattice="slides"] .Surface,
+  [data-scroll-flow="parallax"][data-lattice="ribbon"] .Surface,
+  [data-scroll-flow="parallax"][data-lattice="card-stack"] .Surface,
+  [data-scroll-flow="parallax"][data-lattice="spotlight"] .Surface {
+    animation-timeline: --flow;
+  }
+}
+
+/* Card-stack geometry is Lattice's job; Life adds a quiet arrival as each new
+   view crosses the bottom edge. Independent translate/scale preserve the
+   section's Lattice-owned translateZ transform. */
+@keyframes life-card-rise {
+  from { translate: 0 10svh; scale: 0.975; opacity: 0.72; }
+  to   { translate: 0 0; scale: 1; opacity: 1; }
+}
+
+@supports (animation-timeline: view()) {
+  :is(.Layout[data-lattice="card-stack"]:not([data-life="still"]) [data-frame="root"],
+      :not([data-life="still"]) [data-frame][data-lattice="card-stack"]) > [data-track] > [data-view] {
+    animation: life-card-rise linear both;
+    animation-timeline: view(block);
+    animation-range: entry 0% entry 62%;
+  }
+}
+
+/* Spotlight reads like a sequence of modal arrivals, but remains document
+   content: scroll moves the focus; it never opens a Layer panel. */
+@keyframes life-spotlight-pop {
+  0%   { opacity: 0.28; transform: translateY(7svh) scale(0.88); }
+  42%  { opacity: 1; transform: translateY(0) scale(1); }
+  62%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0.35; transform: translateY(-5svh) scale(0.94); }
+}
+
+@supports (animation-timeline: view()) {
+  :is(.Layout[data-lattice="spotlight"]:not([data-life="still"]) [data-frame="root"],
+      :not([data-life="still"]) [data-frame][data-lattice="spotlight"]) > [data-track] > [data-view] {
+    animation: life-spotlight-pop linear both;
+    animation-timeline: view(block);
+    animation-range: entry 0% exit 100%;
+  }
+}
+
+/* ==================================================================== */
+/* LAYER PROJECTION -- the IN/OUT FLOW sub-axis                          */
+/*                                                                      */
+/* Layer owns the destination; Life owns the crossing into it.          */
+/*                                                                      */
+/* The crossing is a transition, never an entry animation. That is the  */
+/* whole reason one axis can be an IN/OUT flow rather than two: a       */
+/* transition plays forwards on open and backwards on close for free,   */
+/* and `display` and `overlay` ride in the same property list, which is */
+/* what keeps a closed panel out of layout and out of the              */
+/* accessibility tree while the flow is still running.                  */
+/*                                                                      */
+/* A projection states its own geometry in three terms, and a flow      */
+/* spends them without knowing which projection it is in:               */
+/*                                                                      */
+/*   --layer-travel   how far, and from which side, it arrives          */
+/*   --layer-swing    the rotation that hinges it on that same side     */
+/*   --layer-hinge    where that hinge is, as a transform-origin        */
+/*                                                                      */
+/* This is why a pop-over needs no exemption from the travelling        */
+/* flows. Its offset is a 0.45rem nudge off its own trigger rather than */
+/* a whole screen off an edge, so Slide reads there as a settle and     */
+/* Slam as a snap. Neither flow has to know a pop-over exists, and no   */
+/* flow has to be withheld from one projection to stay tasteful in it.  */
+/* ==================================================================== */
+
+.Layout[data-life] [data-layer-panel][popover] {
+  /* A flow overrides these; a projection supplies the terms they spend. */
+  --layer-closed-transform: var(--layer-travel, scale(0.98));
+  --layer-closed-filter: none;
+  --layer-flow-time: var(--lens-drawer-time, var(--motion-duration-flow, 300ms));
+  --layer-flow-ease: var(--lens-drawer-ease, var(--life-ease, ease));
+
+  /* Opacity gets its own pair, because a door and a lens do not fade on
+     the same schedule as they swing and sharpen. Both default to the
+     flow's, so a flow only names them when it disagrees. */
+  --layer-fade-time: var(--layer-flow-time);
+  --layer-fade-ease: var(--layer-flow-ease);
+
+  opacity: 0;
+  filter: var(--layer-closed-filter);
+  transform: var(--layer-closed-transform);
+  transform-origin: var(--layer-hinge, 50% 50%);
+  backface-visibility: hidden;
+  transition-property: opacity, filter, transform, display, overlay;
+  transition-duration:
+    var(--layer-fade-time), var(--layer-flow-time), var(--layer-flow-time),
+    var(--layer-flow-time), var(--layer-flow-time);
+  transition-timing-function:
+    var(--layer-fade-ease), var(--layer-flow-ease), var(--layer-flow-ease),
+    var(--layer-flow-ease), var(--layer-flow-ease);
+  transition-behavior: allow-discrete;
+}
+
+/* Each projection states where it comes from and what it is hinged on.
+   A drawer is a door on its left edge; a top menu is a flap on the top
+   edge; a pop-over belongs to its trigger, so its terms are small. */
+.Layout[data-layer="top-left-edge-drawer"] [data-layer-panel][popover] {
+  --layer-travel: translateX(calc(-100% - 1rem));
+  --layer-swing: rotateY(-90deg);
+  --layer-hinge: 0 50%;
+}
+
+.Layout[data-layer="top-menu"] [data-layer-panel][popover] {
+  --layer-travel: translateY(calc(-100% - 1rem));
+  --layer-swing: rotateX(90deg);
+  --layer-hinge: 50% 0;
+}
+
+.Layout[data-layer="pop-over"] [data-layer-panel][popover] {
+  --layer-travel: translateY(-0.45rem) scale(0.98);
+  --layer-swing: rotateX(62deg);
+  --layer-hinge: 50% 0;
+}
+
+/* A frame that names its own edge arrives from that edge, whichever
+   projection lifted it: a bottom drawer is a flap on the bottom edge. */
+.Layout[data-layer] [data-layer-panel][data-edge="block-end"][popover] {
+  --layer-travel: translateY(calc(100% + 1rem));
+  --layer-swing: rotateX(-90deg);
+  --layer-hinge: 50% 100%;
+}
+
+/* SLIDE -- travels the offset it was given and eases to a stop. */
+.Layout[data-inout-flow="slide"] [data-layer-panel][popover] {
+  --layer-closed-transform: var(--layer-travel, scale(0.98));
+}
+
+/* SLAM -- the same trip taken fast, arriving past the mark and rebounding
+   onto it. The overshoot is entirely in the curve, so it scales with
+   whatever distance the projection asked for. */
+.Layout[data-inout-flow="slam"] [data-layer-panel][popover] {
+  --layer-closed-transform: var(--layer-travel, scale(0.96));
+  --layer-flow-time: var(--lens-drawer-time, var(--motion-duration-swift, 200ms));
+  --layer-flow-ease: var(--motion-ease-slam);
+  --layer-fade-time: var(--motion-duration-instinct, 100ms);
+  --layer-fade-ease: var(--motion-ease-linear);
+}
+
+/* FLIP -- hinged on the edge it is joined to and swung shut like a flap.
+   The panel is opaque almost immediately: a door is a solid, and fading
+   one in over its whole swing makes it read as a ghost instead. */
+.Layout[data-inout-flow="flip"] [data-layer-panel][popover] {
+  --layer-closed-transform:
+    perspective(var(--layer-flip-depth, 60rem)) var(--layer-swing, rotateX(70deg));
+  --layer-flow-ease: var(--motion-ease-snappy);
+  --layer-fade-time: var(--motion-duration-instinct, 100ms);
+  --layer-fade-ease: var(--motion-ease-linear);
+}
+
+/* MATERIALIZE -- resolves out of blocks. Blur past a contrast boost is
+   what turns soft edges into hard-edged clumps of colour, and a stepped
+   clock is what makes those clumps snap to a grid of instants rather
+   than dissolving. It does not travel: it was always going to be here. */
+.Layout[data-inout-flow="materialize"] [data-layer-panel][popover] {
+  --layer-closed-transform: scale(1.04);
+  --layer-closed-filter: blur(0.7rem) contrast(3.4) saturate(0.45);
+  --layer-flow-time: var(--lens-drawer-time, var(--motion-duration-flow, 300ms));
+  --layer-flow-ease: steps(6, end);
+  --layer-fade-ease: steps(6, end);
+}
+
+/* FOCUS -- the same arrival, pulled sharp instead of stepped: the lens
+   racks onto a subject that was already in the frame. */
+.Layout[data-inout-flow="focus"] [data-layer-panel][popover] {
+  --layer-closed-transform: scale(1.03);
+  --layer-closed-filter: blur(0.85rem);
+  --layer-flow-ease: var(--lens-drawer-ease, var(--motion-ease-snappy));
+}
+
+.Layout[data-life] [data-layer-panel][popover]:popover-open {
+  opacity: 1;
+  filter: none;
+  transform: none;
+}
+
+@starting-style {
+  .Layout[data-life] [data-layer-panel][popover]:popover-open {
+    opacity: 0;
+    filter: var(--layer-closed-filter);
+    transform: var(--layer-closed-transform);
+  }
+}
+
+/* SHOW -- no crossing at all. The panel is simply there, and gone. The
+   same rule a still score already applies, because they mean the same
+   thing about this element. */
+.Layout[data-inout-flow="show"] [data-layer-panel][popover],
+.Layout[data-life="still"] [data-layer-panel][popover] {
+  transition: none;
+}
+
+/* ==================================================================== */
+/* THE RECEDE -- the page's half of the same crossing                    */
+/*                                                                      */
+/* Layer says how far in front of the page a projection stands. Look     */
+/* says what that much distance looks like in this theme. Neither of     */
+/* them owns the one remaining question, which is this file's: HOW LONG  */
+/* the page takes to fall back, and whether it moves at all.            */
+/*                                                                      */
+/* It rides the same clock the panel itself is on, so the drawer and the */
+/* page behind it arrive together instead of racing. A still score does  */
+/* not animate it -- the page is simply already back there -- and        */
+/* reduced motion cuts it with everything else further down.            */
+/* ==================================================================== */
+
+.Layout[data-life] :is(.Header, .Main, .Footer, .Surface) {
+  transition: filter var(--lens-drawer-time, var(--motion-duration-flow, 300ms))
+              var(--lens-drawer-ease, var(--life-ease, ease));
+}
+
+.Layout[data-inout-flow="show"] :is(.Header, .Main, .Footer, .Surface),
+.Layout[data-life="still"] :is(.Header, .Main, .Footer, .Surface) {
+  transition: none;
+}
+
+/* ==================================================================== */
+/* HEADER FOLD - a custom score built from the same native contracts    */
+/*                                                                      */
+/* The score targets what the element IS (`masthead`), never `.Header`. */
+/* The page already publishes both of its possible clocks: root scroll  */
+/* for continuous flow and --flow for paced Lattices. The               */
+/* first keyframe offsets root travel one-for-one, temporarily pinning   */
+/* the top edge without introducing sticky positioning. The box then    */
+/* closes on that edge while its content gets a related, softer morph.  */
+/* This is the complete custom-effect extension surface: one semantic   */
+/* role, keyframes, and an existing clock.                              */
+/*                                                                      */
+/* The whole masthead folds, not merely the box inside it, so the fold  */
+/* has to travel exactly as far as the masthead is tall -- and close on */
+/* the same straight line the page travels on. Get either wrong and the */
+/* box's bottom edge stops agreeing with the top edge of the content    */
+/* below it: too short a range leaves an empty header-shaped gap once   */
+/* the fold finishes, too long a range leaves the content at the top    */
+/* while the box is still on its way down, and a non-linear close       */
+/* wanders either side of the content mid-fold even when the range is   */
+/* exact. The script publishes --masthead-size for the range -- a look, */
+/* a density and a breakpoint decide that height between them, and CSS  */
+/* has no way to ask an auto grid row how it turned out. The clamp      */
+/* remains the scriptless fallback.                                     */
+/* ==================================================================== */
+
+[data-header-fold="true"] {
+  --header-fold-travel: var(--masthead-size, clamp(11rem, 34svh, 19rem));
+}
+
+@supports (animation-timeline: scroll()) {
+  [data-header-fold="true"] [data-role="masthead"] {
+    transform-origin: 50% 0;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    will-change: transform, translate;
+    animation: life-header-fold-root linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 var(--header-fold-travel);
+  }
+
+  [data-header-fold="true"] [data-role="masthead"] > * {
+    transform-origin: 50% 0;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    animation: life-header-copy-fold linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 var(--header-fold-travel);
+  }
+
+  /* These Lattices keep their moving content in .Main. Their masthead is
+     already stationary, and at.lattice.css exposes that scroll as --flow. */
+  [data-header-fold="true"]:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"]
+  ) [data-role="masthead"] {
+    animation-name: life-header-fold-stationary;
+    animation-timeline: --flow;
+  }
+
+  [data-header-fold="true"]:is(
+    [data-lattice="pages"],
+    [data-lattice="slides"],
+    [data-lattice="ribbon"],
+    [data-lattice="card-stack"],
+    [data-lattice="spotlight"]
+  ) [data-role="masthead"] > * {
+    animation-timeline: --flow;
+  }
+
+  /* The same Lattices bound the page, so here the row has to give its space
+     back as the box closes over it. The score sits on .Layout because that is
+     where the track is declared and where both the masthead and the rails can
+     inherit it; .Layout already holds --flow in scope. It is withheld exactly
+     where the reduced-motion block below withholds the box's own fold -- a
+     track that collapsed under a masthead still standing would put the
+     masthead on top of the content. */
+  @media (prefers-reduced-motion: no-preference) {
+    .Layout[data-header-fold="true"]:is(
+      [data-lattice="pages"],
+      [data-lattice="slides"],
+      [data-lattice="ribbon"],
+      [data-lattice="card-stack"],
+      [data-lattice="spotlight"]
+    ) {
+      animation: life-masthead-close linear both;
+      animation-timeline: --flow;
+      animation-range: 0 var(--header-fold-travel);
+    }
+  }
+
+  /* Layout already pins the masthead from tablet upward. Root-scroll
+     compensation is only needed in the phone flow, where it is static. */
+  @media (min-width: 640px) {
+    [data-header-fold="true"] [data-role="masthead"] {
+      animation-name: life-header-fold-stationary;
+    }
+  }
+}
+
+/* ==================================================================== */
+/* THE CAMERA - life's half of the depth contract                       */
+/*                                                                      */
+/* Every score can move the camera; these rules are what happens in a    */
+/* scene once one of them does. Two gestures, both of which exist in     */
+/* every camera ever built:                                             */
+/*                                                                      */
+/*   the camera looks around   --pointer-x / --pointer-y move the        */
+/*                             vanishing point, so the stack shears and  */
+/*                             the Z separation becomes literal          */
+/*                                                                      */
+/*   the camera pulls focus    the plane under the pointer is the        */
+/*                             subject; everything else goes soft, by    */
+/*                             its own distance from it                  */
+/* ==================================================================== */
+
+.depth-stage {
+  transition: perspective-origin 0.45s var(--life-ease);
+}
+
+/* Layout already wrote `transform` on these to place them. Life must not
+   restate it -- the same collision --tilt exists to avoid. `translate` and
+   `scale` are independent transform properties, so a delta declared here
+   composes with layout's placement instead of replacing it, and the third
+   value of `translate` is the one that matters: it is the camera pull. */
+.depth-stack > .plane {
+  transition:
+    translate var(--transition-structural, 0.45s var(--life-ease)),
+    scale var(--transition-structural, 0.45s var(--life-ease)),
+    filter var(--transition-element, 0.3s var(--life-ease)),
+    opacity var(--transition-element, 0.3s var(--life-ease));
+}
+
+/* Rack focus. Blur is already a function of distance; hovering just moves
+   where distance is being measured FROM. */
+.depth-stack:hover > .plane,
+.depth-stack:focus-within > .plane {
+  filter: blur(calc((var(--far) + 1) * var(--depth-blur)));
+  opacity: 0.72;
+}
+
+.depth-stack > .plane:hover,
+.depth-stack > .plane:focus-visible {
+  filter: blur(0);
+  opacity: 1;
+  translate: 0 -0.4rem 38px;
+  scale: 1.03;
+}
+
+/* ==================================================================== */
+/* CRAZY - everything, at once, on purpose                               */
+/* ==================================================================== */
+
+[data-life="crazy"] .Main {
+  perspective: 900px;
+}
+
+/* A shimmer, not a repaint: the look theme still has to be recognisable
+   underneath, or "crazy" would just be a different look. */
+[data-life="crazy"] .Surface {
+  animation: life-hue-shimmer 9s ease-in-out infinite;
+}
+
+[data-life="crazy"] [data-role="voice"] {
+  animation:
+    life-wiggle-keyframes 1.6s ease-in-out infinite,
+    life-scanline-flicker 2.5s steps(2, start) infinite;
+}
+
+[data-life="crazy"] .demo-label,
+[data-life="crazy"] .viewport-label {
+  animation: life-marquee 0.6s linear infinite alternate;
+}
+
+[data-life="crazy"] [data-role="surface"] {
+  transform-style: preserve-3d;
+  transition: transform 0.2s var(--life-spring);
+  animation: life-float-3d 2.4s ease-in-out infinite;
+}
+
+[data-life="crazy"] [data-role="surface"]:nth-child(even) {
+  animation-direction: reverse;
+  animation-duration: 3.1s;
+}
+
+[data-life="crazy"] [data-role="surface"]:hover {
+  transform: rotate(-2deg) scale(1.06) translateZ(30px);
+  box-shadow:
+    0 1.5rem 3rem rgba(0, 0, 0, 0.4),
+    0 0 1.5rem var(--life-accent);
+  animation: life-glitch-jitter 0.2s linear infinite;
+}
+
+[data-life="crazy"] [data-role="reading"] {
+  animation:
+    life-pulse-glow 1.1s ease-in-out infinite,
+    life-hue-cycle 6s linear infinite;
+}
+
+[data-life="crazy"] [data-role="select"] {
+  animation: life-bounce-badge 0.7s var(--life-spring) infinite;
+}
+
+[data-life="crazy"] [data-role="select"][aria-pressed="true"] {
+  animation:
+    life-wiggle-keyframes 0.5s ease-in-out infinite,
+    life-pulse-glow 1.4s ease-in-out infinite;
+}
+
+[data-life="crazy"] [data-state="alert"] {
+  animation:
+    life-shake 0.9s ease-in-out infinite,
+    life-attention-ring 1.2s ease-out infinite;
+}
+
+[data-life="crazy"] [data-state="live"] .status-dot {
+  animation: life-blink 0.25s steps(2, start) infinite;
+}
+
+@supports (animation-timeline: view()) {
+  [data-life="crazy"] .layout-section-header {
+    animation: life-parallax-lead linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 55%;
+  }
+}
+
+/* ==================================================================== */
+/* CROSS-STATE MOTION                                                    */
+/*                                                                       */
+/* Switching any axis is a state change, and how the page crosses        */
+/* between two states is motion -- so it is life's, not the drawer's.    */
+/* themes.js wraps the attribute swap in a view transition; each score   */
+/* says what that crossing looks like.                                   */
+/* ==================================================================== */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  mix-blend-mode: normal;
+}
+
+[data-life="pulse"]::view-transition-old(root) { animation: life-fade-out 0.45s ease-out both; }
+[data-life="pulse"]::view-transition-new(root) { animation: life-fade-in 0.45s ease-in both; }
+
+[data-life="wiggle"]::view-transition-new(root) {
+  animation: life-drop-in 0.5s var(--life-spring) both;
+}
+
+[data-life="3d"]::view-transition-new(root) {
+  animation: life-fly-in 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) both;
+}
+
+[data-life="glitch"]::view-transition-old(root) {
+  animation: life-glitch-jitter 0.28s steps(4, end) 2 both;
+}
+[data-life="glitch"]::view-transition-new(root) {
+  animation: life-scanline-flicker 0.4s steps(3, start) both;
+}
+
+[data-scroll-flow="reveal"]::view-transition-new(root) {
+  animation: life-drop-in 0.45s var(--life-ease) both;
+}
+
+[data-scroll-flow="parallax"]::view-transition-new(root) {
+  animation: life-parallax-lead 0.5s var(--life-ease) both;
+}
+
+[data-header-fold="true"]::view-transition-new(root) {
+  animation: life-header-fold-enter 0.5s var(--life-ease) both;
+}
+
+[data-life="crazy"]::view-transition-old(root) {
+  animation: life-glitch-jitter 0.3s steps(5, end) 3 both;
+}
+[data-life="crazy"]::view-transition-new(root) {
+  animation: life-wiggle-keyframes 0.6s ease-in-out both, life-fade-in 0.4s linear both;
+}
+
+/* ==================================================================== */
+/* ACCESSIBILITY                                                         */
+/*                                                                       */
+/* Ambient loops, scroll-driven transforms and cross-state motion are    */
+/* switched off for visitors who ask for reduced motion; deliberate      */
+/* pointer feedback is kept, because that is information, not decor.     */
+/* ==================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :is(atheme-drawer, atheme-tray) {
+    --atheme-tab-heartbeat: none;
+    --atheme-tab-flap: none;
+  }
+
+  [data-life] {
+    --look-motion: paused;
+  }
+
+  [data-life] .Surface,
+  [data-life] [data-role],
+  [data-life] [data-state],
+  [data-life] [data-state] .status-dot,
+  [data-life] .layout-section-header,
+  [data-life] .hero-copy,
+  [data-life] .chip-row,
+  [data-life] .viewport-icon,
+  [data-life] .demo-label,
+  [data-life] .viewport-label,
+  [data-life] [data-track] > [data-view] {
+    animation: none !important;
+    translate: none !important;
+    scale: none !important;
+    transform: none !important;
+  }
+
+  [data-life] [data-role="masthead"] > * {
+    animation: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [data-life] .flow-rail-bar {
+    animation: none !important;
+    transform: scaleX(1) !important;
+  }
+
+  /* Depth stops being a camera and becomes a diagram: the planes stay where
+     they are, the atmosphere still tells you which is which. Haze and focus
+     are information about distance, not motion, so they stay. */
+  [data-life] .depth-stage {
+    perspective-origin: 50% 50% !important;
+  }
+
+  [data-life] .depth-stack > .plane {
+    translate: none !important;
+    scale: none !important;
+    transition: none !important;
+  }
+
+  [data-life] .depth-stack:hover > .plane,
+  [data-life] .depth-stack:focus-within > .plane {
+    filter: none;
+    opacity: 1;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+/* ==================================================================== */
+/* THEMED CROSSINGS - look proposes, life disposes                       */
+/*                                                                      */
+/* at.look.css declares --enter-anim / --stagger-anim: what this         */
+/* theme's arrival should feel like. Life decides whether that gets      */
+/* used, because life owns time.                                        */
+/*                                                                      */
+/* themes.js stamps data-crossing with the axis that actually changed,   */
+/* so switching the LOOK plays the look's own crossing, while switching  */
+/* any non-Look axis plays the score's crossing. Both are animations     */
+/* on the same two pseudo-elements.                                     */
+/* ==================================================================== */
+
+[data-crossing="look"]::view-transition-old(root) {
+  animation: life-fade-out
+             calc(var(--lens-enter-time, var(--enter-time, 420ms)) * 0.45)
+             var(--lens-enter-ease, var(--enter-ease, ease)) both;
+}
+
+[data-crossing="look"]::view-transition-new(root) {
+  animation: var(--enter-anim, look-cross-fade)
+             var(--lens-enter-time, var(--enter-time, 420ms))
+             var(--lens-enter-ease, var(--enter-ease, ease)) both;
+}
+
+/* "still" means still, whatever the look would have liked. */
+[data-life="still"][data-crossing]::view-transition-old(root),
+[data-life="still"][data-crossing]::view-transition-new(root) {
+  animation: none !important;
+}
+
+/* ==================================================================== */
+/* STAGGERED ENTRY - the answer to "can CSS do this without JS?"         */
+/*                                                                      */
+/* Yes, both times it matters:                                          */
+/*                                                                      */
+/*   on load    a plain animation with `backwards` fill and an           */
+/*              nth-child delay runs itself; nothing has to trigger it.  */
+/*                                                                      */
+/*   on change  the delay is the same, but the animation NAME comes      */
+/*              from the look (--stagger-anim). A changed animation-name */
+/*              restarts the animation, so picking a new theme replays   */
+/*              the cascade with no script involved. Two themes that     */
+/*              share a stagger animation will not replay -- that is the */
+/*              honest limit of the trick.                               */
+/* ==================================================================== */
+
+.note-list li,
+.tab-figure span {
+  animation: var(--stagger-anim, look-item-rise)
+             var(--lens-enter-time, var(--enter-time, 420ms))
+             var(--lens-enter-ease, var(--enter-ease, ease))
+             backwards;
+  animation-delay: calc(var(--lens-stagger-step, var(--stagger-step, 45ms)) * var(--i, 0));
+}
+
+.note-list li:nth-child(1),  .tab-figure span:nth-child(1)  { --i: 0; }
+.note-list li:nth-child(2),  .tab-figure span:nth-child(2)  { --i: 1; }
+.note-list li:nth-child(3),  .tab-figure span:nth-child(3)  { --i: 2; }
+.note-list li:nth-child(4),  .tab-figure span:nth-child(4)  { --i: 3; }
+.note-list li:nth-child(5),  .tab-figure span:nth-child(5)  { --i: 4; }
+.note-list li:nth-child(6),  .tab-figure span:nth-child(6)  { --i: 5; }
+.note-list li:nth-child(7),  .tab-figure span:nth-child(7)  { --i: 6; }
+.note-list li:nth-child(8),  .tab-figure span:nth-child(8)  { --i: 7; }
+
+[data-life="still"] .note-list li,
+[data-life="still"] .tab-figure span {
+  animation: none;
+}
+
+/* ==================================================================== */
+/* TABS - the same swap, scored differently                              */
+/* ==================================================================== */
+
+[data-life] .tab {
+  transition:
+    background var(--transition-interaction, 120ms ease),
+    border-color var(--transition-interaction, 120ms ease),
+    translate var(--transition-interaction, 120ms ease);
+}
+
+[data-life="pulse"] .tab[aria-selected="true"] { translate: 0 -2px; }
+[data-life="wiggle"] .tab[aria-selected="true"] { animation: life-bounce-badge 2s var(--life-spring) infinite; }
+[data-life="3d"] .tab[aria-selected="true"] { transform: translateZ(10px); }
+[data-life="glitch"] .tab[aria-selected="true"] { animation: life-scanline-flicker 1.4s steps(2, start) infinite; }
+[data-life="crazy"] .tab[aria-selected="true"] { animation: life-wiggle-keyframes 0.6s ease-in-out infinite; }
+
+/* A panel that has just become visible arrives the way the look arrives. */
+.tab-panel:not([hidden]) {
+  animation: var(--stagger-anim, look-item-rise)
+             var(--lens-enter-time, var(--enter-time, 420ms))
+             var(--lens-enter-ease, var(--enter-ease, ease))
+             backwards;
+}
+
+[data-life="still"] .tab-panel:not([hidden]) {
+  animation: none;
+}
+
+@media print {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .note-list li,
+  .tab-figure span,
+  .tab-panel:not([hidden]),
+  [data-track] > [data-view],
+  [data-crossing]::view-transition-old(root),
+  [data-crossing]::view-transition-new(root) {
+    animation: none !important;
+  }
+
+  [data-layer-panel][popover] {
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */

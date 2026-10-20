@@ -1,0 +1,288 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.lab.look.css -- what the lab page's own kinds are made of.
+ *
+ * Paint only, and all of it derived from the active Look: --accent, --bg,
+ * --text, currentColor, --radius-lg, --caps. No profile below names a
+ * tile, and no tile names a profile, so all 31 looks repaint the masthead
+ * and the bento without being taught they exist.
+ *
+ * Two tokens are this page's own and every look may answer them:
+ *
+ *   --lab-second   the second stop of the page's gradients. Defaults to
+ *                  the look's text colour, so a two-colour look gets a
+ *                  two-colour gradient for free.
+ *   --lab-display  the display face for the wordmark and the big headings.
+ *                  Defaults to the look's own title face, then its body face.
+ *
+ * The nightclub block at the end is the page's opening look answering them.
+ */
+
+.Layout {
+    --lab-a: var(--accent, currentColor);
+    --lab-b: var(--lab-second, var(--text, currentColor));
+    --lab-gradient: linear-gradient(100deg, var(--lab-a), var(--lab-b));
+    --lab-gradient-loop: linear-gradient(100deg, var(--lab-a), var(--lab-b), var(--lab-a));
+    --lab-radius: calc(var(--radius-lg, 0.45rem) * 2.6);
+    --lab-hair: color-mix(in srgb, currentColor calc(16% * var(--stroke-strength, 1)), transparent);
+    --lab-glass: color-mix(in srgb, var(--bg, transparent) 74%, transparent);
+}
+
+/* --- MASTHEAD -------------------------------------------------------- */
+
+.Header.masthead {
+    background: var(--lab-glass);
+    border-bottom-color: var(--lab-hair);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--lab-a) 20%, transparent);
+}
+
+.masthead .wordmark-word {
+    font-family: var(--lab-display, var(--title-font, var(--font, inherit)));
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-transform: none;
+    text-shadow: none;
+    -webkit-text-stroke: 0;
+}
+
+.masthead .wordmark-at {
+    background: var(--lab-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.masthead .wordmark-tag {
+    border-color: transparent;
+    border-radius: var(--radius-pill, 999px);
+    background: var(--lab-a);
+    color: var(--bg, #000);
+    font-weight: 700;
+}
+
+.pill-nav a,
+.action-pill,
+.coord {
+    border-radius: var(--radius-pill, 999px);
+    border-color: var(--lab-hair);
+    color: inherit;
+}
+
+.pill-nav a {
+    background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.pill-nav a[aria-current="page"] {
+    background: var(--lab-gradient);
+    border-color: transparent;
+    color: var(--bg, #000);
+    font-weight: 700;
+}
+
+.action-pill {
+    background: color-mix(in srgb, var(--lab-a) 16%, transparent);
+    border-color: color-mix(in srgb, var(--lab-a) 45%, transparent);
+    font-weight: 600;
+}
+
+.coord {
+    background: color-mix(in srgb, currentColor 3%, transparent);
+}
+
+.coord-key {
+    opacity: 0.6;
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.08em * var(--caps-tracking, 1));
+}
+
+.coord b {
+    color: var(--lab-a);
+}
+
+/* A strip that scrolls sideways says so at its edges. */
+.pill-nav,
+.coord-strip {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 1.5rem), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 1.5rem), transparent);
+}
+
+/* --- OVERTURE BENTO -------------------------------------------------- */
+
+.ticker {
+    color: var(--lab-a);
+    font-family: var(--lab-display, var(--title-font, var(--font, inherit)));
+    font-weight: 700;
+    text-transform: var(--caps, uppercase);
+    letter-spacing: calc(0.14em * var(--caps-tracking, 1));
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.bento-tile {
+    border-color: var(--lab-hair);
+    border-radius: var(--lab-radius);
+    background:
+        radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--lab-a) 14%, transparent), transparent 62%),
+        color-mix(in srgb, var(--bg, transparent) 55%, color-mix(in srgb, currentColor 6%, transparent));
+}
+
+.bento-tile[data-part="explanation"] {
+    background:
+        radial-gradient(70% 90% at 0% 100%, color-mix(in srgb, var(--lab-b) 18%, transparent), transparent 65%),
+        radial-gradient(80% 90% at 100% 0%, color-mix(in srgb, var(--lab-a) 26%, transparent), transparent 60%),
+        color-mix(in srgb, var(--bg, transparent) 60%, color-mix(in srgb, currentColor 5%, transparent));
+}
+
+.overture-title,
+.stat strong,
+.presets-title,
+.tour-title,
+.layout-section-header h2 {
+    font-family: var(--lab-display, var(--title-font, var(--font, inherit)));
+    color: var(--lab-ink, inherit);
+    letter-spacing: -0.035em;
+    text-transform: none;
+}
+
+.overture-title {
+    font-weight: 700;
+    line-height: 0.98;
+    text-shadow: none;
+    -webkit-text-stroke: 0;
+}
+
+.glow-text,
+.stat strong {
+    background: var(--lab-gradient-loop);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
+}
+
+.overture-lede {
+    line-height: 1.5;
+    opacity: 0.86;
+}
+
+.sticker {
+    --tilt: -2deg;
+    background: var(--lab-a);
+    color: var(--bg, #000);
+    border-radius: var(--radius-pill, 999px);
+    font-weight: 700;
+    box-shadow: 0.2rem 0.2rem 0 color-mix(in srgb, var(--lab-b) 70%, transparent);
+}
+
+.sticker-alt {
+    --tilt: 2deg;
+    background: var(--lab-b);
+    box-shadow: 0.2rem 0.2rem 0 color-mix(in srgb, var(--lab-a) 70%, transparent);
+}
+
+.cta,
+.button-row .cta {
+    border-radius: var(--radius-pill, 999px);
+    border-color: transparent;
+    background: var(--lab-gradient);
+    color: var(--bg, #000);
+}
+
+.cta-ghost,
+.button-row .cta-ghost {
+    background: transparent;
+    border-color: color-mix(in srgb, currentColor 35%, transparent);
+    color: inherit;
+}
+
+.stat {
+    border-color: var(--lab-hair);
+    border-radius: calc(var(--lab-radius) * 0.6);
+    background: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.stat strong {
+    font-weight: 700;
+    background-size: 100% 100%;
+}
+
+.stat span {
+    opacity: 0.7;
+}
+
+.tour-steps li {
+    line-height: 1.45;
+}
+
+.tour-steps li::before {
+    border-radius: var(--radius-pill, 999px);
+    background: var(--lab-a);
+    color: var(--bg, #000);
+}
+
+.tour-steps b {
+    color: var(--lab-a);
+}
+
+.presets-note {
+    opacity: 0.65;
+}
+
+.preset {
+    color: inherit;
+    border-color: var(--lab-hair);
+    border-radius: calc(var(--lab-radius) * 0.7);
+    background: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.preset-coords {
+    opacity: 0.62;
+}
+
+/* --- SECTION HEADERS ------------------------------------------------- */
+
+.layout-section-header::before {
+    border-color: transparent;
+    border-radius: var(--radius-pill, 999px);
+    background: var(--lab-gradient);
+    color: var(--bg, #000);
+    font-family: var(--lab-display, var(--title-font, var(--font, inherit)));
+}
+
+.layout-section-header .section-kicker {
+    border-color: color-mix(in srgb, var(--lab-a) 45%, transparent);
+    border-radius: var(--radius-pill, 999px);
+    background: color-mix(in srgb, var(--lab-a) 12%, transparent);
+    color: var(--lab-a);
+}
+
+.layout-section-header h2 {
+    font-weight: 700;
+    line-height: 1.02;
+}
+
+/* --- THE OPENING LOOK ------------------------------------------------ */
+/* Nightclub, answered for this page: its neon green outline colour becomes
+   the second gradient stop, a geometric grotesk stands in for its generic
+   sans at display sizes, and its deep-purple body text is lifted toward
+   lavender so long reading holds contrast on black. The look's own text
+   roles (.title-text, .header-text, .body-text) are untouched. */
+[data-theme="nightclub"] {
+    --lab-second: #39ff14;
+    --lab-display: 'Space Grotesk', 'Montserrat', system-ui, sans-serif;
+    --lab-ink: #f5eeff;
+}
+
+[data-theme="nightclub"] :is(.Main, .Sidebar, .UtilityRail, .Header) {
+    color: #d7c4ff;
+}
+
+[data-theme="nightclub"] .Surface {
+    background-color: #07020d;
+    background-image:
+        radial-gradient(40rem 28rem at 85% 0%, rgba(191, 0, 255, 0.22), transparent 70%),
+        radial-gradient(34rem 26rem at 0% 100%, rgba(57, 255, 20, 0.10), transparent 70%),
+        radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.07) 1px, transparent 0);
+    background-size: auto, auto, 22px 22px;
+    background-position: 0 0;
+}

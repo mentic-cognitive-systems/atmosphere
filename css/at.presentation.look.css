@@ -1,0 +1,25 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Shared role paint consumes inherited Look tokens; no profile names a component. */
+:host {
+  --presentation-stroke: var(--frame-border-color, color-mix(in srgb, currentColor 20%, transparent));
+  --presentation-fill: var(--card-fill, color-mix(in srgb, currentColor 5%, transparent));
+}
+[part~="surface"] { background: var(--presentation-fill); border: 1px solid var(--presentation-stroke); border-radius: var(--radius-md, .5rem); }
+:where(button, textarea, select) { background: color-mix(in srgb, currentColor 5%, transparent); border: 1px solid var(--presentation-stroke); border-radius: var(--radius-sm, .35rem); }
+button { font-weight: 650; }
+[part~="select"] { font-size: .85rem; }
+button:hover, button[aria-pressed="true"], button[aria-current="true"] { background: color-mix(in srgb, currentColor 18%, transparent); }
+button:disabled { opacity: .5; }
+:focus-visible { outline-color: var(--accent, currentColor); }
+[part~="voice"] { font-size: var(--presentation-title-size, 1.5rem); line-height: 1.2; overflow-wrap: anywhere; }
+[part~="summary"] { font-size: var(--presentation-summary-size, 1rem); line-height: 1.6; }
+[part~="caption"], [part~="conclusion"], [part~="evidence"] { font-size: .8rem; line-height: 1.55; }
+[part~="status"] { font-size: .72rem; font-weight: 700; }
+[part~="ordinal"], [part~="identity"], [part~="activity"] { font: .75rem/1.6 ui-monospace, monospace; }
+[part~="reading"] { font-size: 1.8rem; font-weight: 800; }
+.release-metric { background: color-mix(in srgb, currentColor 5%, transparent); border: 1px solid var(--presentation-stroke); border-radius: var(--radius-sm, .35rem); }
+[data-status="completed"] { color: var(--status-success, var(--accent, currentColor)); }
+[data-status="in-progress"] { color: var(--status-progress, var(--accent, currentColor)); }
+[data-status="planned"] { color: var(--status-planned, currentColor); }
+[part~="evidence"] dt { font-weight: 700; }
+[part~="activity"] { overflow-wrap: anywhere; }

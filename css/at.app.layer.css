@@ -1,0 +1,6 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Workspace layer: semantic place/part consumers; tokens preserve the existing design. */
+
+[data-place="stage"] {
+  position: relative;
+}

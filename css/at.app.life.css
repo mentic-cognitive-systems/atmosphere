@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Workspace life: semantic place/part consumers; tokens preserve the existing design. */
+
+html, body {
+  transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+}
+
+[data-place="scope"], [data-place="breadcrumbs"], [data-place="toolbar"], [data-place="navigator"], [data-place="stage"],
+        [data-place="compass"], [data-place="outline"], [data-place="inspector"], [data-place="telemetry"], [data-place="context"] {
+  transition: background-color var(--transition-speed) ease,
+                        border-color var(--transition-speed) ease,
+                        box-shadow var(--transition-speed) ease;
+}
+
+:root {
+  --transition-speed: 0.35s;
+}
+
+a {
+  transition: color 0.15s ease;
+}
+
+button {
+  transition: all 0.15s ease;
+}
+
+[data-role="select"] {
+  transition: all 0.12s ease;
+}
+
+[data-state="alert"] {
+  animation: line-flash 1.2s ease-out;
+}
+
+@keyframes line-flash {
+from { opacity: .35; }
+to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+[data-state="alert"] {
+  animation: none;
+}
+}
+
+/* Both policy and user preference stop nonessential feedback. */
+[data-life="still"] *, [data-life="still"] *::before, [data-life="still"] *::after {
+  animation: none; transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none; transition: none; }
+}
+

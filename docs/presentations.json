@@ -1,0 +1,664 @@
+{
+  "catalogVersion": "0.2.0-draft",
+  "status": "Proposed designer vocabulary; named only, not runtime support.",
+  "createdOn": "2026-09-07",
+  "documentation": "PRESENTATIONS.md",
+  "extends": "vocabulary.json",
+  "classification": {
+    "family": "Organization of an experience; families may nest.",
+    "inputModality": "Means of input, independently selected.",
+    "modality": "Modal or nonmodal interaction, independent of family.",
+    "place": "Semantic responsibility, independent of container and location."
+  },
+  "families": {
+    "document": {
+      "label": "Document",
+      "purposes": [
+        "read"
+      ],
+      "typicalPlaces": [
+        "masthead",
+        "navigation",
+        "main-content",
+        "table-of-contents",
+        "supporting-content",
+        "footer"
+      ],
+      "interactions": [
+        "read",
+        "follow-link",
+        "disclose"
+      ],
+      "coverage": "named"
+    },
+    "presentation": {
+      "label": "Presentation",
+      "purposes": [
+        "present"
+      ],
+      "typicalPlaces": [
+        "stage",
+        "slide-navigator",
+        "presenter-notes",
+        "presentation-controls",
+        "progress"
+      ],
+      "interactions": [
+        "advance",
+        "retreat",
+        "select-slide"
+      ],
+      "coverage": "named"
+    },
+    "workspace": {
+      "label": "Workspace",
+      "purposes": [
+        "edit"
+      ],
+      "typicalPlaces": [
+        "navigator",
+        "editor",
+        "inspector",
+        "toolbar",
+        "status-bar"
+      ],
+      "interactions": [
+        "select",
+        "edit",
+        "execute-command",
+        "undo",
+        "manage-panels"
+      ],
+      "coverage": "named"
+    },
+    "dashboard": {
+      "label": "Dashboard",
+      "purposes": [
+        "monitor",
+        "compare"
+      ],
+      "typicalPlaces": [
+        "overview",
+        "filters",
+        "metrics",
+        "visualization",
+        "detail",
+        "alerts"
+      ],
+      "interactions": [
+        "filter",
+        "drill-down",
+        "select",
+        "refresh"
+      ],
+      "coverage": "named"
+    },
+    "control-panel": {
+      "label": "Control panel",
+      "purposes": [
+        "monitor",
+        "operate"
+      ],
+      "typicalPlaces": [
+        "system-status",
+        "controls",
+        "readouts",
+        "setpoints",
+        "alarms",
+        "activity-log"
+      ],
+      "interactions": [
+        "observe",
+        "adjust",
+        "execute-command",
+        "acknowledge"
+      ],
+      "coverage": "named"
+    },
+    "collection": {
+      "label": "Collection",
+      "purposes": [
+        "find"
+      ],
+      "typicalPlaces": [
+        "search",
+        "filters",
+        "results",
+        "item-detail",
+        "pagination"
+      ],
+      "interactions": [
+        "search",
+        "sort",
+        "filter",
+        "select",
+        "inspect"
+      ],
+      "coverage": "named"
+    },
+    "workflow": {
+      "label": "Workflow",
+      "purposes": [
+        "complete-process"
+      ],
+      "typicalPlaces": [
+        "step-navigator",
+        "active-step",
+        "help",
+        "validation",
+        "actions",
+        "progress"
+      ],
+      "interactions": [
+        "enter-data",
+        "validate",
+        "advance",
+        "retreat",
+        "submit"
+      ],
+      "coverage": "named"
+    },
+    "conversation": {
+      "label": "Conversation",
+      "purposes": [
+        "communicate"
+      ],
+      "typicalPlaces": [
+        "conversation-list",
+        "transcript",
+        "composer",
+        "context",
+        "activity"
+      ],
+      "interactions": [
+        "compose",
+        "send",
+        "reply",
+        "navigate-messages"
+      ],
+      "coverage": "named"
+    },
+    "media-player": {
+      "label": "Media player",
+      "purposes": [
+        "experience-media"
+      ],
+      "typicalPlaces": [
+        "media-viewport",
+        "transport-controls",
+        "timeline",
+        "captions",
+        "playlist"
+      ],
+      "interactions": [
+        "play",
+        "pause",
+        "seek",
+        "change-track",
+        "adjust-playback"
+      ],
+      "coverage": "named"
+    },
+    "canvas": {
+      "label": "Canvas",
+      "purposes": [
+        "explore",
+        "edit"
+      ],
+      "typicalPlaces": [
+        "viewport",
+        "tools",
+        "layers",
+        "inspector",
+        "overview-map"
+      ],
+      "interactions": [
+        "pan",
+        "zoom",
+        "select",
+        "transform",
+        "edit"
+      ],
+      "coverage": "named"
+    },
+    "spatial": {
+      "label": "Spatial experience",
+      "purposes": [
+        "explore",
+        "operate"
+      ],
+      "typicalPlaces": [
+        "scene",
+        "hud",
+        "reticle",
+        "minimap",
+        "object-inspector",
+        "spatial-controls"
+      ],
+      "interactions": [
+        "look",
+        "move",
+        "target",
+        "select",
+        "manipulate"
+      ],
+      "coverage": "named"
+    }
+  },
+  "places": {
+    "masthead": {
+      "meaning": "Identifies the document or publication.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "navigation": {
+      "meaning": "Provides links to major destinations.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "main-content": {
+      "meaning": "Contains the primary document content.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "table-of-contents": {
+      "meaning": "Links to sections of the current document.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "supporting-content": {
+      "meaning": "Provides related context or supporting material.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "footer": {
+      "meaning": "Contains closing information about the document or site.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "stage": {
+      "meaning": "Presents the current authored view in a sequence.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "slide-navigator": {
+      "meaning": "Selects and locates slides within a sequence.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "presenter-notes": {
+      "meaning": "Provides supporting information for the presenter; visibility policy must be explicit.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "presentation-controls": {
+      "meaning": "Controls progression and presentation-specific actions.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "progress": {
+      "meaning": "Communicates position or completion within a sequence or process.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "navigator": {
+      "meaning": "Chooses a resource or location within the work.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "editor": {
+      "meaning": "Provides editing operations on a bound resource.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "inspector": {
+      "meaning": "Exposes details or properties of the current selection.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "toolbar": {
+      "meaning": "Groups commands with an explicit target or scope.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "status-bar": {
+      "meaning": "Summarizes current work or system state.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "overview": {
+      "meaning": "Summarizes the monitored subject.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "filters": {
+      "meaning": "Constrains which records or measurements are in scope.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "metrics": {
+      "meaning": "Presents selected measurements with their units and context.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "visualization": {
+      "meaning": "Presents a derived graphical representation of bound data.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "detail": {
+      "meaning": "Explains the current item or measurement in depth.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "alerts": {
+      "meaning": "Communicates conditions requiring attention.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "system-status": {
+      "meaning": "Communicates the current operating state of a bound system.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "controls": {
+      "meaning": "Offers operations that change a bound system.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "readouts": {
+      "meaning": "Presents current measured values.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "setpoints": {
+      "meaning": "Exposes desired operating values separately from measured values.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "alarms": {
+      "meaning": "Communicates operating conditions and domain-defined acknowledgement actions.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "activity-log": {
+      "meaning": "Records relevant events over time.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "search": {
+      "meaning": "Accepts a query over a declared collection.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "results": {
+      "meaning": "Presents the matching or browsable collection.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "item-detail": {
+      "meaning": "Presents the selected collection item.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "pagination": {
+      "meaning": "Navigates bounded portions of a result collection.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "step-navigator": {
+      "meaning": "Locates or selects steps according to workflow rules.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "active-step": {
+      "meaning": "Contains the current workflow step.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "help": {
+      "meaning": "Provides contextual instructions.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "validation": {
+      "meaning": "Communicates validation results and associated fields.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "actions": {
+      "meaning": "Offers operations available at the current workflow state.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "conversation-list": {
+      "meaning": "Selects a conversation.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "transcript": {
+      "meaning": "Presents a sequence of messages or utterances.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "composer": {
+      "meaning": "Authors a message before sending.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "context": {
+      "meaning": "Provides information relevant to the current exchange.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "activity": {
+      "meaning": "Communicates ongoing conversational activity.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "media-viewport": {
+      "meaning": "Presents the visual media, if present; audio-only content need not have one.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "transport-controls": {
+      "meaning": "Controls media playback.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "timeline": {
+      "meaning": "Locates or seeks within temporal content.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "captions": {
+      "meaning": "Presents synchronized textual media alternatives.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "playlist": {
+      "meaning": "Selects among media items.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "viewport": {
+      "meaning": "Shows a portion of an extended canvas.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "tools": {
+      "meaning": "Selects operations available on canvas content.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "layers": {
+      "meaning": "Inspects canvas content grouping and ordering; distinct from Atmosphere Layer.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "overview-map": {
+      "meaning": "Shows the current canvas extent within a larger field.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "scene": {
+      "meaning": "Presents a spatial world from a defined viewpoint.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "hud": {
+      "meaning": "Presents information associated with the viewer view; attachment must be explicit.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "reticle": {
+      "meaning": "Indicates the current targeting direction or point.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "minimap": {
+      "meaning": "Provides a simplified spatial overview and orientation.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "object-inspector": {
+      "meaning": "Binds an inspector to a selected scene object; anchoring is a separate choice.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "spatial-controls": {
+      "meaning": "Exposes navigation or manipulation operations for a spatial experience.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "activity-bar": {
+      "meaning": "Selects the active space, tool area, or extension surface.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "resource-tree": {
+      "meaning": "Navigates an explicitly hierarchical resource collection.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "document-group": {
+      "meaning": "Hosts open document view instances and an active view; tabs are one presentation.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "attachment-list": {
+      "meaning": "Enumerates asset associations for a bound record.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "asset-viewer": {
+      "meaning": "Presents a bound asset through a compatible representation.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "message-list": {
+      "meaning": "Presents message summaries linked to stable message identities.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "message-detail": {
+      "meaning": "Presents the selected message body and metadata.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "context-panel": {
+      "meaning": "Hosts tools with declared follow-selection or pinned context.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "agent-activity": {
+      "meaning": "Presents asynchronous agent runs, progress, results, and available commands.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "asset-browser": {
+      "meaning": "Finds and organizes source assets, including media bins.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "source-monitor": {
+      "meaning": "Previews a source independently of an edited sequence.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "program-monitor": {
+      "meaning": "Presents the evaluated media sequence at its transport time.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "track-area": {
+      "meaning": "Edits clip occurrences on temporal media tracks; distinct from data-track.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "track-controls": {
+      "meaning": "Presents track-specific state and commands.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "mixer": {
+      "meaning": "Controls audio routing and level parameters.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    },
+    "meters": {
+      "meaning": "Presents current signal measurements.",
+      "nativeSemantics": "Must be mapped by an appropriate adapter; this ID is not an HTML or ARIA role."
+    }
+  },
+  "containerForms": [
+    "section",
+    "pane",
+    "sidebar",
+    "rail",
+    "drawer",
+    "popover",
+    "dialog",
+    "window"
+  ],
+  "relations": {
+    "within": {
+      "requires": [
+        "target"
+      ],
+      "meaning": "Inside a declared parent."
+    },
+    "beside": {
+      "requires": [
+        "target",
+        "side"
+      ],
+      "meaning": "Adjacent to a peer."
+    },
+    "before": {
+      "requires": [
+        "target",
+        "order"
+      ],
+      "meaning": "Precedes the target in a declared reading or layout order."
+    },
+    "after": {
+      "requires": [
+        "target",
+        "order"
+      ],
+      "meaning": "Follows the target in a declared reading or layout order."
+    },
+    "over": {
+      "requires": [
+        "target",
+        "interactionPolicy"
+      ],
+      "meaning": "Presented in front of the target without implying modality."
+    },
+    "anchored-to": {
+      "requires": [
+        "target",
+        "space",
+        "attachment"
+      ],
+      "meaning": "Tracks a named region, object, or spatial anchor."
+    }
+  },
+  "logicalPositions": [
+    "inline-start",
+    "inline-end",
+    "block-start",
+    "block-end",
+    "center"
+  ],
+  "referenceSpaces": {
+    "parent": "Relative to containing region.",
+    "viewport": "Relative to the two-dimensional display viewport.",
+    "canvas": "Relative to an extended two-dimensional field.",
+    "world": "Relative to the spatial world.",
+    "viewer": "Relative to viewer pose.",
+    "object": "Relative to an identified object transform."
+  },
+  "viewpoints": [
+    "first-person",
+    "third-person",
+    "orbit",
+    "overview"
+  ],
+  "inputModalities": [
+    "keyboard",
+    "pointer",
+    "touch",
+    "voice",
+    "gaze",
+    "tracked-controller",
+    "hand-tracking",
+    "switch"
+  ],
+  "interactionModalities": [
+    "nonmodal",
+    "modal"
+  ],
+  "assetRepresentations": [
+    "text",
+    "table",
+    "chart",
+    "map",
+    "image",
+    "audio",
+    "video",
+    "geometry"
+  ],
+  "coverageLevels": [
+    "named",
+    "mapped",
+    "verified"
+  ],
+  "validationRequirements": [
+    "All instance IDs, bindings, placement targets, invokers, and fallback references must resolve.",
+    "Place types are optional slots; required counts and permitted nesting belong to a family recipe.",
+    "Resolve container form separately from semantic place and position.",
+    "Reject ambiguous reference spaces, conflicting placements, and dependency cycles.",
+    "Spatial registrations must declare units, axes, orientation, reference identity, and attachment behavior.",
+    "Preserve application identity and state only through explicit representation mappings.",
+    "Validate interaction and fallback capability; a name alone does not grant behavior.",
+    "No new family or place ID is accepted by current data attributes or the compact URL codec solely because it appears here."
+  ],
+  "references": [
+    "https://www.w3.org/WAI/ARIA/apg/patterns/",
+    "https://www.w3.org/TR/webxr/"
+  ],
+  "updatedOn": "2026-09-07",
+  "recipeCatalogs": [
+    "workspaces.json"
+  ]
+}

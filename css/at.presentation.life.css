@@ -1,0 +1,5 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Role-based feedback; the host publishes the actual motion policy. */
+[part~="select"] { transition: background-color var(--motion-duration-swift, 160ms) ease; }
+:host([data-life="still"]) [part~="select"] { transition: none; }
+@media (prefers-reduced-motion: reduce) { [part~="select"] { transition: none; } }

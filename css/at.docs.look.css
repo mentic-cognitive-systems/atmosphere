@@ -1,0 +1,174 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+.Brand:popover-open {
+  color: inherit;
+  background: var(--bg);
+}
+
+.Layout[data-lattice="pages"] .masthead-controls {
+  background: var(--card-fill, color-mix(in srgb, currentColor 5%, var(--bg)));
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: var(--radius, 0.5rem);
+}
+
+/* Shared semantic paint consumes the active Look; no profile knows this kind. */
+.experiment[data-role="surface"],
+:where(.experiment) > [data-part="demonstration"] > [data-role="surface"] {
+  color: inherit;
+  background: var(--card-fill, color-mix(in srgb, currentColor 5%, transparent));
+  border-color: color-mix(in srgb, currentColor 22%, transparent);
+}
+:where(.experiment) > [data-part="controls"] textarea {
+  color: inherit; background: color-mix(in srgb, currentColor 4%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: var(--radius-sm, .35rem);
+}
+:where(.experiment) > [data-part="evidence"] { background: color-mix(in srgb, currentColor 6%, transparent); font-size: .82rem; }
+:where(.experiment) > [data-part="conclusion"],
+:where(.experiment) > [data-part="demonstration"] figcaption { font-size: .82rem; line-height: 1.6; }
+/* Documentation Look extension: paint only, derived from the active Look. */
+
+.site-nav a,
+.action-link,
+.text-link,
+.docs-nav button,
+.step-actions button,
+.button-row button,
+.control-row button,
+.model-controls button,
+.filter-row button {
+  color: inherit;
+}
+
+.site-nav a,
+.docs-nav button,
+.step-actions button,
+.button-row button,
+.control-row button,
+.model-controls button,
+.filter-row button,
+.docs-nav-index,
+.step-number,
+.revision-mark,
+.callout,
+.tour-card,
+.principle-card,
+.proof-card,
+.case-card,
+.inspector-card,
+.architecture-card,
+.subscriber-card,
+.event-card,
+.tutorial-step,
+.case-section,
+.live-section,
+.compare-table th,
+.compare-table td,
+.status-table th,
+.status-table td,
+.code-block,
+.code-panel,
+.progress-meter,
+.invariant-strip,
+.file-icon,
+.task-status,
+.activity-mark,
+.pill,
+.state-badge,
+.case-editor {
+  border-color: color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.site-nav a[aria-current="page"],
+.docs-nav button[aria-current="step"],
+.button-row button[aria-pressed="true"],
+.control-row button[aria-pressed="true"],
+.filter-row button[aria-pressed="true"] {
+  border-color: currentColor;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.docs-nav button,
+.step-actions button,
+.button-row button,
+.control-row button,
+.model-controls button,
+.filter-row button {
+  background: color-mix(in srgb, currentColor 7%, transparent);
+}
+
+.button-row button[aria-pressed="true"],
+.control-row button[aria-pressed="true"],
+.filter-row button[aria-pressed="true"] {
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.site-nav a:focus-visible,
+.action-link:focus-visible,
+.text-link:focus-visible,
+.docs-nav button:focus-visible,
+.step-actions button:focus-visible {
+  outline-color: currentColor;
+}
+
+.tutorial-step,
+.case-section,
+.live-section {
+  background: color-mix(in srgb, var(--bg, transparent) 88%, currentColor 3%);
+  box-shadow: var(--card-shadow, none);
+}
+
+.tutorial-step:target,
+.tutorial-step[data-current="true"] {
+  outline: 3px solid color-mix(in srgb, currentColor 72%, transparent);
+  outline-offset: -3px;
+}
+
+.callout,
+.tour-card,
+.principle-card,
+.proof-card,
+.case-card,
+.inspector-card,
+.architecture-card,
+.subscriber-card,
+.event-card,
+.invariant-strip > div {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.architecture-card[data-primary="true"] {
+  border-color: currentColor;
+}
+
+.ownership-list > div,
+.coordinate-list > div,
+.metric-grid > div,
+.file-row,
+.task-row,
+.activity-row,
+.case-editor .app-titlebar,
+.event-row {
+  border-color: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.code-block,
+.code-panel {
+  background: color-mix(in srgb, var(--bg, transparent) 88%, currentColor 7%);
+}
+
+.progress-meter > span {
+  background: currentColor;
+}
+
+.file-row[aria-current="page"],
+.task-row[data-state="active"] {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.task-copy small,
+.activity-copy small,
+.muted,
+.legal-note {
+  opacity: 0.72;
+}

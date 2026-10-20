@@ -1,0 +1,18 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* One semantic structure; the adapter publishes the presentation choice. */
+.release-task > [part~="metrics"] { display: none; }
+:host([data-archetype="document"]) .release-task { max-inline-size: 72ch; }
+:host([data-archetype="workspace"]) .release-task {
+  grid-template-columns: minmax(0, 1fr);
+}
+:host([data-archetype="presentation"]) .release-task { min-block-size: 22rem; align-content: center; }
+:host([data-archetype="presentation"]) .task-navigator > [part~="collection"] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+:host([data-archetype="dashboard"]) .release-task > [part~="metrics"] { display: grid; }
+:host([data-archetype="dashboard"]) .release-task > [part~="demonstration"] { max-inline-size: 70ch; }
+/* Controls remain available in every supported composition; changing an
+   archetype does not hide a focused editor or substitute a second template. */
+@media (max-width: 40rem) {
+  :host([data-archetype="presentation"]) .release-task { min-block-size: 0; }
+}

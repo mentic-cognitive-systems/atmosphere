@@ -1,0 +1,10 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Tutorial lattice: semantic lesson/controls/evidence contract. */
+
+.tutorial-lesson {
+  scroll-margin-block-start: calc(var(--masthead-size, 0px) + var(--layout-gap, 1rem));
+}
+
+.tutorial-progress {
+  overflow: hidden;
+}

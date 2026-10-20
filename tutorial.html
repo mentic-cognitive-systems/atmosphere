@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en"
+      data-archetype="document"
+      data-layout="default" data-lattice="continuous" data-layer="inline"
+      data-look="blueprint" data-theme="blueprint" data-life="pulse"
+      data-scroll-flow="reveal" data-inout-flow="slide" data-lens="none"
+      data-density="cozy" data-size="m" data-tabs="classic"
+      data-header-fold="false" data-heartbeat="false" data-flap="true">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn Atmosphere's canonical presentation framework through a live, continuous release task that morphs between Document, IDE Workspace, Slides, and Dashboard.">
+  <meta name="theme-color" content="#0d1b3e" id="theme-color-meta">
+  <title>Atmosphere Tutorial — The Canonical Presentation Framework</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Monoton&amp;family=Permanent+Marker&amp;family=Press+Start+2P&amp;family=Rye&amp;family=VT323&amp;family=Montserrat:wght@400;600;700;900&amp;family=Cinzel:wght@400;600;700;900&amp;family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&amp;family=Noto+Sans:wght@300;400;600;700;900&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Open+Sans:wght@400;600;700&amp;family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+
+  <!-- Core Atmosphere Concern Sheets -->
+  <link rel="stylesheet" href="css/at.components.css">
+  <link rel="stylesheet" href="css/at.docs.components.css">
+  <link rel="stylesheet" href="css/at.layout.css">
+  <link rel="stylesheet" href="css/at.docs.layout.css">
+  <link rel="stylesheet" href="css/at.lattice.css">
+  <link rel="stylesheet" href="css/at.layer.css">
+  <link rel="stylesheet" href="css/at.look.css">
+  <link rel="stylesheet" href="css/at.docs.look.css">
+  <link rel="stylesheet" href="css/at.life.css">
+  <link rel="stylesheet" href="css/at.docs.life.css">
+  <link rel="stylesheet" href="css/at.lens.css">
+  <link rel="stylesheet" href="css/at.local.css">
+
+  <link rel="stylesheet" href="css/at.tutorial.components.css?v=20261016">
+  <link rel="stylesheet" href="css/at.tutorial.layout.css?v=20261016">
+  <link rel="stylesheet" href="css/at.tutorial.lattice.css?v=20261016">
+  <link rel="stylesheet" href="css/at.tutorial.look.css?v=20261016">
+  <link rel="stylesheet" href="css/at.tutorial.life.css?v=20261016">
+</head>
+<body class="Layout"
+      data-archetype="document" data-archetype-look="keep"
+      data-layout="default" data-lattice="continuous" data-layer="inline"
+      data-look="blueprint" data-theme="blueprint" data-life="pulse"
+      data-scroll-flow="reveal" data-inout-flow="slide" data-lens="none"
+      data-density="cozy" data-size="m" data-tabs="classic"
+      data-header-fold="false" data-heartbeat="false" data-flap="true" data-drawer-intro="true">
+
+  <!-- =====================================================================
+       1. TOOLBAR / MASTHEAD (data-place="toolbar")
+       ===================================================================== -->
+  <header class="Header" data-place="toolbar" data-role="masthead">
+    <div class="docs-header-inner">
+      <div class="tutorial-masthead">
+        <div class="docs-heading">
+          <span class="eyebrow" data-role="voice">Uber UI Template · Interactive Masterclass</span>
+          <h1 class="title-text tutorial-title" data-role="voice" data-breathe="land">Atmosphere Presentation Tutorial</h1>
+          <p class="lede tutorial-summary">Do one useful piece of work, change the presentation archetype, and continue that same work seamlessly.</p>
+        </div>
+        <nav class="site-nav" aria-label="Atmosphere navigation">
+          <a href="tutorial.html" aria-current="page">Tutorial</a>
+          <a href="UI.html">UI Canvas</a>
+          <a href="atmosphere.html">Laboratory</a>
+          <a href="live-object.html">Live Object</a>
+          <a href="README.md">README</a>
+        </nav>
+      </div>
+
+      <div class="tutorial-toolbar">
+        <atmosphere-archetype-picker></atmosphere-archetype-picker>
+        <div class="step-progress-row tutorial-position">
+          <span>Step <b data-current-step-number>1</b> of 8: <span data-current-step-title>Read</span></span>
+          <div class="progress-meter tutorial-progress" role="progressbar" aria-label="Tutorial progress" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1" data-tutorial-progress>
+            <div data-progress-bar class="tutorial-progress-value"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Projected Drawer/Popover Controls -->
+  <nav class="LayerControls" data-layer-controls aria-label="Projected tutorial panels" hidden>
+    <button id="tutorial-nav-trigger" type="button" data-layer-trigger="steps" aria-controls="panel-navigator" aria-expanded="false">Navigator</button>
+    <button id="tutorial-inspector-trigger" type="button" data-layer-trigger="inspector" aria-controls="panel-inspector" aria-expanded="false">Inspector</button>
+  </nav>
+
+  <!-- =====================================================================
+       2. NAVIGATOR (data-place="navigator")
+       Contains tutorial step navigation and the live presentation navigator.
+       ===================================================================== -->
+  <aside id="panel-navigator" class="Sidebar docs-sidebar" data-place="navigator"
+         data-region="navigation" data-layer-panel data-frame data-lattice="continuous"
+         aria-label="Semantic Place: Navigator">
+    <button class="LayerClose" type="button" data-layer-close aria-label="Close navigator" hidden>&times;</button>
+    
+    <div class="callout tutorial-step-list" data-role="surface">
+      <span class="tutorial-step-label">Tutorial Steps</span>
+      <nav class="docs-nav tutorial-navigation" aria-label="Tutorial step jump list">
+        <button type="button" data-go-step="0" aria-current="step"><span class="docs-nav-index">1</span><span>Read (Document)</span></button>
+        <button type="button" data-go-step="1"><span class="docs-nav-index">2</span><span>Work (IDE Workspace)</span></button>
+        <button type="button" data-go-step="2"><span class="docs-nav-index">3</span><span>Project (Drawers)</span></button>
+        <button type="button" data-go-step="3"><span class="docs-nav-index">4</span><span>Present (Slide Deck)</span></button>
+        <button type="button" data-go-step="4"><span class="docs-nav-index">5</span><span>Adapt (Looks & Tokens)</span></button>
+        <button type="button" data-go-step="5"><span class="docs-nav-index">6</span><span>Monitor (Dashboard)</span></button>
+        <button type="button" data-go-step="6"><span class="docs-nav-index">7</span><span>Live Objects & Components</span></button>
+        <button type="button" data-go-step="7"><span class="docs-nav-index">8</span><span>Preserve & Deep-Link</span></button>
+      </nav>
+    </div>
+
+    <!-- Live Presentation Navigator Web Component -->
+    <atmosphere-navigator></atmosphere-navigator>
+  </aside>
+
+  <!-- Look background canvas -->
+  <div class="Surface" aria-hidden="true"></div>
+
+  <!-- =====================================================================
+       3. STAGE (data-place="stage")
+       Houses tutorial lesson card and the live presentation stage.
+       ===================================================================== -->
+  <main class="Main" data-place="stage" data-frame="root" tabindex="-1" aria-label="Semantic Place: Stage">
+    <div class="main-shell tutorial-track" data-track>
+
+      <!-- One view. A paced Lattice makes every view in the root track its
+           own panel or slide, so the lesson and the stage it describes share
+           one and stay side by side (or stacked) on every path. -->
+      <div class="tutorial-view tutorial-session" data-view="stage" data-cols="fit" data-gap="even">
+
+        <!-- --- STEP 1: READ --- -->
+        <section id="step-1" class="tutorial-lesson concept" data-part="explanation"
+                 data-tutorial-step data-title="Read" data-archetype="document"
+                 data-change="Encountering the release plan in continuous reading flow"
+                 data-invariant="Identity, kind, place, parts, roles, state, and constraints">
+          <div class="tutorial-lesson-card" data-role="surface">
+            <div class="lesson-heading">
+              <span class="pill" data-status="completed">Step 1 of 8 · Document Archetype</span>
+              <div class="step-actions" data-part="controls">
+                <button type="button" data-step-next>Next: Work (IDE) →</button>
+              </div>
+            </div>
+            <h2 tabindex="-1">Step 1: Name meaning and its meaningful parts</h2>
+            <p>We begin with one release plan. In <strong>Document Archetype</strong>, the content flows as an inline article. The release-task kind declares explanation, demonstration, controls, evidence, and conclusion. Navigator, stage, and inspector are stable semantic places. Their encounter can change without renaming the parts or replacing their nodes.</p>
+            <div class="lesson-meta" data-part="evidence">
+              <div><strong>Active Archetype:</strong> Document (reading)</div>
+              <div><strong>Layout:</strong> default (2D flat plane)</div>
+              <div><strong>Lattice:</strong> continuous (linear traversal)</div>
+              <div><strong>Try this:</strong> Click a task in the Navigator or below to see its details load into the Inspector.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- --- STEP 2: WORK --- -->
+        <section id="step-2" class="tutorial-lesson concept" data-part="explanation"
+                 data-tutorial-step data-title="Work" data-archetype="workspace"
+                 data-change="Transitioning into a 3-column IDE Workspace"
+                 data-invariant="Selected task and editable notes persist">
+          <div class="tutorial-lesson-card" data-role="surface">
+            <div class="lesson-heading">
+              <span class="pill" data-status="in-progress">Step 2 of 8 · IDE Workspace Archetype</span>
+              <div class="step-actions" data-part="controls">
+                <button type="button" data-step-previous>← Previous</button>
+                <button type="button" data-step-next>Next: Project (Drawers) →</button>
+              </div>
+            </div>
+            <h2 tabindex="-1">Step 2: Presentation changes; work survives</h2>
+            <p>Notice what just happened: the interface morphed into a multi-pane <strong>IDE Workspace</strong> (left project tree, center editor, right inspector, bottom terminal). <strong>Crucially:</strong> your selected task is still selected, and your draft notes are preserved.</p>
+            <div class="lesson-meta" data-part="evidence">
+              <div><strong>Active Archetype:</strong> Workspace (IDE)</div>
+              <div><strong>Layout:</strong> 3col (multi-column 2D plane)</div>
+              <div><strong>Lattice:</strong> app (internal frame viewports)</div>
+              <div><strong>Try this:</strong> Type some private notes in the Inspector at right. Notice the tab in the editor reflects the unsaved draft!</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- --- STEP 3: PROJECT --- -->
+        <section id="step-3" class="tutorial-lesson concept" data-part="explanation"
+                 data-tutorial-step data-title="Project" data-archetype="workspace"
+                 data-change="Withdrawing panels into on-demand edge drawers"
+                 data-invariant="Internal frame path and focus continuity">
+          <div class="tutorial-lesson-card" data-role="surface">
+            <div class="lesson-heading">
+              <span class="pill" data-status="in-progress">Step 3 of 8 · Layer Projections</span>
+              <div class="step-actions" data-part="controls">
+                <button type="button" data-step-previous>← Previous</button>
+                <button type="button" data-step-next>Next: Present (Slides) →</button>
+              </div>
+            </div>
+            <h2 tabindex="-1">Step 3: Layer elevates planes into a 3D stack</h2>
+            <p>When auxiliary panels (the Navigator and Inspector) shouldn't compete for 2D space on the flat plane, Atmosphere's <strong>Layer axis</strong> (<em>Level Across Yield Evaluates Relationships</em>) elevates them into the top layer as on-demand slide-out drawers.</p>
+            <div class="button-row lesson-controls">
+              <button type="button" data-compose="layer:inline">Inline (Base 2D Plane)</button>
+              <button type="button" data-compose="layer:top-left-edge-drawer">Slide-Out Drawers (Elevated Layer)</button>
+            </div>
+            <div class="lesson-meta" data-part="evidence">
+              <div><strong>Active Dimension:</strong> Layer (3D level & projection)</div>
+              <div><strong>High-level rule:</strong> "When on mobile, area panel is a left slide-out; details is right slide-out."</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- --- STEP 4: PRESENT --- -->
+        <section id="step-4" class="tutorial-lesson concept" data-part="explanation"
+                 data-tutorial-step data-title="Present" data-archetype="presentation"
+                 data-change="Transforming the release tasks into a fullscreen slide deck"
+                 data-invariant="Same task sequence, speaker notes on-call">
+          <div class="tutorial-lesson-card" data-role="surface">
+            <div class="lesson-heading">
+              <span class="pill" data-status="in-progress">Step 4 of 8 · Slide Deck Archetype</span>
+              <div class="step-actions" data-part="controls">
+                <button type="button" data-step-previous>← Previous</button>
+                <button type="button" data-step-next>Next: Adapt (Tokens) →</button>
+              </div>
+            </div>
+            <h2 tabindex="-1">Step 4: The Slide Deck Archetype</h2>
+            <p>Now the entire workspace becomes a <strong>Presentation Slide Deck</strong>! The central stage sequences horizontally, and the Navigator drops down as a tab from the top (<code>top-menu</code> layer projection).</p>
+            <div class="lesson-meta" data-part="evidence">
+              <div><strong>Active Archetype:</strong> Presentation (Slides)</div>
+              <div><strong>Lattice:</strong> slides (lateral traversal across tied totals)</div>
+              <div><strong>Layer:</strong> top-menu (elevated dropdown plane)</div>
+              <div><strong>Try this:</strong> Use the Previous/Next buttons on the slide stage or arrow keys to advance slides.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- --- STEP 5: ADAPT --- -->
+        <section id="step-5" class="tutorial-lesson concept" data-part="explanation"
+                 data-tutorial-step data-title="Adapt" data-archetype="workspace"
+                 data-change="Changing Look materials, motion feedback, and density scales"
+                 data-invariant="Semantic contract, node identity, and working state">
+          <div class="tutorial-lesson-card" data-role="surface">
+            <div class="lesson-heading">
+              <span class="pill" data-status="in-progress">Step 5 of 8 · Adaptive Tokens & Looks</span>
+              <div class="step-actions" data-part="controls">
+                <button type="button" data-step-previous>← Previous</button>
+                <button type="button" data-step-next>Next: Monitor (Dashboard) →</button>
+              </div>
+            </div>
+            <h2 tabindex="-1">Step 5: Locality without hardcoded values</h2>
+            <p>Atmosphere's <strong>Local Contract</strong> ensures that spacing and grid columns resolve through shared tokens. Test swapping themes below—see typeface metrics (<code>--face-aspect</code>) recalculate column fits without touching the DOM structure:</p>
+            <div class="button-row lesson-controls">
+              <button type="button" data-compose="look:blueprint">Blueprint</button>
+              <button type="button" data-compose="look:parchment">Parchment</button>
+              <button type="button" data-compose="look:cyberpunk">Cyberpunk</button>
+              <button type="button" data-compose="look:tux">Tux</button>
+              <button type="button" data-compose="density:compact">Compact</button>
+              <button type="button" data-compose="density:roomy">Roomy</button>
+            </div>
+            <div class="lesson-meta" data-part="evidence">
+              <div><strong>The Razor:</strong> If changing Look or Density cannot move the measure, it is a hardcode.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- --- STEP 6: MONITOR --- -->
+        <section id="step-6" class="tutorial-lesson concept" data-part="explanation"
+                 data-tutorial-step data-title="Monitor" data-archetype="dashboard"
+                 data-change="Transitioning into an executive dashboard"
+                 data-invariant="Underlying domain records and active selection">
+          <div class="tutorial-lesson-card" data-role="surface">
+            <div class="lesson-heading">
+              <span class="pill" data-status="in-progress">Step 6 of 8 · Dashboard Archetype</span>
+              <div class="step-actions" data-part="controls">
+                <button type="button" data-step-previous>← Previous</button>
+                <button type="button" data-step-next>Next: Components →</button>
+              </div>
+            </div>
+            <h2 tabindex="-1">Step 6: High-level KPI and monitoring dashboards</h2>
+            <p>Executive stakeholders require high-level metrics rather than code editors. The <strong>Dashboard Archetype</strong> provides KPI cards, progress velocity, and drill-down panels—computed from the exact same release records.</p>
+            <div class="lesson-meta" data-part="evidence">
+              <div><strong>Active Archetype:</strong> Dashboard</div>
+              <div><strong>Lattice:</strong> control (instrument grid)</div>
+              <div><strong>Layer:</strong> pop-over (detail drill-down)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- --- STEP 7: LIVE OBJECTS --- -->
+        <section id="step-7" class="tutorial-lesson concept" data-part="explanation"
+                 data-tutorial-step data-title="Live Objects" data-archetype="workspace"
+                 data-change="Adding a new task via live-object web components"
+                 data-invariant="Reactive synchronization across all four archetypes">
+          <div class="tutorial-lesson-card" data-role="surface">
+            <div class="lesson-heading">
+              <span class="pill" data-status="in-progress">Step 7 of 8 · Live Objects & Web Components</span>
+              <div class="step-actions" data-part="controls">
+                <button type="button" data-step-previous>← Previous</button>
+                <button type="button" data-step-next>Next: Preserve & Share →</button>
+              </div>
+            </div>
+            <h2 tabindex="-1">Step 7: Web components on a live-object architecture</h2>
+            <p>The components on this page (<code>&lt;atmosphere-navigator&gt;</code>, <code>&lt;atmosphere-stage&gt;</code>, <code>&lt;atmosphere-inspector&gt;</code>, <code>&lt;atmosphere-context&gt;</code>) are custom elements subscribing directly to a supplied reactive presentation model. Their public native <code>part</code> addresses let concern sheets compose one stable shadow tree. Adding a task updates the shared collection; changing an archetype keeps the existing controls and draft textarea:</p>
+            <div class="button-row lesson-controls">
+              <button type="button" id="btn-tutorial-add-task">+ Add Release Task Dynamically</button>
+            </div>
+            <div class="lesson-meta" data-part="evidence">
+              <div><strong>Architecture:</strong> Single source of truth (AtmospherePresentation + AtmosphereModel).</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- --- STEP 8: PRESERVE & SHARE --- -->
+        <section id="step-8" class="tutorial-lesson concept" data-part="explanation"
+                 data-tutorial-step data-title="Preserve & Share" data-archetype="document"
+                 data-change="Returning to document reading with state and composite URLs"
+                 data-invariant="Full state continuity & shareable deep links">
+          <div class="tutorial-lesson-card" data-role="surface">
+            <div class="lesson-heading">
+              <span class="pill" data-status="completed">Step 8 of 8 · Mastery & Deep Linking</span>
+              <div class="step-actions" data-part="controls">
+                <button type="button" data-step-previous>← Previous</button>
+                <a class="action-link tutorial-next-canvas" href="UI.html">Open Canonical UI Canvas →</a>
+              </div>
+            </div>
+            <h2 tabindex="-1">Step 8: Return to reading, share the link</h2>
+            <p>We are back in <strong>Document Archetype</strong>. Notice that all the task edits, newly added items, and your drafted notes survive completely. The URL bar reflects the composite state: <code>#task?at=...</code></p>
+            <div class="lesson-meta" data-part="evidence">
+              <div><strong>Composite URL:</strong> Application route + compact Atmosphere coordinate.</div>
+              <div><strong>Explore next:</strong> Use <a href="UI.html">UI.html</a> as your project's starting canvas!</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Live Presentation Stage Web Component -->
+        <atmosphere-stage data-part="demonstration"></atmosphere-stage>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- =====================================================================
+       4. INSPECTOR (data-place="inspector")
+       ===================================================================== -->
+  <aside id="panel-inspector" class="UtilityRail" data-place="inspector"
+         data-region="inspector" data-layer-panel data-frame data-lattice="continuous"
+         aria-label="Semantic Place: Inspector">
+    <button class="LayerClose" type="button" data-layer-close aria-label="Close inspector" hidden>&times;</button>
+    <atmosphere-inspector data-part="controls"></atmosphere-inspector>
+  </aside>
+
+  <!-- =====================================================================
+       5. CONTEXT (data-place="context")
+       ===================================================================== -->
+  <footer class="Footer" data-place="context" data-region="context" aria-label="Semantic Place: Context">
+    <atmosphere-context></atmosphere-context>
+  </footer>
+
+  <!-- Scripts. The servers these pages run on send no Cache-Control, so a
+       browser keeps a script for days on its age alone and a reload does not
+       re-fetch it. Bump ?v= whenever one of these files changes. -->
+  <script src="js/atmosphere.js"></script>
+  <script src="js/atmosphere-model.js?v=20261016"></script>
+  <script src="js/atmosphere-presentation.js?v=20261016"></script>
+  <script src="js/at.tutorial.js?v=20261016"></script>
+  <atmospheric-lander floating></atmospheric-lander>
+  <script src="webcomp/atmospheric-lander.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Documentation Layout extension: page placement and print structure. */
+
+/* The lab binds semantic responsibilities to the existing runtime's slots.
+   The shared Layout supplies defaults; at.contract.css refines per-region slots. */
+.SemanticLab {
+  --place-toolbar: Header;
+  --place-navigator: Sidebar;
+  --place-stage: Main;
+  --place-inspector: UtilityRail;
+  --place-footer: Footer;
+}
+.SemanticLab > [data-place="toolbar"] { --place: var(--place-toolbar); }
+.SemanticLab > [data-place="navigator"] { --place: var(--place-navigator); }
+.SemanticLab > [data-place="stage"] { --place: var(--place-stage); }
+.SemanticLab > [data-place="inspector"] { --place: var(--place-inspector); }
+.SemanticLab > [data-place="footer"] { --place: var(--place-footer); }
+.SemanticLab > [data-place] { grid-area: var(--place); }
+
+.Header > .brand-block {
+  display: var(--brand-display, block);
+  grid-template-columns: var(--brand-columns, none);
+}
+
+.Header > .brand-block > * {
+  grid-column: 1 / -1;
+  min-inline-size: 0;
+}
+
+.masthead-controls {
+  display: contents;
+}
+
+.Header > .brand-block .site-nav {
+  grid-column: var(--brand-nav-column, 1 / -1);
+  justify-content: flex-start;
+}
+
+.Header > .brand-block .composition-readout {
+  grid-column: var(--brand-readout-column, 1 / -1);
+  justify-content: var(--brand-readout-justify, flex-start);
+}
+
+.Layout[data-lattice="pages"] .masthead-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.55rem;
+  padding: 0.65rem;
+}
+
+.Layout[data-lattice="pages"] .masthead-controls > :is(.site-nav, .composition-readout) {
+  grid-column: 1;
+  min-inline-size: 0;
+}
+
+/* Slide Deck spends one header row on navigation, Brand and the readout.
+   The controls wrapper remains transparent to this grid. */
+.Layout[data-lattice="slides"] .Header > .brand-block {
+  display: grid;
+  grid-template-columns: max-content max-content minmax(0, 1fr);
+  gap: 0.55rem 1rem;
+  align-items: start;
+}
+
+.Layout[data-lattice="slides"] .Header > .brand-block > .brand-line {
+  grid-column: 2 / -1;
+  grid-row: 1;
+}
+
+.Layout[data-lattice="slides"] .Header > .brand-block > .BrandSlot {
+  grid-column: 2;
+  grid-row: 2;
+  max-inline-size: 35vw;
+}
+
+.Layout[data-lattice="slides"] .Header > .brand-block .site-nav {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+.Layout[data-lattice="slides"] .Header > .brand-block .composition-readout {
+  grid-column: 3;
+  grid-row: 2;
+  block-size: var(--brand-box-size, 3.75rem);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  align-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.Layout[data-lattice="slides"] .composition-readout > .dim {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.experiment {
+  grid-template-areas: "explanation" "demonstration" "controls" "evidence" "conclusion";
+}
+:where(.experiment) > [data-part="explanation"] { grid-area: explanation; }
+:where(.experiment) > [data-part="demonstration"] { grid-area: demonstration; }
+:where(.experiment) > [data-part="controls"] { grid-area: controls; }
+:where(.experiment) > [data-part="evidence"] { grid-area: evidence; }
+:where(.experiment) > [data-part="conclusion"] { grid-area: conclusion; }
+@container panel (min-width: 58rem) {
+  .experiment {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "explanation explanation" "demonstration controls" "evidence evidence" "conclusion conclusion";
+  }
+}
+
+.tutorial-step,
+.case-section,
+.live-section {
+  min-block-size: min(42rem, 82svh);
+  align-content: center;
+}
+
+.current-step-card {
+  position: sticky;
+  top: calc(var(--layer-controls-size, 0px) + 1rem);
+}
+
+@media (max-width: 48rem) {
+  .tutorial-step,
+  .case-section,
+  .live-section {
+    min-block-size: 0;
+  }
+}
+
+@media print {
+  .site-nav,
+  .step-actions,
+  .model-controls,
+  .button-row,
+  .control-row,
+  .filter-row {
+    display: none !important;
+  }
+
+  .tutorial-step,
+  .case-section,
+  .live-section {
+    min-block-size: 0;
+    break-inside: avoid;
+  }
+}

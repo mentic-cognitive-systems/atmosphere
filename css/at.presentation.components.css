@@ -1,0 +1,44 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Shadow component contracts. Public part names are stable across archetypes. */
+:host { display: block; min-inline-size: 0; font: inherit; color: inherit; }
+.release-task { --presentation-title-size: clamp(1.4rem, 2.5vw, 2rem); --presentation-summary-size: 1rem; }
+*, *::before, *::after { box-sizing: border-box; }
+:where(h2, h3, p, ul, ol, dl, dd) { margin: 0; }
+:where(button, input, textarea, select) { font: inherit; color: inherit; }
+:where(button, a, select) { touch-action: manipulation; }
+button { min-block-size: 2.5rem; padding: .45rem .7rem; cursor: pointer; }
+button:disabled { cursor: default; }
+button:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline-width: 3px; outline-style: solid; outline-offset: 3px;
+}
+textarea, select { inline-size: 100%; padding: .5rem .7rem; }
+textarea { min-block-size: 7rem; resize: vertical; }
+:where([part~="surface"]) { padding: var(--layout-gap, 1rem); }
+:where(.release-task, .task-inspector, .task-navigator, .composition-context) {
+  display: grid; gap: var(--layout-gap, .75rem); min-inline-size: 0;
+}
+:where(.release-task, .task-inspector, .task-navigator) > [part~="explanation"] {
+  display: grid; gap: .5rem;
+}
+:where(.release-task, .task-inspector, .task-navigator) > [part~="controls"],
+.archetype-picker > [part~="controls"] {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+}
+:where(.release-task, .task-inspector) > [part~="evidence"] {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .35rem .75rem;
+}
+:where([part~="evidence"]) dd { overflow-wrap: anywhere; }
+.task-navigator > [part~="collection"] {
+  display: grid; gap: .4rem; list-style: none; padding: 0;
+}
+.task-choice { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .3rem .6rem; inline-size: 100%; text-align: start; }
+.task-choice > [part~="status"] { grid-column: 2; justify-self: start; }
+.task-choice > [part~="ordinal"] { grid-row: span 2; align-self: center; }
+.release-task > [part~="metrics"] { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr)); gap: .6rem; }
+.release-metric { display: grid; gap: .3rem; padding: .75rem; }
+.release-task > [part~="demonstration"] { line-height: 1.65; overflow-wrap: anywhere; }
+.task-inspector > [part~="controls"] { display: grid; gap: .4rem; }
+.composition-context > [part~="evidence"] { display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
+.composition-context > [part~="activity"] { list-style: none; padding: 0; display: grid; gap: .25rem; }
+.archetype-picker > [part~="controls"] { margin: 0; padding: 0; border: 0; }
+.archetype-picker legend { margin-block-end: .45rem; }

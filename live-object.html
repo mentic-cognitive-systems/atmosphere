@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en"
+      data-layout="3col" data-lattice="continuous" data-layer="inline"
+      data-look="blueprint" data-theme="blueprint" data-life="pulse"
+      data-scroll-flow="still" data-inout-flow="slide" data-lens="none"
+      data-density="cozy" data-size="s" data-tabs="classic"
+      data-header-fold="false" data-heartbeat="false" data-flap="false">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An Atmosphere-specific walkthrough of a reactive live object with DOM, URL, and component adapters.">
+  <meta name="theme-color" content="#0d1b3e" id="theme-color-meta">
+  <title>Atmosphere Live Object — Interactive Architecture Walkthrough</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&amp;family=Monoton&amp;family=Permanent+Marker&amp;family=Press+Start+2P&amp;family=Rye&amp;family=VT323&amp;family=Montserrat:wght@400;600;700;900&amp;family=Cinzel:wght@400;600;700;900&amp;family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&amp;family=Noto+Sans:wght@300;400;600;700;900&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/at.components.css">
+  <link rel="stylesheet" href="css/at.docs.components.css">
+  <link rel="stylesheet" href="css/at.layout.css">
+  <link rel="stylesheet" href="css/at.docs.layout.css">
+  <link rel="stylesheet" href="css/at.lattice.css">
+  <link rel="stylesheet" href="css/at.layer.css">
+  <link rel="stylesheet" href="css/at.look.css">
+  <link rel="stylesheet" href="css/at.docs.look.css">
+  <link rel="stylesheet" href="css/at.life.css">
+  <link rel="stylesheet" href="css/at.docs.life.css">
+  <link rel="stylesheet" href="css/at.lens.css">
+  <link rel="stylesheet" href="css/at.local.css">
+</head>
+<body class="Layout"
+      data-layout="3col" data-lattice="continuous" data-layer="inline"
+      data-look="blueprint" data-theme="blueprint" data-life="pulse"
+      data-scroll-flow="still" data-inout-flow="slide" data-lens="none"
+      data-density="cozy" data-size="s" data-tabs="classic"
+      data-header-fold="false" data-heartbeat="false" data-flap="false">
+
+  <header class="Header" data-role="masthead">
+    <div class="docs-heading">
+      <span class="eyebrow" data-role="voice">Focused advanced chapter · experimental API</span>
+      <h1 class="title-text" data-role="voice" data-breathe="land">Giving Atmosphere a Body</h1>
+      <p class="lede">One native live object records the composition. Direct subscribers and replaceable adapters keep the DOM, URL, controls, and host application in step.</p>
+    </div>
+    <nav class="site-nav" aria-label="Atmosphere documentation">
+      <a href="tutorial.html">Tutorial</a>
+      <a href="atmosphere.html">Laboratory</a>
+      <a href="app.html">Case study</a>
+      <a href="live-object.html" aria-current="page">Live object</a>
+      <a href="README.md">README</a>
+    </nav>
+  </header>
+
+  <aside class="Sidebar docs-sidebar" data-frame data-lattice="continuous" aria-label="Live-object controls and chapters">
+    <atmosphere-control-panel></atmosphere-control-panel>
+
+    <div class="current-step-card callout" data-role="surface">
+      <span class="step-label">Walkthrough</span>
+      <div class="progress-meter" role="progressbar" aria-label="Walkthrough progress" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" data-tutorial-progress><span></span></div>
+      <p><strong>Step <span data-current-step-number>1</span>:</strong> <span data-current-step-title>One object</span></p>
+    </div>
+    <nav class="docs-nav" aria-label="Jump to live-object step">
+      <button type="button" data-go-step="0" aria-current="step"><span class="docs-nav-index">1</span><span>One object</span></button>
+      <button type="button" data-go-step="1"><span class="docs-nav-index">2</span><span>The model</span></button>
+      <button type="button" data-go-step="2"><span class="docs-nav-index">3</span><span>Direct subscriber</span></button>
+      <button type="button" data-go-step="3"><span class="docs-nav-index">4</span><span>Event bridge</span></button>
+      <button type="button" data-go-step="4"><span class="docs-nav-index">5</span><span>Migration boundary</span></button>
+    </nav>
+  </aside>
+
+  <div class="Surface" aria-hidden="true"></div>
+
+  <main class="Main" data-frame="root" tabindex="-1" aria-label="Live-object architecture walkthrough">
+    <div class="main-shell tutorial-track" data-track>
+      <section class="live-section" data-view="stage" style="--lattice-index: 1"
+               data-tutorial-step data-title="One object" data-owner="AtmosphereModel"
+               data-change="One immutable coordinate revision" data-invariant="CSS still renders every visual consequence">
+        <div class="step-heading">
+          <span class="step-number" aria-hidden="true">1</span>
+          <div class="docs-heading"><span class="eyebrow">Interact first</span><h2>One object, every subscriber in step</h2></div>
+        </div>
+        <p>Use the model controls in the left rail. The summary receives the live object directly. The token probe reads resolved facts from the cascade. The activity log at right receives only a bridged document event.</p>
+        <div class="subscriber-grid">
+          <atmosphere-summary></atmosphere-summary>
+          <atmosphere-token-probe></atmosphere-token-probe>
+        </div>
+        <div class="invariant-strip">
+          <div><strong>State</strong><span>Named composition coordinates.</span></div>
+          <div><strong>Events</strong><span>Revision plus changed fields.</span></div>
+          <div><strong>Rendering</strong><span>The existing CSS cascade.</span></div>
+        </div>
+        <div class="step-actions"><span>Change Look, Lattice, density, or Life.</span><button type="button" data-step-next>Inspect the model →</button></div>
+      </section>
+
+      <section class="live-section" data-view style="--lattice-index: 2"
+               data-tutorial-step data-title="The model" data-owner="Native EventTarget"
+               data-change="The coordinate and revision" data-invariant="No rendering code enters the object">
+        <div class="step-heading">
+          <span class="step-number" aria-hidden="true">2</span>
+          <div class="docs-heading"><span class="eyebrow">State plus event source</span><h2>The experimental wrapper is deliberately small</h2></div>
+        </div>
+        <pre class="code-panel" data-compact="true"><code>class AtmosphereLiveModel extends EventTarget {
+  #current;
+  #revision = 0;
+
+  get current() { return this.#current; }
+  get revision() { return this.#revision; }
+
+  set(axis, value, options) {
+    return this.setComposition({ [axis]: value }, options);
+  }
+
+  subscribe(listener) {
+    const handler = event =&gt; listener(event.detail);
+    this.addEventListener('atmosphere:change', handler);
+    return () =&gt; this.removeEventListener('atmosphere:change', handler);
+  }
+}</code></pre>
+        <div class="callout"><strong>No virtual DOM and no style object.</strong><p>The model records decisions, invokes the current composition controller, observes the compatibility DOM surface, and emits immutable snapshots. CSS continues to resolve the result.</p></div>
+        <div class="step-actions"><button type="button" data-step-previous>← One object</button><button type="button" data-step-next>Direct subscriber →</button></div>
+      </section>
+
+      <section class="live-section" data-view style="--lattice-index: 3"
+               data-tutorial-step data-title="Direct subscriber" data-owner="Component property"
+               data-change="Targeted component DOM" data-invariant="The component owns no global coordination">
+        <div class="step-heading">
+          <span class="step-number" aria-hidden="true">3</span>
+          <div class="docs-heading"><span class="eyebrow">Tight relationship</span><h2>Give a related component the object directly</h2></div>
+        </div>
+        <pre class="code-panel"><code>set model(nextModel) {
+  this.#unsubscribe?.();
+  this.#model = nextModel;
+  this.#unsubscribe = nextModel.subscribe(change =&gt; {
+    this.#render(change.coordinate, change.changed);
+  });
+  this.#render(nextModel.current, []);
+}</code></pre>
+        <div class="proof-grid">
+          <article class="proof-card"><strong>Explicit dependency</strong><p>The summary clearly declares that it needs the model.</p></article>
+          <article class="proof-card"><strong>Targeted update</strong><p>The event says which coordinate fields changed.</p></article>
+          <article class="proof-card"><strong>Clean lifetime</strong><p>The setter unsubscribes before binding another instance.</p></article>
+        </div>
+        <p>The coordinate summary and token probe on the first view use this pattern.</p>
+        <div class="step-actions"><button type="button" data-step-previous>← The model</button><button type="button" data-step-next>Event bridge →</button></div>
+      </section>
+
+      <section class="live-section" data-view style="--lattice-index: 4"
+               data-tutorial-step data-title="Event bridge" data-owner="Replaceable adapter"
+               data-change="A document-level notification" data-invariant="The distant component never receives the model">
+        <div class="step-heading">
+          <span class="step-number" aria-hidden="true">4</span>
+          <div class="docs-heading"><span class="eyebrow">Loose relationship</span><h2>Bridge global effects without coupling every component</h2></div>
+        </div>
+        <pre class="code-panel"><code>// Adapter: model event → document event
+model.subscribe(detail =&gt; {
+  document.dispatchEvent(new CustomEvent(
+    'atmosphere:model-change', { detail }
+  ));
+});
+
+// Distant subscriber: no model reference
+connectedCallback() {
+  document.addEventListener(
+    'atmosphere:model-change', this.#onChange
+  );
+}</code></pre>
+        <div class="callout"><strong>Use the bridge for global effects, not routine component state.</strong><p>URL synchronization, analytics, activity feeds, and host-level coordination benefit from decoupling. A closely related view is clearer with a direct dependency.</p></div>
+        <p>The activity component in the right rail demonstrates this path. It is never assigned <code>AtmosphereModel</code>.</p>
+        <div class="step-actions"><button type="button" data-step-previous>← Direct subscriber</button><button type="button" data-step-next>Migration boundary →</button></div>
+      </section>
+
+      <section class="live-section" data-view style="--lattice-index: 5"
+               data-tutorial-step data-title="Migration boundary" data-owner="RFC"
+               data-change="Adapters become authoritative in phases" data-invariant="Compatibility remains explicit">
+        <div class="step-heading">
+          <span class="step-number" aria-hidden="true">5</span>
+          <div class="docs-heading"><span class="eyebrow">What this proves—and what it does not</span><h2>The pattern works; the core migration is not yet complete</h2></div>
+        </div>
+        <table class="status-table">
+          <thead><tr><th>Capability</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>DOM-backed composition controller</td><td>Shipped</td></tr>
+            <tr><td>Composite route plus <code>?at=</code></td><td>Shipped</td></tr>
+            <tr><td>Reactive wrapper used on this page</td><td>Experimental</td></tr>
+            <tr><td>One canonical atomic persistence record</td><td>Proposed</td></tr>
+            <tr><td>Drawer and every host write only through the model</td><td>Proposed</td></tr>
+          </tbody>
+        </table>
+        <div class="architecture-flow">
+          <article class="architecture-card" data-primary="true"><strong>AtmosphereModel</strong><p>Target source of truth.</p></article>
+          <article class="architecture-card"><strong>DOM adapter</strong><p>Current compatibility surface.</p></article>
+          <article class="architecture-card"><strong>URL adapter</strong><p>Composition plus host route.</p></article>
+          <article class="architecture-card"><strong>Storage adapter</strong><p>Future atomic record.</p></article>
+          <article class="architecture-card"><strong>Control adapter</strong><p>Drawer and tray migration.</p></article>
+        </div>
+        <div class="button-row">
+          <a class="action-link" href="docs/STATE-MODEL.md">Read the complete RFC →</a>
+          <a class="action-link" href="tutorial.html?step=8">Return to tutorial step 8 →</a>
+        </div>
+        <div class="step-actions"><button type="button" data-step-previous>← Event bridge</button><a class="action-link" href="app.html">Open the application proof</a></div>
+      </section>
+    </div>
+  </main>
+
+  <aside class="UtilityRail" data-frame data-lattice="continuous" aria-label="Model event activity">
+    <atmosphere-activity></atmosphere-activity>
+    <section class="inspector-card" data-role="surface">
+      <span class="status-label">Current step contract</span>
+      <dl class="ownership-list">
+        <div><dt>Owner</dt><dd data-current-step-owner>AtmosphereModel</dd></div>
+        <div><dt>Changes</dt><dd data-current-step-change>One immutable coordinate revision</dd></div>
+        <div><dt>Invariant</dt><dd data-current-step-invariant>CSS still renders every visual consequence</dd></div>
+      </dl>
+    </section>
+  </aside>
+
+  <footer class="Footer">
+    <p>The original generic profile demonstration remains separate; this chapter applies the pattern to Atmosphere itself.</p>
+    <nav class="footer-links" aria-label="Live-object links"><a class="text-link" href="docs/STATE-MODEL.md">RFC</a><a class="text-link" href="LICENSE">License</a><a class="text-link" href="README.md">Source &amp; README</a><span class="legal-note">Provided without warranty; see license.</span><span>© 2026 MENTIC LLC</span></nav>
+  </footer>
+
+  <script src="js/atmosphere.js"></script>
+  <script src="js/atmosphere-model.js"></script>
+  <script src="js/at.live-object-demo.js"></script>
+  <script src="js/at.tutorial.js"></script>
+  <atmospheric-lander floating></atmospheric-lander>
+  <script src="webcomp/atmospheric-lander.js" defer></script>
+</body>
+</html>

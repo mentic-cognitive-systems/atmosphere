@@ -1,0 +1,762 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Encapsulated presentation for <atheme-drawer> and <atheme-tray> */
+
+:host {
+  --atheme-drawer-width: min(15rem, calc(100vw - 3rem));
+  --atheme-drawer-tab-width: 2.5rem;
+  --atheme-drawer-tab-height: 2.6rem;
+  position: fixed;
+  z-index: 1000;
+  display: block;
+  pointer-events: none;
+  color: var(--text, #e8eef6);
+  font-family: var(--font, system-ui, sans-serif);
+}
+
+/* Default & top-right positioning */
+:host,
+:host([position="top-right"]) {
+  top: 0.75rem;
+  right: 0;
+  bottom: auto;
+  left: auto;
+}
+
+:host([position="top-left"]) {
+  top: 0.75rem;
+  left: 0;
+  bottom: auto;
+  right: auto;
+}
+
+:host([position="bottom-right"]) {
+  bottom: 0.75rem;
+  right: 0;
+  top: auto;
+  left: auto;
+}
+
+:host([position="bottom-left"]) {
+  bottom: 0.75rem;
+  left: 0;
+  top: auto;
+  right: auto;
+}
+
+:host([position="right"]) {
+  top: 50%;
+  right: 0;
+  bottom: auto;
+  left: auto;
+  transform: translateY(-50%);
+}
+
+:host([position="left"]) {
+  top: 50%;
+  left: 0;
+  bottom: auto;
+  right: auto;
+  transform: translateY(-50%);
+}
+
+:host([position="top"]) {
+  top: 0;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translateX(-50%);
+}
+
+:host([position="bottom"]) {
+  bottom: 0;
+  left: 50%;
+  right: auto;
+  top: auto;
+  transform: translateX(-50%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font: inherit;
+}
+
+.tab,
+.panel {
+  pointer-events: auto;
+}
+
+/* Tray Layout Modes */
+/* The look ships an expected feel; the lens sets the pace. Custom properties
+   inherit across the shadow boundary, so the drawer's own slide is scored by
+   whichever theme is active without the component knowing any theme names. */
+.tray {
+  display: grid;
+  align-items: start;
+  transition: transform
+              var(--lens-drawer-time, var(--drawer-time, 280ms))
+              var(--lens-drawer-ease, var(--drawer-ease, ease));
+}
+
+/* Right side drawers (default, top-right, bottom-right, right) */
+.tray.pos-top-right,
+.tray.pos-bottom-right,
+.tray.pos-right {
+  grid-template-columns: auto var(--atheme-drawer-width);
+  transform: translateX(var(--atheme-drawer-width));
+}
+.tray.pos-top-right.is-open,
+.tray.pos-bottom-right.is-open,
+.tray.pos-right.is-open {
+  transform: translateX(0);
+}
+
+/* Left side drawers (top-left, bottom-left, left) */
+.tray.pos-top-left,
+.tray.pos-bottom-left,
+.tray.pos-left {
+  grid-template-columns: var(--atheme-drawer-width) auto;
+  transform: translateX(calc(-1 * var(--atheme-drawer-width)));
+}
+.tray.pos-top-left .tab,
+.tray.pos-bottom-left .tab,
+.tray.pos-left .tab {
+  order: 2;
+  border-radius: 0 0.35rem 0.35rem 0;
+  border-left: 0;
+  border-right: 1px solid var(--accent, #3ad29f);
+}
+.tray.pos-top-left .panel,
+.tray.pos-bottom-left .panel,
+.tray.pos-left .panel {
+  order: 1;
+  border-radius: 0 0.35rem 0.35rem 0;
+  border-left: 0;
+  border-right: 1px solid var(--accent, #3ad29f);
+}
+.tray.pos-top-left.is-open,
+.tray.pos-bottom-left.is-open,
+.tray.pos-left.is-open {
+  transform: translateX(0);
+}
+
+/* Top drawer */
+.tray.pos-top {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  justify-items: center;
+  transform: translateY(calc(-1 * 100% + var(--atheme-drawer-tab-height)));
+}
+.tray.pos-top .tab {
+  order: 2;
+  writing-mode: horizontal-tb;
+  border-radius: 0 0 0.35rem 0.35rem;
+  border-top: 0;
+}
+.tray.pos-top .panel {
+  order: 1;
+  border-radius: 0 0 0.35rem 0.35rem;
+  border-top: 0;
+}
+.tray.pos-top.is-open {
+  transform: translateY(0);
+}
+
+/* Bottom drawer */
+.tray.pos-bottom {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  justify-items: center;
+  transform: translateY(calc(100% - var(--atheme-drawer-tab-height)));
+}
+.tray.pos-bottom .tab {
+  order: 1;
+  writing-mode: horizontal-tb;
+  border-radius: 0.35rem 0.35rem 0 0;
+  border-bottom: 0;
+}
+.tray.pos-bottom .panel {
+  order: 2;
+  border-radius: 0.35rem 0.35rem 0 0;
+  border-bottom: 0;
+}
+.tray.pos-bottom.is-open {
+  transform: translateY(0);
+}
+
+/* Buttons and Controls */
+.tab,
+.theme,
+.close {
+  cursor: pointer;
+  border: 1px solid var(--accent, #3ad29f);
+  color: var(--accent, #3ad29f);
+  background: color-mix(in srgb, var(--bg, #06080c) 88%, transparent);
+  transition: background var(--transition-interaction, 200ms ease),
+              color var(--transition-interaction, 200ms ease),
+              box-shadow var(--transition-interaction, 200ms ease),
+              transform var(--transition-interaction, 200ms ease);
+}
+
+.tab:hover,
+.theme:hover,
+.theme.is-selected,
+.close:hover {
+  color: var(--bg, #06080c);
+  background: var(--accent, #3ad29f);
+}
+
+.tab:focus-visible,
+.theme:focus-visible,
+.close:focus-visible {
+  outline: 2px solid var(--accent, #3ad29f);
+  outline-offset: 2px;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-width: var(--atheme-drawer-tab-width);
+  min-height: 5.4rem;
+  padding: 0.65rem 0.35rem;
+  border-right: 0;
+  border-radius: 0.35rem 0 0 0.35rem;
+  background: var(--accent, #3ad29f);
+  color: var(--bg, #06080c);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: calc(0.06em * var(--caps-tracking, 1));
+  text-transform: var(--caps, uppercase);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  backdrop-filter: blur(10px);
+  transform-origin: 100% 50%;
+  animation: var(--atheme-tab-heartbeat, none), var(--atheme-tab-flap, none);
+  will-change: scale, transform;
+}
+
+.tray.pos-top-left .tab,
+.tray.pos-bottom-left .tab,
+.tray.pos-left .tab {
+  transform-origin: 0 50%;
+}
+
+.tray.pos-top .tab {
+  transform-origin: 50% 0;
+}
+
+.tray.pos-bottom .tab {
+  transform-origin: 50% 100%;
+}
+
+@keyframes atheme-tab-heartbeat {
+  0%, 8%, 16%, 100% { scale: 1; }
+  4% { scale: 1.09; }
+  12% { scale: 1.055; }
+}
+
+@keyframes atheme-tab-flap {
+  0%, 62%, 90%, 100% { transform: perspective(22rem) rotateY(0deg) skewY(0deg); }
+  67% { transform: perspective(22rem) rotateY(-24deg) skewY(3deg); }
+  72% { transform: perspective(22rem) rotateY(17deg) skewY(-2deg); }
+  77% { transform: perspective(22rem) rotateY(-11deg) skewY(1.5deg); }
+  82% { transform: perspective(22rem) rotateY(6deg) skewY(-0.75deg); }
+  87% { transform: perspective(22rem) rotateY(-2deg) skewY(0deg); }
+}
+
+.tray.pos-top .tab,
+.tray.pos-bottom .tab {
+  flex-direction: row;
+  min-height: var(--atheme-drawer-tab-height);
+  min-width: 6rem;
+  padding: 0.4rem 0.8rem;
+  writing-mode: horizontal-tb;
+}
+
+.tab-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.tab-icon-emoji {
+  font-size: 1.15em;
+}
+
+.tab-icon-img {
+  width: 1.25em;
+  height: 1.25em;
+  object-fit: contain;
+}
+
+.panel {
+  width: var(--atheme-drawer-width);
+  max-height: calc(100svh - 1.5rem);
+  overflow-y: auto;
+  padding: 0.8rem;
+  border: 1px solid var(--accent, #3ad29f);
+  border-right: 0;
+  border-radius: 0.35rem 0 0 0.35rem;
+  background: color-mix(in srgb, var(--bg, #06080c) 94%, transparent);
+  box-shadow: -0.4rem 0 1.6rem rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+  scrollbar-color: var(--accent, #3ad29f) color-mix(in srgb, var(--bg, #06080c) 85%, #000 15%);
+  scrollbar-width: thin;
+}
+
+.panel::-webkit-scrollbar {
+  width: 8px;
+}
+.panel::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--bg, #06080c) 85%, #000 15%);
+}
+.panel::-webkit-scrollbar-thumb {
+  background: var(--accent, #3ad29f);
+  border-radius: 4px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.title {
+  color: var(--text, #e8eef6);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: calc(0.14em * var(--caps-tracking, 1));
+  text-transform: var(--caps, uppercase);
+}
+
+.close {
+  display: grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.category-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  padding: 0.2rem;
+  background: color-mix(in srgb, var(--bg, #06080c) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #3ad29f) 35%, transparent);
+  border-radius: 0.35rem;
+}
+
+.category-btn {
+  min-width: 0;
+  padding: 0.35rem 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: calc(0.05em * var(--caps-tracking, 1));
+  text-transform: var(--caps, uppercase);
+  background: transparent;
+  border: 0;
+  border-radius: 0.25rem;
+  color: var(--text, #e8eef6);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-btn:hover {
+  opacity: 1;
+  color: var(--accent, #3ad29f);
+}
+
+.category-btn.is-active {
+  opacity: 1;
+  background: var(--accent, #3ad29f);
+  color: var(--bg, #06080c);
+}
+
+.menu {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.drawer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid color-mix(in srgb, var(--accent, #3ad29f) 30%, transparent);
+}
+
+.action {
+  cursor: pointer;
+  padding: 0.42rem 0.3rem;
+  border: 1px solid color-mix(in srgb, var(--accent, #3ad29f) 55%, transparent);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--accent, #3ad29f);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+
+.action:hover {
+  background: var(--accent, #3ad29f);
+  color: var(--bg, #06080c);
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--accent, #3ad29f);
+  outline-offset: 2px;
+}
+
+.size-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.size {
+  cursor: pointer;
+  padding: 0.35rem 0.1rem;
+  border: 1px solid color-mix(in srgb, var(--accent, #3ad29f) 45%, transparent);
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--accent, #3ad29f);
+  font-size: 0.68rem;
+  font-weight: 700;
+  transition: background var(--transition-interaction, 200ms ease),
+              color var(--transition-interaction, 200ms ease);
+}
+
+.size:hover,
+.size.is-selected {
+  background: var(--accent, #3ad29f);
+  color: var(--bg, #06080c);
+}
+
+.size:focus-visible {
+  outline: 2px solid var(--accent, #3ad29f);
+  outline-offset: 2px;
+}
+
+.group-label {
+  margin: 0.35rem 0 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: calc(0.16em * var(--caps-tracking, 1));
+  text-transform: var(--caps, uppercase);
+  opacity: 0.55;
+}
+
+.group-label:first-child {
+  margin-top: 0;
+}
+
+.theme {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 2.35rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.theme.is-selected {
+  box-shadow:
+    inset 0 -0.2rem 0 color-mix(in srgb, var(--bg, #06080c) 34%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--accent, #3ad29f) 28%, transparent),
+    0 0 0.8rem color-mix(in srgb, var(--accent, #3ad29f) 42%, transparent);
+  transform: translateY(-1px);
+}
+
+.mark {
+  display: none;
+  min-width: 1.8rem;
+  padding: 0.14rem 0.3rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.theme.is-selected .mark {
+  display: inline-block;
+}
+
+/* Collapsible Tree for Look Menu */
+.look-tree {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tree-node {
+  border: 1px solid color-mix(in srgb, var(--accent, #3ad29f) 30%, transparent);
+  border-radius: 0.35rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--bg, #06080c) 60%, transparent);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.tree-node.is-expanded {
+  border-color: color-mix(in srgb, var(--accent, #3ad29f) 75%, transparent);
+  background: color-mix(in srgb, var(--bg, #06080c) 85%, transparent);
+}
+
+.tree-node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  background: color-mix(in srgb, var(--accent, #3ad29f) 8%, transparent);
+  border: 0;
+  color: var(--text, #e8eef6);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tree-node-header:hover,
+.tree-node.is-expanded .tree-node-header {
+  background: color-mix(in srgb, var(--accent, #3ad29f) 22%, transparent);
+  color: var(--accent, #3ad29f);
+}
+
+.tree-node-header:focus-visible {
+  outline: 2px solid var(--accent, #3ad29f);
+  outline-offset: -2px;
+}
+
+.tree-node-title {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-node-count {
+  font-size: 0.6rem;
+  opacity: 0.65;
+  margin-right: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+  font-family: ui-monospace, monospace;
+}
+
+.tree-arrow {
+  font-size: 0.65rem;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.tree-node-children {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  border-top: 1px solid color-mix(in srgb, var(--accent, #3ad29f) 18%, transparent);
+}
+
+.tree-node-children[hidden] {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  :host {
+    --atheme-drawer-width: min(14.5rem, calc(100vw - 2rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tray {
+    transition: none;
+  }
+
+  .tab {
+    animation: none;
+  }
+}
+
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */
+/* One-time introduction beside the tab. It lives inside the tray so it rides
+   along with the tab; the tray's transform is its containing block. */
+.tray {
+  position: relative;
+}
+
+.intro {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 0.6rem);
+  width: min(17rem, calc(100vw - var(--atheme-drawer-tab-width) - 2rem));
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--accent, #3ad29f);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--bg, #06080c) 94%, transparent);
+  color: var(--text, #e8eef6);
+  box-shadow: 0 0.6rem 1.8rem rgb(0 0 0 / 0.35);
+  backdrop-filter: blur(10px);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  pointer-events: auto;
+  animation: atheme-intro-in 420ms ease-out 900ms both;
+}
+
+/* A small pointer at the tab. */
+.intro::after {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  right: -0.4rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-top: 1px solid var(--accent, #3ad29f);
+  border-right: 1px solid var(--accent, #3ad29f);
+  background: inherit;
+  transform: rotate(45deg);
+}
+
+.tray.pos-top-left .intro,
+.tray.pos-bottom-left .intro,
+.tray.pos-left .intro {
+  right: auto;
+  left: calc(100% + 0.6rem);
+}
+
+.tray.pos-top-left .intro::after,
+.tray.pos-bottom-left .intro::after,
+.tray.pos-left .intro::after {
+  right: auto;
+  left: -0.4rem;
+  transform: rotate(-135deg);
+}
+
+.tray.pos-bottom-right .intro,
+.tray.pos-bottom-left .intro {
+  top: auto;
+  bottom: 0;
+}
+
+.tray.pos-bottom-right .intro::after,
+.tray.pos-bottom-left .intro::after {
+  top: auto;
+  bottom: 1rem;
+}
+
+/* Top and bottom trays: the callout sits off the tab's free edge. */
+.tray.pos-top .intro,
+.tray.pos-bottom .intro {
+  right: auto;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.tray.pos-top .intro {
+  top: calc(100% + 0.6rem);
+}
+
+.tray.pos-bottom .intro {
+  top: auto;
+  bottom: calc(100% + 0.6rem);
+}
+
+.tray.pos-top .intro::after,
+.tray.pos-bottom .intro::after {
+  display: none;
+}
+
+.intro-title {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--accent, #3ad29f);
+  font-size: 0.9rem;
+}
+
+.intro-text {
+  margin: 0 0 0.7rem;
+}
+
+.intro-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.intro-actions button {
+  cursor: pointer;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--accent, #3ad29f);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--accent, #3ad29f);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.intro-actions .intro-open,
+.intro-actions button:hover {
+  background: var(--accent, #3ad29f);
+  color: var(--bg, #06080c);
+}
+
+.intro-actions button:focus-visible {
+  outline: 2px solid var(--accent, #3ad29f);
+  outline-offset: 2px;
+}
+
+/* In the top layer (see showIntro) the script places it against the tab
+   and has already waited, so it arrives at once. */
+.tray .intro:popover-open {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  translate: none;
+  overflow: visible;
+  animation-delay: 0ms;
+}
+
+@keyframes atheme-intro-in {
+  from { opacity: 0; transform: translateX(-0.5rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    animation: none;
+  }
+}

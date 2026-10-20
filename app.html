@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<!---
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */
+-->
+<html lang="en" data-theme="solaris-ember" data-look="solaris-ember" data-density="cozy" data-size="m">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Atmosphere App — IDE Workspace</title>
+
+    <!-- Typography: Space Grotesk & JetBrains Mono for Solaris Ember, Outfit & Fira Code for Boreal Aurora -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- The workspace's semantic places and parts are styled by one sheet per concern.
+         Legacy region classes remain as public compatibility hooks. -->
+    <link rel="stylesheet" href="css/at.app.components.css?v=20261016">
+    <link rel="stylesheet" href="css/at.app.layout.css?v=20261016">
+    <link rel="stylesheet" href="css/at.app.lattice.css?v=20261016">
+    <link rel="stylesheet" href="css/at.app.layer.css?v=20261016">
+    <link rel="stylesheet" href="css/at.app.look.css?v=20261016">
+    <link rel="stylesheet" href="css/at.app.life.css?v=20261016">
+    <link rel="stylesheet" href="css/at.app.local.css?v=20261016">
+</head>
+<body class="Layout code-workspace" data-life="pulse" data-role="surface">
+
+    <!-- 1. AREA: Project & Workspace Metadata -->
+    <div class="Area workspace-scope" data-place="scope" data-role="surface" aria-label="Workspace Scope">
+        <div class="area-badge">
+            <span class="status-dot"></span>
+            <span>CORE::ATMOSPHERE</span>
+        </div>
+    </div>
+
+    <!-- 2. CONTEXT: Current Symbol & Environment Breadcrumb -->
+    <div class="Context workspace-breadcrumbs" data-place="breadcrumbs" data-role="surface" aria-label="Context Bar">
+        <span class="context-path">
+            <strong id="ctxFile" class="identity-mark">app.html</strong> &rsaquo; <span id="ctxScope">layout::engine</span>
+        </span>
+        <span class="area-badge workspace-version">v2.4.0</span>
+    </div>
+
+    <!-- 3. HEADER: Navigation, Search & Theme Switcher -->
+    <header class="Header workspace-toolbar" data-place="toolbar" data-role="masthead">
+        <div class="workspace-brand">
+            <h1 data-role="voice" data-breathe="land" class="workspace-heading">
+                <span class="identity-mark">⬡</span>
+                <span>Atmosphere IDE</span>
+            </h1>
+            <nav id="mainHorzMenu" aria-label="Main Navigation">
+                <ul>
+                    <li><a href="#" class="active" aria-current="page" data-nav="workspace">Workspace</a></li>
+                    <li><a href="atmosphere.html">Atmosphere Spec</a></li>
+                    <li><a href="README.md" data-nav="docs">Docs</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="search-box" data-part="query">
+            <span class="supporting-label">🔍</span>
+            <input type="text" id="search" placeholder="Search symbols..." aria-label="Search">
+            <kbd>⌘K</kbd>
+        </div>
+
+        <!-- Interactive Look/Theme & Density Switchers -->
+        <div class="controls-group" data-part="controls">
+            <span class="control-caption">Theme:</span>
+            <button type="button" class="theme-toggle-btn" data-role="select" data-set-theme="solaris-ember" aria-pressed="true" onclick="setTheme('solaris-ember')">
+                🔥 Solaris Ember
+            </button>
+            <button type="button" class="theme-toggle-btn" data-role="select" data-set-theme="boreal-aurora" aria-pressed="false" onclick="setTheme('boreal-aurora')">
+                ❄️ Boreal Aurora
+            </button>
+
+            <span class="control-caption-density">Air:</span>
+            <button type="button" class="density-toggle-btn" data-role="select" data-density-val="compact" aria-pressed="false" onclick="setDensity('compact')">Compact</button>
+            <button type="button" class="density-toggle-btn" data-role="select" data-density-val="cozy" aria-pressed="true" onclick="setDensity('cozy')">Cozy</button>
+            <button type="button" class="density-toggle-btn" data-role="select" data-density-val="roomy" aria-pressed="false" onclick="setDensity('roomy')">Roomy</button>
+        </div>
+    </header>
+
+    <!-- 4. SIDEBAR: File Tree & Project Explorer -->
+    <aside class="Sidebar resource-navigator" data-place="navigator" data-role="surface" aria-label="File Explorer">
+        <div class="panel-header" data-part="explanation">
+            <span>Explorer</span>
+            <span>📂</span>
+        </div>
+        <ul class="tree-list" data-part="collection" id="contextualVertMenu" role="tree" aria-label="Project files">
+            <li data-role="select" class="tree-item active" role="treeitem" aria-level="1" aria-selected="true" tabindex="0" data-file="app.html">📄 app.html</li>
+            <li data-role="select" class="tree-item" role="treeitem" aria-level="1" aria-selected="false" tabindex="0" data-file="atmosphere.html">📄 atmosphere.html</li>
+            <li data-role="select" class="tree-item" role="treeitem" aria-level="1" aria-expanded="true" tabindex="0" data-folder="css"><span class="tree-icon" aria-hidden="true">📂</span> css/</li>
+            <li data-role="select" class="tree-item nested-resource" role="treeitem" aria-level="2" aria-selected="false" tabindex="0" data-parent="css" data-file="css/at.layout.css">🎨 at.layout.css</li>
+            <li data-role="select" class="tree-item nested-resource" role="treeitem" aria-level="2" aria-selected="false" tabindex="0" data-parent="css" data-file="css/at.look.css">🎨 at.look.css</li>
+            <li data-role="select" class="tree-item nested-resource" role="treeitem" aria-level="2" aria-selected="false" tabindex="0" data-parent="css" data-file="css/at.local.css">🎨 at.local.css</li>
+            <li data-role="select" class="tree-item" role="treeitem" aria-level="1" aria-expanded="true" tabindex="0" data-folder="js"><span class="tree-icon" aria-hidden="true">📂</span> js/</li>
+            <li data-role="select" class="tree-item nested-resource" role="treeitem" aria-level="2" aria-selected="false" tabindex="0" data-parent="js" data-file="js/atmosphere.js">⚡ atmosphere.js</li>
+        </ul>
+    </aside>
+
+    <!-- 5. MAIN: Primary Code & Interaction Workspace -->
+    <main class="Main source-stage" data-place="stage" data-frame="root" data-role="surface" aria-label="Code Editor">
+        <div class="editor-container source-document" data-place="editor">
+            <div class="editor-tabs" data-part="controls" role="tablist" aria-label="Open files">
+                <div class="editor-tab active">app.html <span class="tab-close-hint">&times;</span></div>
+                <div class="editor-tab">at.layout.css</div>
+                <div class="editor-tab">at.look.css</div>
+            </div>
+            <div class="editor-body" data-part="demonstration" role="tabpanel" aria-label="Editor">
+<pre><code><span class="code-comment">/* Atmosphere CSS Variable Responsive Engine */</span>
+<span class="code-keyword">.Layout</span> {
+  <span class="code-func">--grid-areas</span>: <span class="code-string">"Area Header Header Context" "Sidebar ListNav Main Main" ...</span>;
+  <span class="code-func">--grid-cols</span>: <span class="code-string">minmax(120px, 10vw) minmax(180px, 20vw) minmax(0, 1fr) ...</span>;
+  <span class="code-func">--layout-gap</span>: <span class="code-string">calc(0.55rem * var(--density-scale, 1))</span>;
+  
+  <span class="code-keyword">display</span>: grid;
+  <span class="code-keyword">grid-template-areas</span>: <span class="code-func">var</span>(--grid-areas);
+  <span class="code-keyword">grid-template-columns</span>: <span class="code-func">var</span>(--grid-cols);
+}
+
+<span class="code-comment">/* Original Themes: Solaris Ember & Boreal Aurora */</span>
+<span class="code-keyword">[data-theme="solaris-ember"]</span> { <span class="code-func">--accent</span>: <span class="code-string">#ff6b35</span>; <span class="code-func">--bg</span>: <span class="code-string">#0a090d</span>; }
+<span class="code-keyword">[data-theme="boreal-aurora"]</span>  { <span class="code-func">--accent</span>: <span class="code-string">#00f5d4</span>; <span class="code-func">--bg</span>: <span class="code-string">#04090e</span>; }</code></pre>
+            </div>
+        </div>
+    </main>
+
+    <!-- 6. FLOWER NAV: Radial Navigation Compass (Mobile & Tablet) -->
+    <div class="FlowerNav compass" data-place="compass" data-role="surface" aria-label="Radial Compass Nav">
+        <div class="panel-header compass-heading" data-part="explanation">
+            <span>Compass</span>
+        </div>
+        <div class="flower-hub">
+            <div data-role="select" class="flower-node" role="button" tabindex="0" data-dir="NW">NW</div>
+            <div data-role="select" class="flower-node" role="button" tabindex="0" data-dir="N">N</div>
+            <div data-role="select" class="flower-node" role="button" tabindex="0" data-dir="NE">NE</div>
+            <div data-role="select" class="flower-node" role="button" tabindex="0" data-dir="W">W</div>
+            <div data-role="select" class="flower-node center" role="button" tabindex="0" data-dir="home">⬡</div>
+            <div data-role="select" class="flower-node" role="button" tabindex="0" data-dir="E">E</div>
+            <div data-role="select" class="flower-node" role="button" tabindex="0" data-dir="SW">SW</div>
+            <div data-role="select" class="flower-node" role="button" tabindex="0" data-dir="S">S</div>
+            <div data-role="select" class="flower-node" role="button" tabindex="0" data-dir="SE">SE</div>
+        </div>
+    </div>
+
+    <!-- 7. LIST NAV: Outline & Symbol Index -->
+    <div class="ListNav symbol-navigator" data-place="outline" data-role="surface" aria-label="Symbol Outline">
+        <div class="panel-header" data-part="explanation">
+            <span>Symbols</span>
+            <span>📑</span>
+        </div>
+        <ul class="tree-list" data-part="collection" id="symbolList" aria-label="Symbols">
+            <li data-role="select" class="tree-item" role="button" tabindex="0" data-symbol=".Layout">◈ .Layout</li>
+            <li data-role="select" class="tree-item" role="button" tabindex="0" data-symbol="--grid-areas">◇ --grid-areas</li>
+            <li data-role="select" class="tree-item" role="button" tabindex="0" data-symbol="--layout-gap">◇ --layout-gap</li>
+            <li data-role="select" class="tree-item" role="button" tabindex="0" data-symbol="--layout-pad">◇ --layout-pad</li>
+            <li data-role="select" class="tree-item" role="button" tabindex="0" data-symbol="setTheme">◈ setTheme()</li>
+            <li data-role="select" class="tree-item" role="button" tabindex="0" data-symbol="setDensity">◈ setDensity()</li>
+            <li data-role="select" class="tree-item" role="button" tabindex="0" data-symbol="fullscreen">◈ fullscreen()</li>
+        </ul>
+    </div>
+
+    <!-- 8. SUMMARY: Diagnostics & Inspector -->
+    <section class="Summary workspace-inspector" data-place="inspector" data-role="surface" aria-label="Diagnostics Summary">
+        <div class="panel-header" data-part="explanation">
+            <span>Inspector &amp; Metrics</span>
+            <span>⚡</span>
+        </div>
+        <div class="diagnostic-metrics" data-part="evidence">
+            <div class="metric-card">
+                <span class="metric-label">Breakpoints</span>
+                <span class="metric-val" id="activeBreakpoint">Desktop</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Semantic contract</span>
+                <span class="metric-val">Place → Part</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Active Look</span>
+                <span class="metric-val look-reading" id="activeLookReadout">Solaris Ember</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Status</span>
+                <span class="metric-val" id="statusReadout" aria-live="polite">Clean 0 err</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 9. SECTION: Telemetry & Profiler (TV / Ultra-wide >= 1601px) -->
+    <section class="Section telemetry" data-place="telemetry" data-role="surface" aria-label="Live Telemetry">
+        <div class="panel-header" data-part="explanation">
+            <span>Live Profiler</span>
+            <span>📊</span>
+        </div>
+        <div class="telemetry-readings">
+            <div class="metric-card">
+                <span class="metric-label">Frame Budget</span>
+                <span class="metric-val">60 fps (16.6ms)</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Memory Footprint</span>
+                <span class="metric-val">2.4 MB</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Active Sheets</span>
+                <span class="metric-val">Layout &times; Look</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. FOOTER: Status Line & Fullscreen Controller -->
+    <footer class="Footer workspace-context" data-place="context" data-role="surface">
+        <div class="status-details">
+            <span>🌿 <strong class="status-branch">main</strong></span>
+            <span>UTF-8</span>
+            <span id="cursorPos">Ln 1, Col 1</span>
+        </div>
+        <div class="status-actions">
+            <span class="supporting-label">&copy; 2026 MENTIC LLC</span>
+            <button type="button" onclick="fullscreen(this);" title="Toggle Fullscreen" class="fullscreen-action">
+                🖥️ <span id="fsText">Fullscreen</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Atmosphere App Controller -->
+    <script>
+    function setTheme(themeName) {
+        document.documentElement.setAttribute('data-theme', themeName);
+        document.documentElement.setAttribute('data-look', themeName);
+        document.body.setAttribute('data-theme', themeName);
+        document.body.setAttribute('data-look', themeName);
+
+        // Update Theme buttons aria-pressed
+        document.querySelectorAll('[data-set-theme]').forEach(btn => {
+            const isMatch = btn.getAttribute('data-set-theme') === themeName;
+            btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        });
+
+        // Update readout
+        const readout = document.getElementById('activeLookReadout');
+        if (readout) {
+            readout.textContent = themeName === 'solaris-ember' ? 'Solaris Ember' : 'Boreal Aurora';
+        }
+    }
+
+    function setDensity(densityName) {
+        document.documentElement.setAttribute('data-density', densityName);
+        document.body.setAttribute('data-density', densityName);
+
+        document.querySelectorAll('[data-density-val]').forEach(btn => {
+            const isMatch = btn.getAttribute('data-density-val') === densityName;
+            btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        });
+    }
+
+    function updateBreakpointReadout() {
+        const w = window.innerWidth;
+        const bp = document.getElementById('activeBreakpoint');
+        if (!bp) return;
+        if (w <= 600) bp.textContent = 'Phone (<600px)';
+        else if (w <= 1024) bp.textContent = 'Tablet (<1024px)';
+        else if (w <= 1600) bp.textContent = 'Desktop (<1600px)';
+        else bp.textContent = 'TV (1601px+)';
+    }
+
+    window.addEventListener('resize', updateBreakpointReadout);
+    document.addEventListener('DOMContentLoaded', updateBreakpointReadout);
+
+    function fullscreen(src) {
+        const fsText = document.getElementById('fsText');
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+            if (fsText) fsText.textContent = 'Fullscreen';
+        } else {
+            document.documentElement.requestFullscreen();
+            if (fsText) fsText.textContent = 'Exit Fullscreen';
+        }
+    }
+
+    /* ======================================================================
+       WORKSPACE CONTROLLER: explorer, tabs, editor, symbols, search, compass.
+       Excerpts are embedded (no fetch) so the demo works from file://.
+       ====================================================================== */
+    const FILES = {
+        'app.html': { lang: 'html', scope: 'semantic::workspace', text: `
+<!-- Stable places, kinds, and parts; the cascade composes their encounter. -->
+<main class="Main" data-place="stage">
+  <section class="source-document" data-place="editor">
+    <div data-part="controls" role="tablist">...</div>
+    <div data-part="demonstration" role="tabpanel">...</div>
+  </section>
+</main>
+
+/* --- 2. DENSITY & SIZE SCALES --- */
+[data-density="cozy"] {
+    --density-scale: 1;
+    --layout-gap: calc(0.55rem * var(--density-scale, 1) * var(--look-density, 1));
+    --layout-pad: calc(0.85rem * var(--density-scale, 1) * var(--look-density, 1));
+}
+
+.Layout {
+    --grid-areas:
+        "Area Header Header Context"
+        "Sidebar ListNav Main Main"
+        "Sidebar ListNav Summary Summary"
+        "Footer Footer Footer Footer";
+    --grid-cols: minmax(110px, 10vw) minmax(180px, 20vw) minmax(0, 1fr) minmax(180px, 20vw);
+    display: grid;
+    grid-template-areas: var(--grid-areas);
+    gap: var(--layout-gap);
+    padding: var(--layout-gap);
+}
+
+<script>
+function setTheme(themeName) {
+    document.documentElement.setAttribute('data-theme', themeName);
+    document.documentElement.setAttribute('data-look', themeName);
+}
+function setDensity(densityName) {
+    document.documentElement.setAttribute('data-density', densityName);
+    btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+}
+function fullscreen(src) {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+}
+<\/script>` },
+        'atmosphere.html': { lang: 'html', scope: 'lab::document', text: `
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive laboratory for Atmosphere's Layout, Lattice, Layer, Look, Life, and Lens CSS architecture.">
+    <meta name="theme-color" content="#0d1b3e" id="theme-color-meta">
+    <title>Atmosphere &mdash; Layout, Lattice, Layer, Look, Life, &amp; Lens</title>
+</head>
+<body class="Layout" data-layout="default" data-lattice="continuous" data-layer="inline" data-look="blueprint" …>
+
+<header class="Header" data-role="masthead">
+    <div class="brand-block theme-box">
+        <div class="brand-line">
+            <span class="brand-kicker" data-role="voice">Layout &middot; Lattice &middot; Layer &middot; Look &middot; Life &middot; Lens</span>
+            <span class="viewport-label">phone / tablet / desk / TV</span>
+        </div>
+        <h1 class="title-text" data-role="voice">Atmosphere</h1>
+        <nav class="site-nav" aria-label="Atmosphere documentation">
+            <a href="tutorial.html">Tutorial</a>
+            <a href="atmosphere.html" aria-current="page">Laboratory</a>` },
+        'css/at.layout.css': { lang: 'css', scope: 'layout::plan', text: `
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.layout.css - which frames exist, and where they sit */
+
+/* --- RESPONSIVE LAYOUT ENGINE USING CSS VARIABLES --- */
+.Layout {
+    --layout-gap: calc(clamp(0.75rem, 2vw, 1.5rem) * var(--density-scale, 1) * var(--look-density, 1));
+    --layout-pad: calc(clamp(1rem, 3vw, 2.5rem) * var(--density-scale, 1) * var(--look-density, 1));
+    --sidebar-size: clamp(13rem, 22vw, 42rem);
+    --utility-size: clamp(12rem, 20vw, 20rem);
+    --content-max: 84rem;
+
+    --grid-areas:
+        "Header"
+        "Main"
+        "Sidebar"
+        "UtilityRail"
+        "Footer";
+    --grid-cols: minmax(0, 1fr);
+    --grid-rows: auto 1fr auto auto auto;
+
+    min-height: 100svh;
+    display: grid;
+    grid-template-areas: var(--grid-areas);
+    grid-template-columns: var(--grid-cols);
+    grid-template-rows: var(--grid-rows);
+}` },
+        'css/at.look.css': { lang: 'css', scope: 'look::contract', text: `
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.look.css - colour, typography, texture */
+
+/*
+ * ============================ THE LOOK CONTRACT ============================
+ *
+ * A look MAY paint: colour, font, background, border, shadow, filter, and its
+ * own decorative surface layer. That is the whole job.
+ *
+ * A look MAY NOT:
+ *   - set position / overflow / display / padding on a page REGION
+ *       -> Layout, Lattice, and Layer own geometry and scrolling.
+ */
+
+:root {
+  --frame-border-color: var(--accent);
+  --frame-border-width: 2px;
+  --frame-border-radius: 6px;
+  --frame-border-style: solid;
+  --face-aspect: 0.55;
+  --haze: var(--bg, #000);
+}` },
+        'css/at.local.css': { lang: 'css', scope: 'local::contract', text: `
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.local.css - quantity at the call site */
+
+/*
+ * A local sets the QUANTITY of something an axis already defines -- how many
+ * columns, how many units of space, which depth plane.
+ */
+
+[data-gap="none"]  { gap: 0; }
+[data-gap="tight"] { gap: calc(var(--layout-gap, 1rem) * 0.25); }
+[data-gap="close"] { gap: calc(var(--layout-gap, 1rem) * 0.5); }
+[data-gap="even"]  { gap: var(--layout-gap, 1rem); }
+[data-gap="open"]  { gap: calc(var(--layout-gap, 1rem) * 1.5); }
+[data-gap="wide"]  { gap: calc(var(--layout-gap, 1rem) * 2); }
+
+[data-pad="none"]  { padding: 0; }
+[data-pad="tight"] { padding: calc(var(--layout-pad, 1rem) * 0.25); }
+[data-pad="close"] { padding: calc(var(--layout-pad, 1rem) * 0.5); }
+[data-pad="even"]  { padding: var(--layout-pad, 1rem); }
+[data-pad="open"]  { padding: calc(var(--layout-pad, 1rem) * 1.5); }
+[data-pad="wide"]  { padding: calc(var(--layout-pad, 1rem) * 2); }` },
+        'js/atmosphere.js': { lang: 'js', scope: 'controller::axes', text: `
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/*
+ * atmosphere.js - composition controller
+ */
+
+function setAxisAttribute(axis, value, drawer, method) {
+  if (drawer && method && typeof drawer[method] === 'function') {
+    drawer[method](value, { emit: false });
+    return;
+  }
+  document.documentElement.setAttribute('data-' + axis, value);
+  document.body.setAttribute('data-' + axis, value);
+  const storageKey = {
+    'scroll-flow': 'selectedScrollFlow',
+    'inout-flow': 'selectedInoutFlow',
+    size: 'selected-size',
+    tabs: 'selected-tabs',
+    lens: 'selected-lens'
+  }[axis] || ('selected' + axis.charAt(0).toUpperCase() + axis.slice(1));
+  try {
+    localStorage.setItem(storageKey, value);
+  } catch (e) {}
+}` },
+        'README.md': { lang: 'md', scope: 'docs::readme', text: `
+# @mosphere
+
+**Describe the meaning once. Compose how people encounter it.**
+
+Atmosphere is a design methodology and reference implementation for interfaces
+whose presentation can change while their meaning and working state remain
+coherent. Reading, dashboards, panels, and slides are possible compositions of
+shared structure and behavior.
+
+HTML describes what exists. CSS resolves how it relates under current
+conditions. JavaScript connects actions to changes. SVG describes explicit
+visual geometry.
+
+## Semantic addresses are the composition contract
+
+Name instance identity, reusable kind, semantic place, scoped parts,
+presentation roles, real state, and bounded constraints separately.
+
+An experiment provides explanation and demonstration, controls when
+interactive, and optional evidence and conclusion. Concern sheets compose
+against these addresses; a presentation change preserves subject and nodes.
+
+## Start with the vision
+
+1. Read [Why Atmosphere](./docs/WHY-ATMOSPHERE.md) for the philosophy,
+   synthesis, and trade-offs.
+2. Explore [\`atmosphere.html\`](./atmosphere.html) for the working laboratory,
+   including frames with their own traversal inside projected panels.` }
+    };
+    Object.values(FILES).forEach(f => { f.lines = f.text.replace(/^\n/, '').split('\n'); });
+
+    /* Symbol -> text that marks its defining line. */
+    const SYMBOLS = {
+        '.Layout': '.Layout {',
+        '--grid-areas': '--grid-areas:',
+        '--layout-gap': '--layout-gap:',
+        '--layout-pad': '--layout-pad:',
+        'setTheme': 'function setTheme',
+        'setDensity': 'function setDensity',
+        'fullscreen': 'function fullscreen'
+    };
+
+    const state = { open: ['app.html', 'css/at.layout.css', 'css/at.look.css'], active: 'app.html', symbol: null, query: '', hits: 0 };
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const baseName = path => path.split('/').pop();
+    const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const escapeHtml = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const span = (cls, s) => '<span class="' + cls + '">' + escapeHtml(s) + '</span>';
+
+    /* Tiny line painter: comments, strings, custom properties, JS keywords, CSS selectors. */
+    /* "\x3C!--" spells an HTML comment opener without putting one inside this script element. */
+    const TOKEN = /(\/\*.*?(?:\*\/|$)|\x3C!--.*?(?:-->|$)|\/\/.*$)|("[^"]*"|'[^']*')|(--[\w-]+)|\b(function|const|let|return|if|else|typeof|try|catch)\b|(^\s*[.\[:][^{;]*?(?=\s*\{))/g;
+    function paintLine(raw, lang, st) {
+        if (lang === 'md') return /^#/.test(raw) ? span('code-keyword', raw) : escapeHtml(raw);
+        let out = '', rest = raw;
+        if (st.close) {
+            const end = raw.indexOf(st.close);
+            if (end < 0) return span('code-comment', raw);
+            out = span('code-comment', raw.slice(0, end + st.close.length));
+            rest = raw.slice(end + st.close.length);
+            st.close = null;
+        }
+        let last = 0;
+        rest.replace(TOKEN, (m, comment, str, prop, kw, sel, idx) => {
+            out += escapeHtml(rest.slice(last, idx));
+            if (comment) {
+                out += span('code-comment', m);
+                if (m.startsWith('/*') && !m.endsWith('*/')) st.close = '*/';
+                else if (m.startsWith('\x3C!--') && !m.endsWith('-->')) st.close = '-->';
+            } else if (str) out += span('code-string', m);
+            else if (prop) out += span('code-func', m);
+            else out += span('code-keyword', m);
+            last = idx + m.length;
+            return m;
+        });
+        return out + escapeHtml(rest.slice(last));
+    }
+
+    /* Scroll an element into the middle of its own scroller without moving the page grid. */
+    function scrollWithin(container, el, center) {
+        if (!container || !el) return;
+        const c = container.getBoundingClientRect(), r = el.getBoundingClientRect();
+        let top = container.scrollTop + (r.top - c.top);
+        if (center) top -= (container.clientHeight - r.height) / 2;
+        else if (r.top >= c.top && r.bottom <= c.bottom) return;
+        container.scrollTo({ top: Math.max(0, top), behavior: reducedMotion() ? 'auto' : 'smooth' });
+    }
+
+    function setCursor(ln, col) {
+        const el = $('#cursorPos');
+        if (el) el.textContent = 'Ln ' + ln + ', Col ' + col;
+    }
+
+    function setContext(scope) {
+        $('#ctxFile').textContent = state.active ? baseName(state.active) : 'no file';
+        $('#ctxScope').textContent = scope || (state.active ? FILES[state.active].scope : 'workspace');
+    }
+
+    function updateStatus() {
+        const el = $('#statusReadout');
+        if (!el) return;
+        if (state.query) {
+            el.textContent = state.hits + (state.hits === 1 ? ' match' : ' matches');
+            el.dataset.state = state.hits ? 'ok' : 'warn';
+        } else {
+            el.textContent = 'Clean · ' + state.open.length + ' open';
+            el.dataset.state = 'ok';
+        }
+    }
+
+    function renderTabs() {
+        const bar = $('.editor-tabs');
+        const hadFocus = bar.contains(document.activeElement);
+        bar.innerHTML = state.open.map(path => {
+            const on = path === state.active, name = escapeHtml(baseName(path));
+            return '<div data-role="select" class="editor-tab' + (on ? ' active' : '') + '" role="tab" tabindex="0" aria-selected="' + on +
+                '" data-file="' + escapeHtml(path) + '" title="' + escapeHtml(path) + '">' + name +
+                ' <span class="tab-close" role="button" tabindex="0" aria-label="Close ' + name + '">&times;</span></div>';
+        }).join('');
+        const active = $('.editor-tab.active', bar);
+        if (hadFocus && active) active.focus();
+        if (active) active.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+
+    function renderEditor() {
+        const body = $('.editor-body');
+        const file = FILES[state.active];
+        if (!file) {
+            body.innerHTML = '<p class="editor-empty">No file open. Pick one in the Explorer.</p>';
+            return;
+        }
+        const st = {};
+        body.innerHTML = '<pre><code>' + file.lines.map((line, i) =>
+            '<span class="code-line" data-line="' + (i + 1) + '"><span class="code-ln" aria-hidden="true">' + (i + 1) +
+            '</span><span class="code-text">' + (paintLine(line, file.lang, st) || ' ') + '</span></span>'
+        ).join('') + '</code></pre>';
+        body.scrollTop = 0;
+    }
+
+    function syncExplorer() {
+        $$('#contextualVertMenu [data-file]').forEach(item => {
+            const on = item.dataset.file === state.active;
+            item.classList.toggle('active', on);
+            item.setAttribute('aria-selected', on ? 'true' : 'false');
+            if (on && item.dataset.parent) {
+                const folder = $('#contextualVertMenu [data-folder="' + item.dataset.parent + '"]');
+                if (folder && folder.getAttribute('aria-expanded') !== 'true') toggleFolder(folder, true);
+            }
+            if (on) scrollWithin($('#contextualVertMenu'), item, false);
+        });
+    }
+
+    function syncSymbols() {
+        $$('#symbolList [data-symbol]').forEach(item => item.classList.toggle('active', item.dataset.symbol === state.symbol));
+    }
+
+    function refresh(scope) {
+        renderTabs();
+        renderEditor();
+        syncExplorer();
+        syncSymbols();
+        setContext(scope);
+        setCursor(1, 1);
+        updateStatus();
+    }
+
+    function openFile(path) {
+        if (!FILES[path]) return;
+        if (!state.open.includes(path)) state.open.push(path);
+        if (path !== state.active) state.symbol = null;
+        state.active = path;
+        refresh();
+    }
+
+    function closeFile(path) {
+        const i = state.open.indexOf(path);
+        if (i < 0) return;
+        state.open.splice(i, 1);
+        if (state.active === path) {
+            state.active = state.open[Math.min(i, state.open.length - 1)] || null;
+            state.symbol = null;
+        }
+        refresh();
+    }
+
+    function toggleFolder(folder, open) {
+        const expanded = typeof open === 'boolean' ? open : folder.getAttribute('aria-expanded') !== 'true';
+        folder.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        const icon = $('.tree-icon', folder);
+        if (icon) icon.textContent = expanded ? '📂' : '📁';
+        applyFilter();
+    }
+
+    function markLine(lineEl, flash) {
+        $$('.editor-body .code-line.current').forEach(el => { el.classList.remove('current', 'flash'); el.removeAttribute('data-state'); });
+        if (!lineEl) return;
+        lineEl.classList.add('current');
+        if (flash) {
+            void lineEl.offsetWidth; /* restart the animation */
+            lineEl.classList.add('flash');
+            lineEl.dataset.state = 'alert';
+        }
+    }
+
+    function jumpToSymbol(name) {
+        const needle = SYMBOLS[name];
+        if (!needle) return;
+        const inActive = state.active && FILES[state.active].lines.some(l => l.includes(needle));
+        const path = inActive ? state.active : 'app.html';
+        if (path !== state.active) openFile(path);
+        state.symbol = name;
+        syncSymbols();
+        const idx = FILES[path].lines.findIndex(l => l.includes(needle));
+        const lineEl = $('.editor-body .code-line[data-line="' + (idx + 1) + '"]');
+        markLine(lineEl, true);
+        scrollWithin($('.editor-body'), lineEl, true);
+        setCursor(idx + 1, FILES[path].lines[idx].indexOf(needle) + 1);
+        setContext(name);
+    }
+
+    function applyFilter() {
+        const q = ($('#search').value || '').trim().toLowerCase();
+        const matches = el => el.textContent.toLowerCase().includes(q);
+        const tree = $$('#contextualVertMenu .tree-item');
+        let hits = 0;
+        tree.forEach(item => {
+            let show;
+            if (item.dataset.folder) {
+                show = !q || matches(item) || tree.some(c => c.dataset.parent === item.dataset.folder && matches(c));
+            } else if (q) {
+                show = matches(item);
+                if (show) hits++;
+            } else {
+                const folder = item.dataset.parent && $('#contextualVertMenu [data-folder="' + item.dataset.parent + '"]');
+                show = !folder || folder.getAttribute('aria-expanded') === 'true';
+            }
+            item.hidden = !show;
+        });
+        $$('#symbolList .tree-item').forEach(item => {
+            const show = !q || matches(item);
+            item.hidden = !show;
+            if (q && show) hits++;
+        });
+        state.query = q;
+        state.hits = hits;
+        updateStatus();
+    }
+
+    function visible(sel) { return $$(sel).filter(el => !el.hidden); }
+
+    function step(list, current, delta) {
+        if (!list.length) return null;
+        const i = list.indexOf(current);
+        if (i < 0) return delta > 0 ? list[0] : list[list.length - 1];
+        return list[(i + delta + list.length) % list.length];
+    }
+
+    const COMPASS = {
+        N:    ['Previous file in Explorer', () => openFile(step(visible('#contextualVertMenu [data-file]').map(el => el.dataset.file), state.active, -1))],
+        S:    ['Next file in Explorer', () => openFile(step(visible('#contextualVertMenu [data-file]').map(el => el.dataset.file), state.active, 1))],
+        W:    ['Previous tab', () => openFile(step(state.open, state.active, -1))],
+        E:    ['Next tab', () => openFile(step(state.open, state.active, 1))],
+        NW:   ['Previous symbol', () => jumpToSymbol(step(visible('#symbolList [data-symbol]').map(el => el.dataset.symbol), state.symbol, -1))],
+        NE:   ['Next symbol', () => jumpToSymbol(step(visible('#symbolList [data-symbol]').map(el => el.dataset.symbol), state.symbol, 1))],
+        SW:   ['Toggle theme', () => setTheme(document.documentElement.getAttribute('data-theme') === 'boreal-aurora' ? 'solaris-ember' : 'boreal-aurora')],
+        SE:   ['Cycle density', () => {
+            const order = ['compact', 'cozy', 'roomy'];
+            setDensity(step(order, document.documentElement.getAttribute('data-density'), 1));
+        }],
+        home: ['Back to app.html', () => openFile('app.html')]
+    };
+
+    /* Click + Enter/Space on any matching child of a container. */
+    function onActivate(container, selector, handler) {
+        if (!container) return;
+        container.addEventListener('click', e => {
+            const el = e.target.closest(selector);
+            if (el && container.contains(el)) handler(el, e);
+        });
+        container.addEventListener('keydown', e => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const el = e.target.closest(selector);
+            if (!el || el !== e.target) return;
+            e.preventDefault();
+            handler(el, e);
+        });
+    }
+
+    function initWorkspace() {
+        onActivate($('#contextualVertMenu'), '.tree-item', item => {
+            if (item.dataset.folder) toggleFolder(item);
+            else openFile(item.dataset.file);
+        });
+
+        const tabs = $('.editor-tabs');
+        onActivate(tabs, '.tab-close', (btn, e) => {
+            e.stopPropagation();
+            closeFile(btn.closest('.editor-tab').dataset.file);
+        });
+        onActivate(tabs, '.editor-tab', (tab, e) => {
+            if (e.target.closest('.tab-close')) return;
+            openFile(tab.dataset.file);
+        });
+        tabs.addEventListener('keydown', e => {
+            const tab = e.target.closest('.editor-tab');
+            if (tab && e.target === tab && e.key === 'Delete') closeFile(tab.dataset.file);
+        });
+
+        onActivate($('#symbolList'), '.tree-item', item => jumpToSymbol(item.dataset.symbol));
+
+        $$('.flower-node[data-dir]').forEach(node => {
+            const entry = COMPASS[node.dataset.dir];
+            if (entry) { node.title = entry[0]; node.setAttribute('aria-label', entry[0]); }
+        });
+        onActivate($('.flower-hub'), '.flower-node', node => {
+            const entry = COMPASS[node.dataset.dir];
+            if (entry) entry[1]();
+        });
+
+        $('#mainHorzMenu').addEventListener('click', e => {
+            const link = e.target.closest('a[data-nav]');
+            if (!link) return;
+            e.preventDefault();
+            if (link.dataset.nav === 'docs') openFile('README.md');
+            else {
+                if (!state.active) openFile('app.html');
+                const tab = $('.editor-tab.active');
+                if (tab) tab.focus();
+            }
+        });
+
+        /* Clicking a code line moves the cursor readout there. */
+        $('.editor-body').addEventListener('click', e => {
+            const line = e.target.closest('.code-line');
+            if (!line) return;
+            let col = 1;
+            const sel = window.getSelection();
+            const text = $('.code-text', line);
+            if (sel && sel.rangeCount && sel.isCollapsed && text.contains(sel.anchorNode)) {
+                const range = document.createRange();
+                range.selectNodeContents(text);
+                range.setEnd(sel.anchorNode, sel.anchorOffset);
+                col = range.toString().length + 1;
+            }
+            markLine(line, false);
+            setCursor(Number(line.dataset.line), col);
+        });
+
+        const search = $('#search');
+        search.addEventListener('input', applyFilter);
+        search.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                if (search.value) { search.value = ''; applyFilter(); }
+                else search.blur();
+            } else if (e.key === 'Enter') {
+                const first = visible('#symbolList [data-symbol]')[0] || visible('#contextualVertMenu [data-file]')[0];
+                if (!first) return;
+                if (first.dataset.symbol) jumpToSymbol(first.dataset.symbol);
+                else openFile(first.dataset.file);
+            }
+        });
+        document.addEventListener('keydown', e => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                search.focus();
+                search.select();
+            }
+        });
+
+        refresh();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initWorkspace);
+    else initWorkspace();
+    </script>
+    <atmospheric-lander floating></atmospheric-lander>
+    <script src="webcomp/atmospheric-lander.js" defer></script>
+</body>
+</html>

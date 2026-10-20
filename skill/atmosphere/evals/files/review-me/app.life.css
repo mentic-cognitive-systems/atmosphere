@@ -1,0 +1,21 @@
+/* app.life.css - motion */
+[data-life] [data-role="surface"] { transition: translate var(--transition-interaction, 120ms ease); }
+[data-life="pulse"] [data-role="surface"]:hover { translate: 0 -3px; }
+
+/* dismissing a notice */
+.notice.is-leaving {
+  animation: notice-leave 240ms ease forwards;
+  color: #9ca3af !important;
+}
+
+@keyframes notice-leave {
+  from { height: 120px; margin-bottom: 16px; opacity: 1; }
+  to   { height: 0; margin-bottom: 0; opacity: 0; }
+}
+
+[data-state="alert"] { animation: notice-shake 600ms ease 3; }
+
+@keyframes notice-shake {
+  25% { translate: -3px 0; }
+  75% { translate: 3px 0; }
+}

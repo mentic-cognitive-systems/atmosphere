@@ -1,0 +1,27 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Tutorial layout: semantic lesson/controls/evidence contract. */
+
+/* A session occupies its host's complete track, including multi-column Looks. */
+.tutorial-session { grid-column: 1 / -1; }
+
+.tutorial-track {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.tutorial-view {
+  align-content: start;
+  align-items: start;
+}
+
+.Layout[data-lattice="slides"] .Main[data-frame="root"] > .tutorial-track > .tutorial-view {
+  padding-block: var(--layout-gap);
+  align-content: start;
+}
+
+.Layout[data-layer-ready][data-layer="pop-over"] .Header {
+  padding-inline-end: calc(
+        var(--layout-pad, 1rem)
+        + var(--layer-controls-size, 12rem)
+        + var(--layer-controls-clearance, 3.5rem)
+      );
+}

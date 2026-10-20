@@ -1,0 +1,50 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Brand stays in its authored slot until Header Fold lifts it above the
+   masthead. The native top layer escapes ancestor transforms and filters. */
+.BrandSlot[data-brand-lifted] {
+  block-size: var(--brand-size);
+}
+
+.BrandSpacer {
+  display: none;
+}
+
+.BrandSlot[data-brand-lifted] > .BrandSpacer {
+  display: block;
+  inline-size: var(--brand-inline-size);
+  block-size: var(--brand-size);
+}
+
+.Brand:popover-open {
+  position: fixed;
+  inset: auto;
+  top: max(env(safe-area-inset-top, 0px), var(--brand-top, 0px));
+  left: var(--brand-left, 0px);
+  /* The slot supplies available space, not the painted layer's width. */
+  inline-size: fit-content;
+  max-inline-size: var(--brand-width);
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Keep the floating title responsive independently of its measured spacer,
+   so the spacer can follow a larger font or viewport without a size loop. */
+.Layout[data-lattice="slides"] .Brand:popover-open {
+  max-inline-size: 35vw;
+}
+
+.Brand::backdrop {
+  background: transparent;
+  pointer-events: none;
+}
+
+@media print {
+  .Brand:popover-open {
+    position: static;
+    inline-size: auto;
+  }
+}

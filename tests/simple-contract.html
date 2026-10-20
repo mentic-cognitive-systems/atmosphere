@@ -1,0 +1,114 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simple composition contract checks</title>
+  <style>
+    body { font: 1rem/1.5 system-ui; margin: 1.5rem; }
+    iframe { display: block; width: 1200px; max-width: none; height: 650px; border: 1px solid #aaa; }
+    [data-result="pass"] { color: #176441; }
+    [data-result="fail"] { color: #a02020; }
+  </style>
+</head>
+<body>
+  <h1>Native CSS composition contract</h1>
+  <p>Checks the actual example, its computed styles and node continuity. No test dependencies.</p>
+  <p role="status" id="status">Running…</p>
+  <ol id="results"></ol>
+  <iframe id="fixture" title="Live composition under test" src="../simple.html"></iframe>
+  <script>
+    const fixture = document.querySelector('#fixture');
+    const results = document.querySelector('#results');
+    const status = document.querySelector('#status');
+    const check = (condition, message) => {
+      const row = results.appendChild(document.createElement('li'));
+      row.dataset.result = condition ? 'pass' : 'fail';
+      row.textContent = (condition ? 'PASS: ' : 'FAIL: ') + message;
+      if (!condition) throw new Error(message);
+    };
+    const settle = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    fixture.addEventListener('load', async () => {
+      try {
+        const doc = fixture.contentDocument;
+        const win = fixture.contentWindow;
+        const root = doc.body;
+        const css = (node, name) => win.getComputedStyle(node).getPropertyValue(name).trim();
+        const guide = doc.querySelector('#simple-guide');
+        const note = doc.querySelector('#simple-note');
+        const stage = doc.querySelector('[data-frame]');
+        const scene = doc.querySelector('.scene');
+        const view = doc.querySelector('[data-view]');
+        const toolbar = doc.querySelector('.toolbar');
+        const choose = async name => {
+          doc.querySelector(`[data-experience="${name}"]`).click();
+          await settle();
+        };
+        const policy = async (name, value) => {
+          if (value) root.style.setProperty('--' + name, value);
+          else root.style.removeProperty('--' + name);
+          await settle();
+        };
+        await settle();
+        check(css(doc.querySelector('.composition'), '--css-contract') === 'ready', 'Browser evaluates native custom-property style queries');
+        check(css(root, '--arrangement') === 'stack' && !guide.hasAttribute('popover'), 'Reading begins with embedded navigation');
+        note.value = 'Keep this thought';
+        note.setSelectionRange(5, 9);
+
+        await choose('workspace');
+        check(css(root, '--arrangement') === 'alongside' && css(scene, 'grid-template-areas') === '"navigation work inspection"', 'CSS recipe resolves Workspace into three semantic slots');
+        await choose('presentation');
+        check(css(root, '--path') === 'slides' && guide.hasAttribute('popover') && !css(scene, 'grid-template-areas').includes('supporting'), 'Presentation resolves slides and releases only navigation');
+        check(css(doc.querySelector('[data-identity="notes"]'), '--place') === 'reflection', 'Notes retain their supporting place');
+        await policy('navigation', 'embedded');
+        check(!guide.hasAttribute('popover') && css(scene, 'grid-template-areas').includes('supporting'), 'Explicit embedded policy restores the guide slot');
+        guide.querySelector('a').focus();
+        await policy('navigation', 'on-demand');
+        check(doc.activeElement === doc.querySelector('.guide-options button'), 'Releasing a focused navigator transfers focus to its available invoker');
+        guide.showPopover();
+        const focusedLink = guide.querySelector('a');
+        focusedLink.focus();
+        await policy('navigation', 'embedded');
+        check(doc.activeElement === focusedLink, 'Embedding an open navigator preserves usable focus');
+        await choose('workspace');
+        await choose('presentation');
+        check(css(root, '--navigation') === 'embedded' && !guide.hasAttribute('popover'), 'Explicit policy survives experience changes');
+        await policy('navigation', 'not-in-the-vocabulary');
+        check(css(root, '--navigation') === 'auto', 'Registered vocabulary rejects unknown values with a valid fallback');
+        await policy('navigation', '');
+
+        await policy('path', 'pages');
+        check(css(stage, 'scroll-snap-type') === 'y' || css(stage, 'scroll-snap-type') === 'y proximity', 'Independent path policy composes vertical pages with a focused arrangement');
+        doc.querySelector('[data-go-to="responsibility"]').click();
+        await settle();
+        await policy('path', 'slides');
+        check(doc.querySelector('[data-chapter-status]').textContent === '2 / 3', 'Selected chapter survives a change of traversal');
+        await policy('rhythm', 'compact');
+        const compact = parseFloat(css(view, 'padding-top'));
+        await policy('rhythm', 'spacious');
+        check(parseFloat(css(view, 'padding-top')) > compact * 1.9, 'Named rhythm steps scale shared geometry through CSS calc()');
+        await policy('identity', 'flowing');
+        check(css(toolbar, 'position') === 'static', 'Flowing identity releases sticky positioning');
+        await policy('identity', 'persistent');
+        check(css(toolbar, 'position') === 'sticky' && css(toolbar, '--space') === 'retain', 'Persistent identity stays pinned while retaining space');
+
+        await choose('workspace');
+        await policy('navigation', 'auto');
+        fixture.style.width = '390px';
+        await settle(); await settle();
+        check(guide.hasAttribute('popover') && css(doc.querySelector('.composition'), '--navigation-reason') === 'space', 'Container width resolves automatic navigation on demand');
+        await policy('navigation', 'embedded');
+        check(!guide.hasAttribute('popover') && css(scene, 'grid-template-columns').split(' ').length === 1, 'Explicit embedded policy overrides responsive defaults and stacks safely');
+        check(doc.documentElement.scrollWidth <= win.innerWidth, 'Narrow composition has no page-level horizontal overflow');
+        check(doc.querySelector('#simple-note') === note && note.value === 'Keep this thought' && note.selectionStart === 5 && note.selectionEnd === 9 && doc.querySelector('#simple-guide') === guide, 'Subjects, draft and selection survive all compositions');
+        status.textContent = `${results.children.length} checks passed.`;
+        status.dataset.result = 'pass';
+      } catch (error) {
+        status.textContent = 'Failed: ' + error.message;
+        status.dataset.result = 'fail';
+      }
+    });
+  </script>
+</body>
+</html>

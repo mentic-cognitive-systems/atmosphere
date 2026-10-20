@@ -1,0 +1,31 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.lab.lattice.css -- traversal inside the lab page's own kinds.
+ *
+ * Two strips in the masthead run sideways rather than wrapping, which is
+ * what keeps the bar one height on every width: what does not fit is
+ * travelled to, not stacked. The ticker is a window onto a track that is
+ * longer than it, so it clips.
+ */
+
+.pill-nav,
+.coord-strip {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+}
+
+.pill-nav::-webkit-scrollbar,
+.coord-strip::-webkit-scrollbar {
+    display: none;
+}
+
+.pill-nav > a,
+.coord-strip > .coord {
+    scroll-snap-align: start;
+}
+
+.ticker {
+    overflow: clip;
+}

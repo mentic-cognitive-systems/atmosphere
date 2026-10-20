@@ -1,0 +1,97 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laboratory CSS contract checks</title>
+  <style>body {font:1rem/1.5 system-ui;margin:1.5rem} iframe {display:block;width:1200px;height:800px;border:1px solid #aaa} [data-result="pass"] {color:#176441} [data-result="fail"] {color:#a02020}</style>
+</head>
+<body>
+  <h1>Laboratory CSS contract</h1><p id="status" role="status">Running…</p><ol id="results"></ol>
+  <iframe id="fixture" title="Laboratory under test" src="../atmosphere.html#at=14.1.0.1.2.0/0.0.0.0.0"></iframe>
+  <script>
+  const fixture = document.querySelector('#fixture'), results = document.querySelector('#results'), status = document.querySelector('#status');
+  const check = (condition, message) => {
+    const row = results.appendChild(document.createElement('li'));
+    row.dataset.result = condition ? 'pass' : 'fail'; row.textContent = (condition ? 'PASS: ' : 'FAIL: ') + message;
+    if (!condition) throw new Error(message);
+  };
+  const settle = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  fixture.addEventListener('load', async () => {
+    try {
+      let win = fixture.contentWindow, doc = fixture.contentDocument, root = doc.body;
+      const css = (node, property) => win.getComputedStyle(node).getPropertyValue(property).trim();
+      const guide = doc.querySelector('#layer-reference'), axes = doc.querySelector('#layer-composition'), note = doc.querySelector('#semantic-note'), brand = doc.querySelector('.Brand');
+      const input = async (name, value) => {root.style.setProperty('--' + name, value); await settle();};
+      const choose = async name => {doc.querySelector(`[data-contract-experience="${name}"]`).click(); await settle();};
+      await settle();
+      check(root.hasAttribute('data-contract-ready'), 'Native CSS contract activates');
+      check(root.dataset.layout === '3col' && root.dataset.layer === 'inline' && css(root, '--arrangement') === 'alongside', 'Existing compact URL enters through the CSS bindings without renumbering');
+      const storageKeys = ['selectedLayout','selectedLattice','selectedLayer','selectedDensity'];
+      const stored = storageKeys.map(key => win.localStorage.getItem(key));
+      note.value = 'Preserve this native draft'; note.setSelectionRange(3, 8);
+      await choose('workspace');
+      check(css(root, 'grid-template-areas').includes('Sidebar Main UtilityRail'), 'Workspace has three semantic slots');
+      await input('navigation', 'on-demand');
+      check(guide.hasAttribute('popover') && !axes.hasAttribute('popover') && css(root, 'grid-template-areas').includes('Main UtilityRail') && !css(root, 'grid-template-areas').includes('Sidebar'), 'Guide projection releases only the navigator slot');
+      check(!doc.querySelector('[data-layer-trigger="reference"]').hidden && doc.querySelector('[data-layer-trigger="composition"]').hidden, 'Only projected relationships have visible invokers');
+      guide.showPopover(); await settle();
+      check(guide.matches(':popover-open') && doc.querySelector('[data-layer-trigger="reference"]').getAttribute('aria-expanded') === 'true', 'Existing native Guide lifecycle remains operable');
+      guide.hidePopover();
+      await input('navigation', 'embedded'); await input('controls', 'on-demand');
+      check(!guide.hasAttribute('popover') && axes.hasAttribute('popover') && css(root, 'grid-template-areas').includes('Sidebar Main') && !css(root, 'grid-template-areas').includes('UtilityRail'), 'Axes can project independently while Guide retains its rail');
+      await input('controls', 'embedded'); await input('path', 'pages'); await choose('presentation');
+      check(root.dataset.lattice === 'pages' && root.dataset.layer === 'inline' && root.dataset.layout === 'hero', 'Explicit path and presence policies survive a new experience');
+      const port = win.currentScrollPort(), rootViews = win.pages(port);
+      port.element.scrollBy({top:rootViews[1].getBoundingClientRect().top - port.element.getBoundingClientRect().top, behavior:'instant'});
+      await settle();
+      await input('navigation', 'on-demand'); await input('controls', 'on-demand'); await input('navigation', 'embedded');
+      check(win.currentPageIndex(win.currentScrollPort(), rootViews) === 1, 'The active document view survives independent presence changes');
+      await input('controls', 'embedded');
+      await input('rhythm', 'spacious');
+      check(root.dataset.density === 'roomy', 'Rhythm resolves to the shared spacing renderer');
+      check(storageKeys.every((key,index) => win.localStorage.getItem(key) === stored[index]), 'Computed outputs do not overwrite global dimension preferences');
+      const sharedLayout = localStorage.getItem('selectedLayout');
+      try {
+        localStorage.setItem('selectedLayout', sharedLayout === 'sidebar-right' ? '3col' : 'sidebar-right');
+        await settle();
+        check(root.dataset.layout === 'hero' && root.style.getPropertyValue('--navigation') === 'embedded', 'Actual cross-window storage defaults do not erase this page contract');
+      } finally {
+        if (sharedLayout === null) localStorage.removeItem('selectedLayout');
+        else localStorage.setItem('selectedLayout', sharedLayout);
+      }
+      await input('identity', 'flowing');
+      check(!brand.hasAttribute('popover'), 'Flowing identity restores the heading to its authored slot');
+      await input('identity', 'persistent');
+      check(brand.hasAttribute('popover') && doc.querySelector('.BrandSpacer').offsetWidth > 0, 'Persistent Brand preserves both dimensions through its spacer');
+      const guidePath = guide.dataset.lattice;
+      await input('path', 'slides');
+      check(root.dataset.lattice === 'slides' && guide.dataset.lattice === guidePath && guidePath === 'pages', 'Root traversal changes leave the Guide traversal independent');
+      for (const layout of ['3col', 'sidebar-right', 'stacked', 'hero']) {
+        win.applyComposition({layout,layer:'inline'}, {transition:false}); await settle();
+        check(root.dataset.layout === layout && root.dataset.layer === 'inline', 'Existing ' + layout + ' Structure control remains authoritative');
+      }
+      check(doc.querySelector('#semantic-note') === note && note.value === 'Preserve this native draft' && note.selectionStart === 3 && note.selectionEnd === 8 && doc.querySelector('#layer-reference') === guide, 'Subjects, draft and text selection survive all compositions');
+      doc.querySelector('[data-contract-reset]').click(); await choose('workspace');
+      fixture.style.width = '390px'; await settle(); await settle();
+      check(guide.hasAttribute('popover') && !axes.hasAttribute('popover') && css(doc.querySelector('[data-contract-state]'),'--navigation-reason') === 'space', 'Automatic navigation responds to narrow space without projecting Axes');
+      await input('navigation', 'embedded');
+      check(!guide.hasAttribute('popover') && css(root, 'grid-template-columns').split(' ').length === 1 && doc.documentElement.scrollWidth <= win.innerWidth, 'Explicit embedded navigation stacks safely on a phone');
+      fixture.style.width = '1200px'; await settle();
+      await input('navigation', 'on-demand'); await input('controls', 'embedded'); await input('path', 'pages'); await input('rhythm', 'spacious');
+      const hash = win.location.hash;
+      check(hash.includes('&ac=') && win.compositionFromHash().lattice === 'pages', 'Contract metadata coexists with the original compact coordinate decoder');
+      const copied = win.AtmosphereContract.decorateHash(win.compositionToHash(win.readComposition()));
+      check(copied.includes('&ac='), 'Copy-link serialization includes the declarative contract');
+      const reload = new Promise(resolve => fixture.addEventListener('load', resolve, {once:true}));
+      win.location.reload(); await reload; await settle();
+      win = fixture.contentWindow; doc = fixture.contentDocument; root = doc.body;
+      check(root.dataset.experience === 'workspace' && css(root,'--navigation') === 'on-demand' && css(root,'--controls') === 'embedded' && root.dataset.lattice === 'pages' && root.dataset.density === 'roomy', 'Saved link restores intent, independent presence and explicit policies');
+      root.removeAttribute('data-contract-can-project'); win.dispatchEvent(new Event('resize')); await settle();
+      check(!doc.querySelector('#layer-reference').hasAttribute('popover') && root.dataset.layer === 'inline', 'Capability fallback retains reachable inline panels');
+      status.textContent = `${results.children.length} checks passed.`; status.dataset.result = 'pass';
+    } catch (error) {status.textContent = 'Failed: ' + error.message; status.dataset.result = 'fail';}
+  }, {once:true});
+  </script>
+</body>
+</html>

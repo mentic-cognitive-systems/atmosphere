@@ -1,0 +1,454 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* at.layer.css - is a frame in the plan, or on call */
+
+/*
+ * Layer is one of the three questions asked about a FRAME -- see the frame
+ * contract at the top of at.lattice.css. Its question is PRESENCE:
+ *
+ *   Layout    which frames exist, what shape they are, where they sit
+ *   Layer     is this frame in the plan, or on call -- and where it lands
+ *   Lattice   how content travels THROUGH a frame
+ *
+ * Layer is not "the sheet for asides". It never was -- it already rewrites the
+ * document grid below, which is a thing the aside-only razor could not explain
+ * and the presence razor makes obvious: withdrawing a frame from the plan
+ * means the plan has to be told. What Layer may not do is decide what a frame
+ * is made of (Look), how it crosses (Life), or what path runs through it
+ * (Lattice) -- and a projected frame keeps its own Lattice, which is why the
+ * Guide pages identically inline and as a drawer.
+ *
+ * Progressive-enhancement contract:
+ *   - the controller adds data-layer-ready only after it has wired native
+ *     popovers and their invokers;
+ *   - data-layer="inline" leaves every panel frame in Layout's slots;
+ *   - every other supported value lifts the frames it gives an altitude to
+ *     into the top layer -- see THE ALTITUDE OF A FRAME below, which is the
+ *     only place that decides which frames those are;
+ *   - a closed popover remains absent from layout and the accessibility tree.
+ *
+ * Published for the other axes to read:
+ *   --layer-z       how many planes IN FRONT of the page this projection
+ *                   stands. A summons is a yes or a no; where it lands is a
+ *                   distance, and a distance is a number every other axis
+ *                   already knows how to spend.
+ *   --plane-altitude  the same distance, stated per FRAME: 0 while a frame is
+ *                   on the base plane, --layer-z once this projection lifts
+ *                   it. The controller promotes exactly the frames whose
+ *                   altitude is above zero, so it never has to know which
+ *                   projection lifts which frame.
+ *   --page-far      the page's own distance while a projection is open -- the
+ *                   same number, pointing the other way. Look paints that many
+ *                   planes of its own air over the page; Life times the
+ *                   recede; Lens decides how far it is allowed to go. Nothing
+ *                   downstream names a projection, so a fourth one added
+ *                   tomorrow recedes the page today.
+ *   --layer-travel / --layer-swing / --layer-hinge  the crossing terms, spent
+ *                   by at.life.css (declared there, alongside the flows).
+ */
+
+@property --page-far {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+}
+
+/* Not inherited: a level belongs to the plane that stands on it, and what is
+   printed on a lifted plane is not itself lifted a second time. */
+@property --plane-altitude {
+    syntax: "<number>";
+    inherits: false;
+    initial-value: 0;
+}
+
+/* Controls authored into the document must never become dead controls while
+   the projection controller is unavailable. The controller also removes the
+   hidden attribute; :not([hidden]) keeps that state authoritative. */
+.LayerControls,
+[data-layer-close] {
+    display: none;
+}
+
+.Layout[data-layer-ready]:is(
+    [data-layer="top-left-edge-drawer"],
+    [data-layer="top-menu"],
+    [data-layer="pop-over"]
+) .LayerControls:not([hidden]) {
+    position: relative;
+    z-index: var(--layer-controls-z, 900);
+    display: flex;
+    grid-area: Header;
+    place-self: start end;
+    flex-wrap: wrap;
+    gap: var(--layer-control-gap, 0.5rem);
+    margin-block-start: max(var(--layout-gap, 0.75rem), env(safe-area-inset-top));
+    margin-inline-end: max(var(--layout-gap, 0.75rem), env(safe-area-inset-right));
+}
+
+/* Once furniture is projected, its former explicit grid areas and columns
+   must disappear too. Only the outer stage changes here: height, overflow,
+   snap, axis, and every other Lattice pacing decision remain untouched. */
+.Layout[data-layer-ready]:where(:not([data-contract-ready])):is(
+    [data-layer="top-left-edge-drawer"],
+    [data-layer="top-menu"],
+    [data-layer="pop-over"]
+) {
+    --grid-areas:
+        "Header"
+        "Main"
+        "Footer";
+    --grid-cols: minmax(0, 1fr);
+    --grid-rows: auto minmax(0, 1fr) auto;
+    --sidebar-display: none;
+    --utility-display: none;
+}
+
+/* Native popovers render in the browser's top layer. These rules reset only
+   placement and available space; border, surface, shadow, and motion belong
+   to Look and Life. */
+/* --frame-block-max is the tightest block size anyone still in the PLAN knows
+   about a frame -- Layout publishes it for a rail, because a rail sits under
+   a masthead in a column. A projected frame is not in the plan any more, and
+   the number that described its place there is no longer true of it: this one
+   is measured against the window. Republishing it is how the handshake stays
+   a handshake instead of becoming a fight over max-block-size between two
+   sheets, which is a fight decided by link order and therefore by accident. */
+.Layout[data-layer-ready]:is(
+    [data-layer="top-left-edge-drawer"],
+    [data-layer="top-menu"],
+    [data-layer="pop-over"]
+) [data-layer-panel][popover] {
+    --frame-block-max: 100dvb;
+    position: fixed;
+    box-sizing: border-box;
+    margin: 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+/* .Sidebar and .UtilityRail normally read display from Layout variables.
+   Opening a popover must outrank those inline-slot rules and must not revive
+   its old named grid area. */
+.Layout[data-layer-ready]:is(
+    [data-layer="top-left-edge-drawer"],
+    [data-layer="top-menu"],
+    [data-layer="pop-over"]
+) [data-layer-panel][popover]:popover-open {
+    display: grid;
+    grid-area: auto;
+}
+
+/* ...and a closed one must outrank them the other way. The browser hides a
+   closed popover, but only at user-agent weight, so any region whose Layout
+   rule states a display of its own would stay on the page as a fixed box
+   that cannot be dismissed. The rails never met this because Layout reads
+   their display from a variable; a footer states its own. */
+.Layout[data-layer-ready]:is(
+    [data-layer="top-left-edge-drawer"],
+    [data-layer="top-menu"],
+    [data-layer="pop-over"]
+) [data-layer-panel][popover]:not(:popover-open) {
+    display: none;
+}
+
+.Layout[data-layer-ready]:is(
+    [data-layer="top-left-edge-drawer"],
+    [data-layer="top-menu"],
+    [data-layer="pop-over"]
+) [data-layer-panel][popover]:popover-open [data-layer-close]:not([hidden]) {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    display: block;
+    margin-inline-start: auto;
+}
+
+/* ==================================================================== */
+/* THE DISTANCE A PROJECTION STANDS AT                                   */
+/*                                                                      */
+/* A projection is a summons -- a yes or a no. But where it lands is a   */
+/* DISTANCE, and that is a number, which means every axis that already   */
+/* knows how to spend a plane of depth can spend this one too.          */
+/*                                                                      */
+/* A pop-over belongs to its trigger and barely leaves the page. A top   */
+/* menu hangs off the window itself and is the furthest thing from it.   */
+/* Publishing that as --layer-z is the whole handshake: Look paints the  */
+/* page behind it with that many planes of the look's own air, Life      */
+/* times the recede, Lens caps how far it may go. None of them names a   */
+/* projection, so this file stays the only place that knows the list.    */
+/* ==================================================================== */
+
+.Layout[data-layer="pop-over"]             { --layer-z: 2; }
+.Layout[data-layer="top-left-edge-drawer"] { --layer-z: 3; }
+.Layout[data-layer="top-menu"]             { --layer-z: 4; }
+
+/* ==================================================================== */
+/* THE ALTITUDE OF A FRAME                                               */
+/*                                                                      */
+/* --layer-z says how far forward this projection stands. Which frames   */
+/* it takes with it is a second question, and it is answered per frame:  */
+/* --plane-altitude is 0 on the base plane and --layer-z once lifted.    */
+/*                                                                      */
+/* A frame that names no edge goes wherever the projection puts things,  */
+/* so every projection lifts it. A frame that names the edge it belongs  */
+/* to -- data-edge, in the logical positions the presentation catalog    */
+/* already registers -- is edge furniture: the projections that hang     */
+/* furniture off the window lift it onto that edge, and a pop-over,      */
+/* which belongs to a trigger rather than to an edge, leaves it in the   */
+/* plan. That is the whole reason a footer is a drawer in a shelf app    */
+/* and a slide deck and an ordinary footer under a dashboard, and no     */
+/* rule here had to name a product to say so.                            */
+/* ==================================================================== */
+
+.Layout:is(
+    [data-layer="top-left-edge-drawer"],
+    [data-layer="top-menu"],
+    [data-layer="pop-over"]
+) [data-layer-panel]:not([data-edge]) {
+    --plane-altitude: var(--layer-z, 2);
+}
+
+.Layout:is(
+    [data-layer="top-left-edge-drawer"],
+    [data-layer="top-menu"]
+) [data-layer-panel][data-edge] {
+    --plane-altitude: var(--layer-z, 2);
+}
+
+/* The page falls back exactly as far as the projection came forward, and only
+   while something is actually open. :has() is doing real work here -- a page
+   that carried the recede permanently would be a page permanently behind a
+   filter, which is the containing-block trap documented on .flow-rail. */
+.Layout[data-layer-ready]:has([data-layer-panel]:popover-open) {
+    --page-far: var(--layer-z, 2);
+}
+
+/* TOP-LEFT EDGE DRAWER
+   One shared physical-left slot; popover="auto" determines which region owns
+   it. The three-rem remainder keeps an edge tab reachable on narrow screens. */
+.Layout[data-layer-ready][data-layer="top-left-edge-drawer"]
+[data-layer-panel][popover]:where(:not([data-edge])) {
+    top: 0;
+    right: auto;
+    bottom: 0;
+    left: 0;
+    width: min(var(--layer-drawer-size, 24rem), calc(100vw - 3rem));
+    width: min(var(--layer-drawer-size, 24rem), calc(100dvi - 3rem));
+    max-width: none;
+    height: 100vh;
+    height: 100dvb;
+    max-height: 100vh;
+    max-height: 100dvb;
+    padding-block-start: max(var(--layout-pad, 1rem), env(safe-area-inset-top));
+    padding-block-end: max(var(--layout-pad, 1rem), env(safe-area-inset-bottom));
+    padding-inline-start: max(var(--layout-pad, 1rem), env(safe-area-inset-left));
+}
+
+.Layout[data-layer-ready][data-layer="top-left-edge-drawer"]
+.LayerControls:not([hidden]):where(:not([data-edge])) {
+    position: fixed;
+    top: max(var(--layout-gap, 0.75rem), env(safe-area-inset-top));
+    left: max(0px, env(safe-area-inset-left));
+    margin: 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+/* Fixing the invokers to the physical-left edge parks them on top of whatever
+   Layout put in the Header. Layer put them there, so Layer reserves the room:
+   the masthead starts after them instead of underneath them. Their width is a
+   question about a font and a label, so the controller measures it and
+   publishes --layer-controls-size; the fallback covers the scriptless page. */
+.Layout[data-layer-ready][data-layer="top-left-edge-drawer"] .Header {
+    padding-inline-start: calc(
+        max(var(--layout-pad, 1rem), env(safe-area-inset-left))
+        + var(--layer-controls-size, 10rem)
+        + var(--layer-control-gap, 0.5rem)
+    );
+}
+
+/* TOP MENU
+   A centred viewport-top panel that drops from the top edge, and invokers
+   that hang off that same edge. Both are flush with it: nothing is inset,
+   so Look can square the attached corners and the pair reads as one piece
+   of furniture hanging from the top of the window. */
+.Layout[data-layer-ready][data-layer="top-menu"]
+[data-layer-panel][popover]:where(:not([data-edge])) {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    max-width: var(--layer-sheet-max, 56rem);
+    height: auto;
+    max-height: min(var(--layer-sheet-max-block, 48rem), 72vh);
+    max-height: min(var(--layer-sheet-max-block, 48rem), 72dvb);
+    margin-inline: auto;
+    padding-block-start: max(var(--layout-pad, 1rem), env(safe-area-inset-top));
+    padding-inline-start: max(var(--layout-pad, 1rem), env(safe-area-inset-left));
+    padding-inline-end: max(var(--layout-pad, 1rem), env(safe-area-inset-right));
+}
+
+.Layout[data-layer-ready][data-layer="top-menu"]
+.LayerControls:not([hidden]):where(:not([data-edge])) {
+    position: fixed;
+    top: max(0px, env(safe-area-inset-top));
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    margin: 0;
+    flex-wrap: nowrap;
+    translate: -50% 0;
+}
+
+/* A FRAME ON ITS OWN EDGE
+   The two projections above choose an edge for frames that did not name one.
+   A frame that did is pinned to that edge instead, and so are its invokers,
+   in whichever of the two lifted it. Pinning is nearly all that happens
+   here: the frame keeps the size and the inner arrangement Layout gave it,
+   because a plane carries its own layout to whatever level it stands on.
+   Layer hands over one number, the block bound -- a drawer on the bottom
+   edge may take half the glass and no more -- which Layout spends, and adds
+   the inset the device imposes at that edge, as the projections above do. */
+.Layout[data-layer-ready] [data-layer-panel][data-edge="block-end"][popover] {
+    --frame-block-max: 50dvb;
+    inset: auto 0 0;
+    padding-block-end: max(var(--layout-gap, 0.75rem), env(safe-area-inset-bottom));
+}
+
+.Layout[data-layer-ready] .LayerControls[data-edge="block-end"]:not([hidden]) {
+    position: fixed;
+    inset: auto auto max(0px, env(safe-area-inset-bottom)) 50%;
+    margin: 0;
+    flex-wrap: nowrap;
+    translate: -50% 0;
+}
+
+/* POP-OVER
+   The base placement is deliberately viewport-relative and safe even when
+   CSS anchor positioning is unavailable. */
+.Layout[data-layer-ready][data-layer="pop-over"]
+[data-layer-panel][popover] {
+    top: max(var(--layout-gap, 0.75rem), env(safe-area-inset-top));
+    right: max(var(--layout-gap, 0.75rem), env(safe-area-inset-right));
+    bottom: auto;
+    left: auto;
+    width: min(var(--layer-popover-size, 24rem), calc(100vw - var(--layout-gap, 0.75rem) - var(--layout-gap, 0.75rem)));
+    width: min(var(--layer-popover-size, 24rem), calc(100dvi - var(--layout-gap, 0.75rem) - var(--layout-gap, 0.75rem)));
+    max-width: none;
+    height: auto;
+    max-height: calc(100vh - var(--layout-gap, 0.75rem) - var(--layout-gap, 0.75rem));
+    max-height: calc(100dvb - var(--layout-gap, 0.75rem) - var(--layout-gap, 0.75rem));
+}
+
+/* Pop-over is the one projection that leaves its invokers in Layout's Header
+   area, at the top-inline-end corner -- which is also where a page's own
+   settings tab tends to live. Reserve that tab's width so the two never
+   overlap; a page without one can zero --layer-controls-clearance. */
+.Layout[data-layer-ready][data-layer="pop-over"]
+.LayerControls:not([hidden]) {
+    margin-inline-end: calc(
+        max(var(--layout-gap, 0.75rem), env(safe-area-inset-right))
+        + var(--layer-controls-clearance, 3.5rem)
+    );
+}
+
+/* Anchor names are minted by the controller, one per trigger/panel pair, from
+   the pairing it already holds. They used to be four rules naming two specific
+   element ids -- a hand-maintained list of proper nouns, and a third panel
+   would have silently got no anchor at all. The viewport fallback above still
+   places every panel on its own, so anchoring stays a pure enhancement and the
+   scriptless page is unaffected. */
+
+/* Position-try tactics keep an anchored panel on-screen. */
+@media (min-width: 40.001rem) {
+    @supports (position-area: block-end) {
+        .Layout[data-layer-ready][data-layer="pop-over"]
+        [data-layer-panel][popover] {
+            inset: auto;
+            position-area: block-end;
+            position-try-fallbacks: flip-block, flip-inline;
+            margin: var(--layer-popover-gap, 0.5rem);
+        }
+    }
+}
+
+/* A small anchored card is rarely useful on a phone. Preserve the Layer value
+   while projecting its viable narrow-screen form as a bottom sheet. */
+@media (max-width: 40rem) {
+    .Layout[data-layer-ready][data-layer="pop-over"]
+    [data-layer-panel][popover] {
+        top: auto;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        max-width: var(--layer-sheet-max, 56rem);
+        height: auto;
+        max-height: min(var(--layer-sheet-max-block, 48rem), 72vh);
+        max-height: min(var(--layer-sheet-max-block, 48rem), 72dvb);
+        margin-inline: auto;
+        padding-block-end: max(var(--layout-pad, 1rem), env(safe-area-inset-bottom));
+        padding-inline-start: max(var(--layout-pad, 1rem), env(safe-area-inset-left));
+        padding-inline-end: max(var(--layout-pad, 1rem), env(safe-area-inset-right));
+    }
+}
+
+/* PRINT
+   Closed native popovers may be force-hidden by the user-agent top-layer
+   stylesheet. These declarations make every panel static and printable as
+   far as CSS permits; the controller should remove `popover` before printing
+   for engines whose UA !important rule still wins. */
+@media print {
+    .LayerControls,
+    [data-layer-close] {
+        display: none !important;
+    }
+
+    .Layout[data-layer-ready] {
+        --grid-areas:
+            "Header"
+            "Main"
+            "Sidebar"
+            "UtilityRail"
+            "Footer";
+        --grid-cols: minmax(0, 1fr);
+        --grid-rows: auto auto auto auto auto;
+        --sidebar-display: grid;
+        --utility-display: grid;
+    }
+
+    .Layout[data-layer-ready] [data-layer-panel] {
+        position: static !important;
+        inset: auto !important;
+        position-area: none;
+        display: grid !important;
+        width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        max-height: none !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        overscroll-behavior: auto;
+        opacity: 1 !important;
+        transform: none !important;
+        translate: none;
+    }
+
+    .Layout[data-layer-ready] .Sidebar[data-layer-panel] {
+        grid-area: Sidebar !important;
+    }
+
+    .Layout[data-layer-ready] .UtilityRail[data-layer-panel] {
+        grid-area: UtilityRail !important;
+    }
+}
+
+/**
+ * Copyright © 2026 MENTIC LLC
+ * Created by Matthew Quarneri
+ *
+ * Dual licensed under AGPL-3.0 or a MENTIC LLC commercial license.
+ * See LICENSE for licensing terms.
+ */

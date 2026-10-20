@@ -1,0 +1,609 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Atmosphere in plain terms: one page read as a document, worked in as a workspace or shown as slides, compared with Tailwind, with a practical guide to composing CSS.">
+  <title>Atmosphere; compose with meaningful style</title>
+  <link rel="stylesheet" href="css/at.simple.css">
+  <script src="js/at.simple.js" defer></script>
+</head>
+<body class="SimpleAtmosphere" data-lens="reading" data-primary="document">
+  <header class="toolbar" data-place="toolbar">
+    <a class="wordmark" data-identity="brand" data-relation="identifies" data-target="experience">@mosphere<span>compose with meaningful style</span></a>
+    <nav class="experience-choices" aria-label="Presentation" hidden>
+      <button type="button" data-experience="reading" aria-pressed="true">Reading</button>
+      <button type="button" data-experience="workspace" aria-pressed="false">Workspace</button>
+      <button type="button" data-experience="presentation" aria-pressed="false">Presentation</button>
+    </nav>
+    <a class="source-link" href="https://github.com/mentic-cognitive-systems/atmosphere">GITHUB ↗</a>
+  </header>
+
+  <div class="introduction">
+    <p class="eyebrow">A way to write CSS, not a framework</p>
+    <h1>Write the HTML once.<br>Let CSS compose the experience.</h1>
+    <p class="lede">Atmosphere organizes plain CSS so one page can be read as a document,
+      worked in as a workspace, or shown as slides by changing a single attribute.
+      Nothing is re-rendered, so a half-written note, a selection and keyboard focus
+      survive the switch. There is no build step: registered custom properties, container
+      style queries and cascade layers do the work.</p>
+    <p class="tailwind-line"><strong>If you know Tailwind:</strong> Tailwind writes each
+      decision into each element’s class list. Atmosphere writes what each element
+      <em>is</em> into the markup, then makes the decisions once, in the stylesheet,
+      from a few named choices.</p>
+    <nav class="section-nav" aria-label="On this page">
+      <a href="#try"><span>1</span> Try it</a>
+      <a href="#tailwind"><span>2</span> Compared with Tailwind</a>
+      <a href="#compose"><span>3</span> Compose your CSS</a>
+      <a href="#filing"><span>4</span> File each rule</a>
+      <a href="#fit"><span>5</span> When it fits</a>
+    </nav>
+  </div>
+
+  <section class="try" id="try" aria-labelledby="try-title">
+    <header>
+      <p class="eyebrow">1 · Try it</p>
+      <h2 id="try-title">One page, three presentations.</h2>
+    </header>
+    <ol class="try-steps">
+      <li><p>Write something in <strong>Keep a thought</strong>, below or beside the document.</p></li>
+      <li><p>Switch to <strong>Workspace</strong>, then <strong>Presentation</strong>, in the bar at the top.</p></li>
+      <li><p>Your words are still there. It is the same <code>&lt;textarea&gt;</code>; only CSS moved it.</p></li>
+    </ol>
+    <div class="guide-options">
+      <button type="button" popovertarget="simple-guide" hidden>Open guide</button>
+    </div>
+    <p class="status" role="status" data-presentation-status>Reading · Guide stays in the layout.</p>
+    <details class="composition-contract">
+      <summary>Explore the composition contract</summary>
+      <p>Each control sets one custom property on <code>&lt;body&gt;</code>. An explicit
+        choice outranks the experience’s recipe and stays in effect when you switch
+        experiences. Choose “Experience default” to inherit again.</p>
+      <div class="policy-controls" hidden>
+        <div class="policy-field">
+          <label for="policy-navigation">Navigation</label>
+          <select id="policy-navigation" data-policy="navigation">
+            <option value="">Experience default</option>
+            <option value="auto">Auto</option>
+            <option value="embedded">Keep in the layout</option>
+            <option value="on-demand">Open on demand</option>
+          </select>
+        </div>
+        <div class="policy-field">
+          <label for="policy-path">Path</label>
+          <select id="policy-path" data-policy="path">
+            <option value="">Experience default</option>
+            <option value="continuous">Continuous</option>
+            <option value="pages">Pages</option>
+            <option value="slides">Slides</option>
+          </select>
+        </div>
+        <div class="policy-field">
+          <label for="policy-rhythm">Rhythm</label>
+          <select id="policy-rhythm" data-policy="rhythm">
+            <option value="">Experience default</option>
+            <option value="compact">Compact</option>
+            <option value="comfortable">Comfortable</option>
+            <option value="spacious">Spacious</option>
+          </select>
+        </div>
+        <div class="policy-field">
+          <label for="policy-identity">Identity</label>
+          <select id="policy-identity" data-policy="identity">
+            <option value="">Experience default</option>
+            <option value="persistent">Keep available</option>
+            <option value="flowing">Move with the document</option>
+          </select>
+        </div>
+        <button type="button" data-reset-policies>Use experience defaults</button>
+      </div>
+      <pre data-contract-output>Guide navigates document. Notes support document. Brand identifies this experience.</pre>
+      <p class="aside-note">The readout is computed CSS, not a JavaScript table. Relationships
+        give subjects their jobs; CSS resolves the jobs into places, presence and paths.</p>
+    </details>
+  </section>
+
+  <!-- Relationships are scoped to this experience's semantic subjects.
+       CSS derives each place; no JavaScript table maps recipes to geometry. -->
+  <div class="composition-space">
+  <div class="composition">
+  <div class="scene">
+    <aside id="simple-guide" data-identity="guide" data-relation="navigates" data-target="document" aria-labelledby="guide-title">
+      <div class="panel-heading">
+        <h2 id="guide-title">Follow the idea</h2>
+        <button type="button" popovertarget="simple-guide" popovertargetaction="hide" aria-label="Close guide" hidden>×</button>
+      </div>
+      <nav class="chapter-links" aria-label="Chapters">
+        <a href="#meaning" data-go-to="meaning" aria-current="step"><span>01</span> Name it</a>
+        <a href="#responsibility" data-go-to="responsibility"><span>02</span> Relate it</a>
+        <a href="#encounter" data-go-to="encounter"><span>03</span> Compose it</a>
+      </nav>
+      <p class="aside-note">This guide sits below, beside, or in a drawer. It is always the same element.</p>
+    </aside>
+
+    <main id="simple-document" data-identity="document" data-place="stage" data-frame="root" aria-label="The method in three chapters" tabindex="0">
+      <div data-track>
+        <section id="meaning" data-view aria-labelledby="meaning-title">
+          <p class="eyebrow">01 / Name it</p>
+          <h2 id="meaning-title">Say what each thing is.</h2>
+          <p>This demo has three subjects: a guide, a document and your notes. The
+            markup names them and says nothing about columns, drawers or slides.</p>
+<pre><code>&lt;aside data-identity="guide"&gt;
+&lt;main  data-identity="document"&gt;
+&lt;aside data-identity="notes"&gt;</code></pre>
+          <blockquote>Give the subject a stable name before deciding where it belongs.</blockquote>
+        </section>
+        <section id="responsibility" data-view aria-labelledby="responsibility-title">
+          <p class="eyebrow">02 / Relate it</p>
+          <h2 id="responsibility-title">Say what job it does.</h2>
+          <p>A guide navigates the document; notes support it. Declare the relationship,
+            and one CSS rule turns it into a responsibility and a grid area.</p>
+          <div class="relationship"><span>Guide</span><span aria-hidden="true">→</span><span>navigates</span><span aria-hidden="true">→</span><span>Document</span></div>
+<pre><code>[data-relation="navigates"] {
+  --place: var(--place-navigator, supporting);
+}
+.scene &gt; [data-relation] { grid-area: var(--place); }</code></pre>
+        </section>
+        <section id="encounter" data-view aria-labelledby="encounter-title">
+          <p class="eyebrow">03 / Compose it</p>
+          <h2 id="encounter-title">Pick a recipe. Let the browser resolve it.</h2>
+          <p>Reading, Workspace and Presentation are three CSS rules that set a few named
+            choices. Style queries turn those choices into areas, drawers and slides.</p>
+<pre><code>[data-lens="presentation"] {
+  --arrangement: focus;
+  --path: slides;
+}</code></pre>
+          <p>Open <strong>Explore the composition contract</strong> and set Navigation to
+            <em>Keep in the layout</em>. An explicit policy outranks the recipe.</p>
+        </section>
+      </div>
+    </main>
+
+    <aside data-identity="notes" data-relation="supports" data-target="document" aria-labelledby="notes-title">
+      <p class="eyebrow">Your working state</p>
+      <h2 id="notes-title">Keep a thought.</h2>
+      <label for="simple-note">What would you simplify?</label>
+      <textarea id="simple-note" rows="6" placeholder="Write something, then switch presentations…"></textarea>
+      <p class="aside-note">Your text stays here as you switch. This example keeps notes for the current page session.</p>
+    </aside>
+  </div>
+
+  </div>
+  </div>
+  <nav class="page-controls" aria-label="Chapter navigation" hidden>
+    <button type="button" data-step="-1">← Previous</button>
+    <output aria-live="polite" data-chapter-status>1 / 3</output>
+    <button type="button" data-step="1">Next →</button>
+  </nav>
+
+  <section class="guide-section" id="tailwind" aria-labelledby="tailwind-title">
+    <header>
+      <p class="eyebrow">2 · Compared with Tailwind</p>
+      <h2 id="tailwind-title">Same problem. A different home for decisions.</h2>
+      <p>Tailwind and Atmosphere push back on the same thing: hand-written CSS that
+        drifts into arbitrary values, invented class names and rules nobody can find.
+        Tailwind moves styling into the markup, one utility at a time. Atmosphere keeps
+        <em>meaning</em> in the markup and moves <em>decisions</em> into the cascade,
+        where one rule serves every element that shares a meaning.</p>
+    </header>
+
+    <p class="task"><strong>The task:</strong> the guide sits under the document while
+      reading, takes a left column in a wide workspace, and becomes a drawer when presenting.</p>
+
+    <div class="compare">
+      <figure data-approach="utility">
+        <figcaption><span class="badge">Tailwind</span> Each element lists its own reactions</figcaption>
+<pre><code>&lt;body data-mode="workspace" class="group"&gt;
+  &lt;div class="grid gap-6
+    group-data-[mode=workspace]:lg:grid-cols-[14rem_1fr_16rem]"&gt;
+    &lt;aside class="order-2 rounded-2xl border bg-white p-6
+      group-data-[mode=workspace]:lg:order-none
+      group-data-[mode=workspace]:max-lg:hidden
+      group-data-[mode=presentation]:fixed
+      group-data-[mode=presentation]:inset-y-0
+      group-data-[mode=presentation]:left-0
+      group-data-[mode=presentation]:z-50
+      group-data-[mode=presentation]:w-80
+      group-data-[mode=presentation]:-translate-x-full
+      data-[open]:translate-x-0"&gt;
+      …guide…
+    &lt;/aside&gt;
+    &lt;main class="…"&gt;…&lt;/main&gt;
+    &lt;aside class="rounded-2xl border bg-white p-6"&gt;
+      …notes…
+    &lt;/aside&gt;
+  &lt;/div&gt;
+<span class="c">  &lt;!-- …and the drawer classes again under max-lg:
+       if a narrow workspace should keep the guide --&gt;</span>
+&lt;/body&gt;</code></pre>
+        <ul>
+          <li>Readable in place: the class list shows how this element looks in every context.</li>
+          <li>Every mode and breakpoint is spelled out on every element it affects.</li>
+          <li>A fourth mode means revisiting each of those elements.</li>
+        </ul>
+      </figure>
+      <figure data-approach="atmosphere">
+        <figcaption><span class="badge">Atmosphere</span> Markup says what; the cascade says where</figcaption>
+<pre><code>&lt;body class="SimpleAtmosphere" data-lens="workspace"&gt;
+  &lt;div class="scene"&gt;
+    &lt;aside data-relation="navigates"
+           data-target="document"&gt;…guide…&lt;/aside&gt;
+    &lt;main data-place="stage"&gt;…&lt;/main&gt;
+    &lt;aside data-relation="supports"
+           data-target="document"&gt;…notes…&lt;/aside&gt;
+  &lt;/div&gt;
+&lt;/body&gt;</code></pre>
+<pre><code><span class="c">/* One rule per experience */</span>
+[data-lens="workspace"]    { --arrangement: alongside; }
+[data-lens="presentation"] { --arrangement: focus;
+                             --path: slides; }
+
+<span class="c">/* One rule per relationship */</span>
+[data-relation="navigates"] {
+  --place: var(--place-navigator, supporting);
+}
+.scene &gt; [data-relation] { grid-area: var(--place); }
+
+<span class="c">/* One rule per arrangement */</span>
+@container composition style(--arrangement: alongside) {
+  .scene { --place-navigator: navigation;
+           --scene-areas: "navigation work inspection"; }
+}</code></pre>
+        <ul>
+          <li>The markup never mentions modes, breakpoints, left or drawer.</li>
+          <li>A fourth mode is one more recipe rule; the bindings already apply.</li>
+          <li>Locality moves to the rule: one place shows how “workspace” resolves.</li>
+        </ul>
+      </figure>
+    </div>
+
+    <h3>What each approach optimizes</h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">Question</th><th scope="col">Tailwind</th><th scope="col">Atmosphere</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">How are arbitrary values prevented?</th>
+            <td>A theme scale: <code>p-4</code>, not <code>13px</code>. The escape hatch is <code>p-[13px]</code>.</td>
+            <td><code>@property</code> rejects choices outside the vocabulary. Quantities are named steps such as <code>data-gap="open"</code>. There is no arbitrary-value syntax.</td>
+          </tr>
+          <tr>
+            <th scope="row">What must you name?</th>
+            <td>Nothing. Utilities replace class names.</td>
+            <td>Only meanings that a rule consumes: what a thing is, what it relates to, its parts. Never wrappers.</td>
+          </tr>
+          <tr>
+            <th scope="row">What does one element tell you?</th>
+            <td>How it looks, in every context.</td>
+            <td>What it is and how much room it asks for. How it looks is one rule away, shared by everything like it.</td>
+          </tr>
+          <tr>
+            <th scope="row">Where do responsive, theme and mode rules go?</th>
+            <td>A variant per context on each element: <code>lg:</code>, <code>dark:</code>, <code>group-data-[…]:</code>.</td>
+            <td>Named choices on the host, resolved once with <code>@container style()</code> and container size queries.</td>
+          </tr>
+          <tr>
+            <th scope="row">How do you restyle everything?</th>
+            <td>Redefine theme variables (v4) to change the scale. Which step each element uses stays in its class list.</td>
+            <td>A Look swaps tokens and density rescales steps. The markup does not change.</td>
+          </tr>
+          <tr>
+            <th scope="row">How do you add a presentation?</th>
+            <td>Edit every element that should behave differently.</td>
+            <td>Add one recipe. Existing bindings apply.</td>
+          </tr>
+          <tr>
+            <th scope="row">What tooling is required?</th>
+            <td>A build step (CLI or bundler plugin), plus editor support.</td>
+            <td>None. The browser evaluates plain CSS.</td>
+          </tr>
+          <tr>
+            <th scope="row">What does the browser need?</th>
+            <td>A modern browser; v4 itself relies on cascade layers and <code>@property</code>.</td>
+            <td>The same, plus container style queries on custom properties. Without them this page stays a readable document.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Translating Tailwind habits</h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">If you would write…</th><th scope="col">In Atmosphere, do this</th><th scope="col">Home</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>flex gap-4 p-6</code> on a card</td>
+            <td>Name the kind (<code>.release-task</code>) and ask for quantity with named locals: <code>data-gap="even" data-pad="open"</code>.</td>
+            <td>Components, locals</td>
+          </tr>
+          <tr>
+            <td><code>lg:grid-cols-[14rem_1fr_16rem]</code>, <code>col-span-2</code></td>
+            <td>Areas keyed to <code>--arrangement</code>. Children take <code>grid-area: var(--place)</code>.</td>
+            <td>Layout</td>
+          </tr>
+          <tr>
+            <td><code>hidden lg:block</code></td>
+            <td>A presence policy, <code>--navigation: auto | embedded | on-demand</code>, resolved against available space.</td>
+            <td>Layer</td>
+          </tr>
+          <tr>
+            <td><code>fixed inset-y-0 left-0 z-50</code> for a drawer</td>
+            <td>The same element becomes a native <code>[popover]</code> in the top layer, and layout releases its slot.</td>
+            <td>Layer</td>
+          </tr>
+          <tr>
+            <td><code>overflow-x-auto snap-x snap-mandatory</code></td>
+            <td><code>--path: slides</code> on the frame.</td>
+            <td>Lattice</td>
+          </tr>
+          <tr>
+            <td><code>bg-white text-slate-800 dark:bg-slate-900</code></td>
+            <td><code>background: var(--surface); color: var(--ink);</code> A Look or color scheme redefines the tokens.</td>
+            <td>Look</td>
+          </tr>
+          <tr>
+            <td><code>transition-colors duration-200 motion-reduce:transition-none</code></td>
+            <td>Declare transitions once, with one reduced-motion rule for the whole page.</td>
+            <td>Life</td>
+          </tr>
+          <tr>
+            <td><code>@apply</code> or a bundle of utilities</td>
+            <td>A kind class plus <code>data-part</code> for its constituents. Each concern styles the parts it owns.</td>
+            <td>Components</td>
+          </tr>
+          <tr>
+            <td><code>p-[13px]</code></td>
+            <td>Nothing, on purpose. If a value cannot move when the look or density changes, it is a hardcode.</td>
+            <td>Nowhere</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="guide-section" id="compose" aria-labelledby="compose-title">
+    <header>
+      <p class="eyebrow">3 · Compose your CSS</p>
+      <h2 id="compose-title">Seven moves, in the order you write them.</h2>
+      <p>Each snippet is adapted from <a href="css/at.simple.css">at.simple.css</a>, the
+        single stylesheet behind the demo above. Read that file top to bottom and you will
+        meet these moves in this order.</p>
+    </header>
+    <ol class="moves">
+      <li>
+        <div>
+          <h3>Declare the order of concerns once.</h3>
+          <p>Give each concern its own cascade layer. When two rules conflict, the later
+            layer wins regardless of selector specificity, so you never need
+            <code>!important</code> or longer selectors.</p>
+          <p class="aside-note">Atmosphere’s <em>Layer</em> concern is named
+            <code>presence</code> here so it is not confused with CSS <code>@layer</code>.</p>
+        </div>
+<pre><code>@layer vocabulary, lens, components,
+       layout, presence, lattice, look, life;</code></pre>
+      </li>
+      <li>
+        <div>
+          <h3>Register a small vocabulary.</h3>
+          <p>Turn each decision into a registered custom property with a fixed list of
+            values. The browser rejects anything else, so a typo falls back to the
+            inherited or initial value instead of leaking into the layout. It is the
+            constraint Tailwind gets from its theme, enforced by the engine.</p>
+        </div>
+<pre><code>@property --navigation {
+  syntax: "auto | embedded | on-demand";
+  inherits: true;
+  initial-value: auto;
+}
+<span class="c">/* --navigation: sideways;  → invalid, falls back to auto */</span></code></pre>
+      </li>
+      <li>
+        <div>
+          <h3>Write each experience as plain defaults.</h3>
+          <p>A recipe, which Atmosphere calls a Lens, is a set of declarations in an early
+            layer. Switching experience changes one attribute. Anything more explicit, such
+            as an inline style set by a control, outranks it without a fight.</p>
+        </div>
+<pre><code>@layer lens {
+  [data-lens="workspace"]    { --arrangement: alongside; }
+  [data-lens="presentation"] { --arrangement: focus;
+                               --path: slides; }
+}
+
+<span class="c">&lt;!-- An explicit policy outranks any layered recipe --&gt;</span>
+&lt;body data-lens="presentation" style="--navigation: embedded"&gt;</code></pre>
+      </li>
+      <li>
+        <div>
+          <h3>Bind meaning to places, never positions.</h3>
+          <p>The markup declares relationships. One rule per relationship turns it into a
+            responsibility and a named grid area. Each arrangement decides where those areas
+            go. Nothing in the HTML says left, right or drawer.</p>
+        </div>
+<pre><code>[data-relation="navigates"][data-target="document"] {
+  --responsibility: navigator;
+  --place: var(--place-navigator, supporting);
+}
+.scene &gt; [data-relation] { grid-area: var(--place); }</code></pre>
+      </li>
+      <li>
+        <div>
+          <h3>Resolve named choices with style queries.</h3>
+          <p>Give each tool one job. <code>@container style()</code> picks between named
+            options, <code>var()</code> carries facts to the rules that use them, and
+            <code>calc()</code> or <code>clamp()</code> compute quantities.</p>
+        </div>
+<pre><code>@container composition style(--arrangement: alongside) {
+  .scene {
+    --place-navigator: navigation;
+    --scene-areas: "navigation work inspection";
+  }
+}
+.scene { grid-template-areas: var(--scene-areas); }</code></pre>
+      </li>
+      <li>
+        <div>
+          <h3>Publish a token where concerns meet.</h3>
+          <p>Presence decides whether the guide stays in the layout; Layout owns the grid.
+            Instead of one overriding the other, presence publishes a fact and layout reads
+            it, releasing only the guide’s slot. The notes keep theirs.</p>
+        </div>
+<pre><code><span class="c">/* presence: decide, then publish */</span>
+@container experience style(--navigation: on-demand) {
+  .composition { --navigation-presence: on-demand; }
+}
+<span class="c">/* layout: consume */</span>
+@container composition style(--arrangement: alongside)
+                   and style(--navigation-presence: on-demand) {
+  .scene { --scene-areas: "work inspection"; }
+}</code></pre>
+      </li>
+      <li>
+        <div>
+          <h3>Scale with named steps; paint with tokens.</h3>
+          <p>Quantities are steps on a scale, never raw lengths. Change the rhythm and
+            every consumer moves together. In the full system, call-site quantities use
+            named locals such as <code>data-gap="open"</code>. The razor: if changing the
+            look or density cannot move a value, it is a hardcode.</p>
+        </div>
+<pre><code>@container experience style(--rhythm: compact) {
+  .composition { --space-scale: 0.7; }
+}
+@container experience style(--rhythm: spacious) {
+  .composition { --space-scale: 1.4; }
+}
+
+.scene { gap: calc(var(--space-unit) * var(--space-scale)); }
+.scene &gt; aside { background: var(--surface); }</code></pre>
+      </li>
+    </ol>
+
+    <aside class="callout" aria-labelledby="containers-title">
+      <h3 id="containers-title">The one gotcha: why there are two containers</h3>
+      <p>A style query reads an <em>ancestor</em>, never the element itself. So the demo
+        keeps choices on the host (<code>body</code>, named <code>experience</code>),
+        derived facts one level down (<code>.composition</code>), and the rules that use
+        both on elements inside them. If a style query seems to do nothing, check that it
+        is asking an ancestor.</p>
+    </aside>
+  </section>
+
+  <section class="guide-section" id="filing" aria-labelledby="filing-title">
+    <header>
+      <p class="eyebrow">4 · File each rule</p>
+      <h2 id="filing-title">Ask which question a declaration answers.</h2>
+      <p>File by the decision, not the property name. Padding is usually Layout, but a
+        part’s own intrinsic padding belongs to Components. When two homes need the same
+        fact, one publishes a token and the other reads it.</p>
+    </header>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">Home</th><th scope="col">The question it answers</th><th scope="col">Typical declarations</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Components</th>
+            <td>What shape does a part need to hold its content?</td>
+            <td><code>box-sizing</code>, resets, intrinsic padding</td>
+          </tr>
+          <tr>
+            <th scope="row">Layout</th>
+            <td>Where does each responsibility belong?</td>
+            <td><code>display: grid | flex</code>, <code>grid-template-*</code>, <code>grid-area</code>, <code>gap</code>, <code>width</code>, <code>margin</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Layer <span class="aside-note">(<code>presence</code> here)</span></th>
+            <td>What stays in place, floats or appears on demand?</td>
+            <td><code>position: sticky | fixed</code>, <code>z-index</code>, <code>[popover]</code>, <code>::backdrop</code>, <code>&lt;dialog&gt;</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Lattice</th>
+            <td>How do I move through the content?</td>
+            <td><code>overflow</code>, <code>scroll-snap-*</code>, scroll timelines, <code>view-transition-name</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Look</th>
+            <td>What does it look like?</td>
+            <td><code>color</code>, <code>background</code>, <code>border</code>, <code>border-radius</code>, <code>font-*</code>, shadows</td>
+          </tr>
+          <tr>
+            <th scope="row">Life</th>
+            <td>How does it respond and change?</td>
+            <td><code>transition</code>, <code>animation</code>, hover feedback, <code>prefers-reduced-motion</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Lens</th>
+            <td>What experience should these choices serve?</td>
+            <td>Only defaults for the vocabulary, such as <code>--arrangement</code> and <code>--path</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Locals</th>
+            <td>How much, right here?</td>
+            <td>Named steps: <code>data-gap</code>, <code>data-pad</code>, <code>data-cols</code> (in <code>at.local.css</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Before you commit a rule</h3>
+    <ul class="checklist">
+      <li><strong>No visual words in markup.</strong> Not left, blue or big. Name responsibilities and relationships.</li>
+      <li><strong>Every name has a consumer.</strong> A rule, a behavior or a test reads it. Do not label wrappers.</li>
+      <li><strong>One decision, one home.</strong> If two sheets set a property for the same reason, publish a token instead.</li>
+      <li><strong>Defaults early, policy late.</strong> Recipes go in an early layer; explicit choices go on the host. Never <code>!important</code>.</li>
+      <li><strong>Same nodes, always.</strong> A presentation change never replaces an interactive element. That is why drafts and focus survive.</li>
+      <li><strong>Fallbacks stay usable.</strong> Detect support before revealing controls, and keep the plain document readable.</li>
+    </ul>
+  </section>
+
+  <section class="guide-section" id="fit" aria-labelledby="fit-title">
+    <header>
+      <p class="eyebrow">5 · When it fits</p>
+      <h2 id="fit-title">Choose by how often the presentation changes.</h2>
+    </header>
+    <div class="fit">
+      <div>
+        <h3>Reach for Tailwind when…</h3>
+        <ul>
+          <li>Each page has one presentation.</li>
+          <li>Your team values fast, consistent styling at the call site and its ecosystem.</li>
+          <li>You are prototyping and the page will not need to recompose.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Reach for Atmosphere when…</h3>
+        <ul>
+          <li>The same content must be read, worked in and presented.</li>
+          <li>Themes, density and user preferences should restyle everything without touching markup.</li>
+          <li>Work in progress, such as drafts, selection and focus, must survive a change of presentation.</li>
+          <li>You want no build step and no dependency.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>What it costs</h3>
+        <ul>
+          <li>Semantic HTML and a shared vocabulary that the team agrees on.</li>
+          <li>Container style queries on custom properties are newer than the rest of CSS. Test your target browsers and keep the fallback readable.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-footer">
+    <p>Meaning → Responsibility → Presentation.</p>
+    <nav aria-label="Keep going">
+      <a href="css/at.simple.css">Read the stylesheet</a>
+      <a href="tests/simple-contract.html">Run the contract checks</a>
+      <a href="atmosphere.html">Explore the full laboratory ↗</a>
+    </nav>
+  </footer>
+  <script src="https://quarneri.org/M@/devloiter/devloiter.js"></script>
+  <devloiter-widget width="155"></devloiter-widget>
+</body>
+</html>

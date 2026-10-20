@@ -1,0 +1,104 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Tutorial components: semantic lesson/controls/evidence contract. */
+
+.tutorial-banner {
+  padding: var(--layout-gap, 1rem);
+  margin-bottom: 1.25rem;
+  display: grid;
+  gap: .75rem;
+}
+
+.tutorial-lesson-card {
+  padding: var(--layout-gap, 1rem);
+  margin-bottom: 1.5rem;
+  display: grid;
+  gap: .6rem;
+}
+
+.lesson-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.25rem;
+  padding-top: .5rem;
+}
+
+.tutorial-lesson-card {
+  margin-bottom: 0;
+}
+
+.tutorial-lesson-card h2,
+    .tutorial-lesson-card p {
+  margin: 0;
+}
+
+.tutorial-lesson-card > :first-child {
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+}
+
+.tutorial-lesson-card .step-actions {
+  padding-block-start: 0;
+}
+
+.Footer > atmosphere-context {
+  flex: 1 1 100%;
+}
+
+.tutorial-masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.tutorial-title {
+  margin: 0;
+}
+
+.tutorial-summary {
+  margin: .2rem 0 0;
+}
+
+.tutorial-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+  padding-top: .6rem;
+}
+
+.tutorial-position {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.tutorial-progress {
+  width: 7rem;
+  height: .5rem;
+}
+
+.tutorial-progress-value {
+  height: 100%;
+  width: calc(var(--tutorial-step, 1) / var(--tutorial-total, 8) * 100%);
+}
+
+.tutorial-step-list {
+  padding: .75rem;
+}
+
+.tutorial-navigation {
+  margin-top: .4rem;
+}
+
+.lesson-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lesson-controls {
+  margin: .4rem 0;
+}

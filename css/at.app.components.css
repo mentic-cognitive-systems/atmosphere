@@ -1,0 +1,216 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Workspace components: semantic place/part consumers; tokens preserve the existing design. */
+
+button {
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.controls-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.theme-toggle-btn {
+  padding: 0.35rem 0.7rem;
+}
+
+.density-toggle-btn {
+  padding: 0.25rem 0.5rem;
+}
+
+.area-badge {
+  padding: 0.25rem 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+}
+
+#mainHorzMenu ul {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.search-box input {
+  width: 130px;
+}
+
+.search-box kbd {
+  padding: 0.1rem 0.3rem;
+}
+
+:where(.resource-navigator, .workspace-inspector, .symbol-navigator, .telemetry, .compass) > [data-part="explanation"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.4rem;
+}
+
+.tree-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+:where(.source-document) > [data-part="controls"] {
+  display: flex;
+}
+
+.editor-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+:where(.source-document) > [data-part="demonstration"] {
+  flex: 1;
+  padding: 0.75rem;
+}
+
+:where(.source-document) > [data-part="demonstration"] pre {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.flower-hub {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 180px;
+}
+
+.flower-node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  cursor: pointer;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem;
+}
+
+.tree-list {
+  min-height: 0;
+}
+
+.tree-item[hidden] {
+  display: none;
+}
+
+:where(.source-document) > [data-part="demonstration"] {
+  min-height: 0;
+}
+
+.code-line {
+  display: block;
+  padding-left: 3.2em;
+}
+
+.code-ln {
+  display: inline-block;
+  width: 2.2em;
+  margin-right: 1em;
+  user-select: none;
+}
+
+.tab-close {
+  padding: 0 0.15rem;
+}
+
+.tree-item:focus-visible, .editor-tab:focus-visible, .tab-close:focus-visible,
+        .flower-node:focus-visible, button:focus-visible, #mainHorzMenu a:focus-visible {
+  outline-offset: -2px;
+}
+
+.code-workspace .workspace-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.code-workspace .workspace-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.code-workspace .control-caption-density {
+  margin-left: 0.4rem;
+}
+
+.code-workspace .nested-resource {
+  padding-left: 1.2rem;
+}
+
+.code-workspace .compass-heading {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.code-workspace .diagnostic-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.code-workspace .telemetry-readings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.code-workspace .status-details {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.code-workspace .status-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.code-workspace .fullscreen-action {
+  padding: 0.2rem 0.5rem;
+}

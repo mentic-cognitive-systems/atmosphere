@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atmospheric page</title>
+
+    <!-- One sheet per question, in this order. Local loads last so a quantity
+         chosen at the call site wins without !important. In a project with
+         its own sheets, replace the `at.` prefix and link only the ones you
+         have written. -->
+    <!-- A look names its typeface in --font. Link the webfont your look uses
+         before these sheets, or it falls back to the next face in the stack. -->
+    <link rel="stylesheet" href="css/at.components.css">
+    <link rel="stylesheet" href="css/at.layout.css">
+    <link rel="stylesheet" href="css/at.lattice.css">
+    <link rel="stylesheet" href="css/at.layer.css">
+    <link rel="stylesheet" href="css/at.look.css">
+    <link rel="stylesheet" href="css/at.life.css">
+    <link rel="stylesheet" href="css/at.lens.css">
+    <link rel="stylesheet" href="css/at.local.css">
+</head>
+
+<!-- The composition: one attribute per axis. Changing any of them changes how
+     the page is met and nothing about what it says. The current look sheet
+     selects on data-theme, so it mirrors data-look. -->
+<body class="Layout"
+      data-layout="default" data-lattice="continuous" data-layer="inline"
+      data-look="blueprint" data-theme="blueprint" data-life="pulse" data-lens="none"
+      data-density="cozy" data-size="m">
+
+<header class="Header" data-place="toolbar" data-role="masthead">
+    <h1 class="title-text" data-role="voice">Page title</h1>
+</header>
+
+<!-- Invokers for panels that can go on call. Hidden until the controller
+     has wired the capability, because a control for a capability the page
+     does not have is a dead control. -->
+<nav class="LayerControls" data-layer-controls aria-label="Supplementary panels" hidden>
+    <button id="layer-trigger-reference" type="button" data-layer-trigger="reference"
+            aria-controls="layer-reference" aria-expanded="false">Guide</button>
+</nav>
+
+<!-- A frame with its own path. Authored inline; a projection may lift it. -->
+<aside id="layer-reference" class="Sidebar" data-place="navigator" data-region="reference" data-layer-panel
+       data-frame data-lattice="pages" aria-label="Guide">
+    <div class="panel-track" data-track>
+        <section data-view data-role="reading">...</section>
+        <section data-view data-role="reading">...</section>
+    </div>
+</aside>
+
+<!-- The look's canvas: behind .Main and outside its scroll container. -->
+<div class="Surface" aria-hidden="true"></div>
+
+<!-- The root frame takes the page's data-lattice. -->
+<main class="Main" data-place="stage" data-frame="root" tabindex="-1" aria-label="Content">
+<div class="main-shell" data-track>
+
+    <section class="overview concept" data-view="stage" aria-labelledby="overview-title" style="--lattice-index: 1">
+      <header data-part="explanation">
+        <h2 id="overview-title" class="header-text" data-role="voice">Overview</h2>
+        <p>Describe the meaning and its meaningful parts before composing presentation.</p>
+      </header>
+
+        <!-- Identity in the class, behaviour in the role, quantity in the
+             locals. No colour, font, placement or duration appears here. -->
+        <div class="tasks" data-part="demonstration" data-cols="fit max-3" data-gap="close" style="--col-chars: 24">
+            <article class="task" data-role="surface" data-state="active" data-pad="even">
+                <h3 data-part="title" data-role="voice">First task</h3>
+                <p data-part="summary">What it is for.</p>
+                <!-- Author an action only when the host supplies its behavior. -->
+                <a data-part="controls" href="#detail-title">Read details</a>
+            </article>
+            <article class="task" data-role="surface" data-pad="even">
+                <h3 data-part="title" data-role="voice">Second task</h3>
+                <p data-part="summary">What it is for.</p>
+                <a data-part="controls" href="#detail-title">Read details</a>
+            </article>
+        </div>
+    </section>
+
+    <section class="detail concept" data-view aria-labelledby="detail-title" style="--lattice-index: 2">
+        <h2 id="detail-title" class="header-text" data-role="voice">Detail</h2>
+        <p class="body-text">...</p>
+    </section>
+
+</div>
+</main>
+
+<footer class="Footer" data-place="context">...</footer>
+
+<script src="js/atmosphere.js"></script>
+</body>
+</html>

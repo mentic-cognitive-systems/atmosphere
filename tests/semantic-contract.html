@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atmosphere semantic contract checks</title>
+  <style>
+    body { font: 16px/1.6 system-ui; margin: 2rem; color: #203a2c; background: #faf9f4; }
+    #fixtures { display: grid; gap: 1rem; max-width: 55rem; }
+    [data-result="pass"] { color: #235d32; }
+    [data-result="fail"] { color: #a52626; }
+    #summary { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>Semantic composition contracts</h1>
+  <p>Browser checks against the public model property and native part API. No build or test dependency.</p>
+  <p id="summary" role="status">Running…</p>
+  <ol id="results"></ol>
+  <div id="fixtures"></div>
+  <script src="../js/atmosphere-presentation.js?v=20261016-semantic"></script>
+  <script type="module">
+    const fixtures = document.getElementById('fixtures');
+    const results = document.getElementById('results');
+    let passed = 0, failed = 0;
+    function assert(condition, message) { if (!condition) throw new Error(message); }
+    async function test(name, run) {
+      const row = document.createElement('li');
+      try { await run(); row.dataset.result = 'pass'; row.textContent = `PASS · ${name}`; passed++; }
+      catch (error) { row.dataset.result = 'fail'; row.textContent = `FAIL · ${name}: ${error.message}`; failed++; }
+      results.append(row);
+    }
+    // A second, independent provider proves that components receive a contract,
+    // rather than discovering the application's default singleton.
+    class Subject {
+      activeArchetype = 'document';
+      deviceContext = 'desktop';
+      coordinate = { life: 'still', look: 'blueprint' };
+      activityLog = [];
+      selectedTaskId = 'subject-1';
+      tasks = [{ id: 'subject-1', title: 'A semantic subject', summary: 'Stable meaning', content: 'A text projection', category: 'Example', priority: 'high', progress: 25, status: 'planned' }];
+      listeners = new Set();
+      drafts = new Map([['subject-1', 'A draft']]);
+      get selectedTask() { return this.tasks.find(task => task.id === this.selectedTaskId); }
+      subscribe(callback) { this.listeners.add(callback); return () => this.listeners.delete(callback); }
+      notify() { for (const callback of [...this.listeners]) callback({ changedFields: ['example'] }); }
+      getDraft(id) { return this.drafts.get(id) || ''; }
+      updateDraft(id, value) { this.drafts.set(id, value); this.notify(); }
+      setArchetype(value) { this.activeArchetype = value; this.notify(); }
+      selectTask(id) { this.selectedTaskId = id; this.notify(); }
+      updateTaskStatus(id, status) { this.tasks.find(task => task.id === id).status = status; this.notify(); }
+      addTask(title) {
+        this.tasks.push({ ...this.tasks[0], id: `subject-${this.tasks.length + 1}`, title });
+        this.notify();
+      }
+    }
+    const first = new Subject();
+    const second = new Subject();
+    second.tasks[0].title = 'A different authority';
+    second.drafts.set('subject-1', 'An independent draft');
+    const elements = ['stage', 'inspector', 'navigator', 'context', 'archetype-picker'].map(name => {
+      const element = document.createElement(`atmosphere-${name}`);
+      element.model = first;
+      fixtures.append(element);
+      return element;
+    });
+    const [stage, inspector, navigator, context, picker] = elements;
+    const draft = inspector.shadowRoot.querySelector('[part~="draft"]');
+    const status = stage.shadowRoot.querySelector('select');
+    const taskButton = navigator.shadowRoot.querySelector('button[data-task-id]');
+
+    await test('All components subscribe exactly once to the supplied subject', () => {
+      assert(first.listeners.size === elements.length, `${first.listeners.size} subscriptions`);
+    });
+    await test('Typing keeps the same focused draft node and selection', () => {
+      draft.focus(); draft.value = 'A draft that survives'; draft.setSelectionRange(3, 8);
+      draft.dispatchEvent(new Event('input', { bubbles: true }));
+      assert(first.getDraft('subject-1') === draft.value, 'Input did not reach its authority');
+      assert(inspector.shadowRoot.querySelector('[part~="draft"]') === draft, 'Draft node replaced');
+      assert(inspector.shadowRoot.activeElement === draft, 'Focus lost');
+      assert(draft.selectionStart === 3 && draft.selectionEnd === 8, 'Selection changed');
+    });
+    await test('All four compositions preserve controls, draft, focus, and selection', () => {
+      for (const mode of ['workspace', 'presentation', 'dashboard', 'document']) {
+        first.setArchetype(mode);
+        assert(inspector.shadowRoot.querySelector('[part~="draft"]') === draft, `${mode}: draft replaced`);
+        assert(stage.shadowRoot.querySelector('select') === status, `${mode}: status replaced`);
+        assert(navigator.shadowRoot.querySelector('button[data-task-id]') === taskButton, `${mode}: choice replaced`);
+        assert(draft.value === 'A draft that survives', `${mode}: value lost`);
+        assert(inspector.shadowRoot.activeElement === draft, `${mode}: focus lost`);
+        assert(draft.selectionStart === 3 && draft.selectionEnd === 8, `${mode}: selection lost`);
+      }
+    });
+    await test('Adding a task retains existing keyed navigation controls', () => {
+      first.addTask('A new task');
+      assert(navigator.shadowRoot.querySelector('button[data-task-id]') === taskButton, 'Existing choice replaced');
+      assert(navigator.shadowRoot.querySelectorAll('button[data-task-id]').length === 2, 'Task not projected');
+    });
+    await test('Model text stays text, including markup-like task titles', () => {
+      first.tasks[0].title = '<img src=x onerror=alert(1)>';
+      first.notify();
+      assert(stage.shadowRoot.querySelector('[part~="voice"]').textContent === first.tasks[0].title, 'Text not preserved');
+      assert(!stage.shadowRoot.querySelector('img'), 'Model text became markup');
+    });
+    await test('Replacing the model detaches the old authority', () => {
+      const before = first.listeners.size;
+      inspector.model = second;
+      assert(first.listeners.size === before - 1 && second.listeners.size === 1, 'Subscription not transferred');
+      first.updateDraft('subject-1', 'Old authority changed');
+      assert(draft.value === 'An independent draft', 'Old authority still controls the view');
+    });
+    await test('Disconnect and reconnect release and restore one subscription', () => {
+      inspector.remove();
+      assert(second.listeners.size === 0, 'Disconnected subscription leaked');
+      second.updateDraft('subject-1', 'Changed while disconnected');
+      fixtures.append(inspector);
+      assert(second.listeners.size === 1, 'Reconnection duplicated or missed subscription');
+      assert(draft.value === 'Changed while disconnected', 'Reconnected snapshot stale');
+    });
+    await test('Clearing a model disables its draft without replacing the node', () => {
+      inspector.model = null;
+      assert(second.listeners.size === 0, 'Cleared subscription leaked');
+      assert(draft.disabled && draft.value === '', 'Stale editable content retained');
+      assert(inspector.shadowRoot.querySelector('[part~="draft"]') === draft, 'Clearing replaced the control');
+    });
+    await test('Shadow contract sheets load and stillness stops feedback', async () => {
+      const links = [...stage.shadowRoot.querySelectorAll('link')];
+      await Promise.all(links.map(link => link.sheet ? Promise.resolve() : new Promise((resolve, reject) => {
+        link.addEventListener('load', resolve, { once: true });
+        link.addEventListener('error', () => reject(new Error(`Missing stylesheet ${link.href}`)), { once: true });
+      })));
+      assert(links.length === 4 && links.every(link => link.sheet), 'Concern sheets missing');
+      assert(getComputedStyle(stage.shadowRoot.querySelector('[part~="select"]')).transitionDuration === '0s', 'Still policy did not stop feedback');
+    });
+    elements.forEach(element => element.remove());
+    await test('All final subscriptions are released', () => {
+      assert(first.listeners.size === 0 && second.listeners.size === 0, 'Final listeners leaked');
+    });
+    document.getElementById('summary').textContent = `${passed} passed · ${failed} failed`;
+    document.getElementById('summary').dataset.result = failed ? 'fail' : 'pass';
+  </script>
+</body>
+</html>

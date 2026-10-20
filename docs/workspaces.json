@@ -1,0 +1,769 @@
+{
+  "catalogVersion": "0.1.0-draft",
+  "status": "Proposed recipes and binding contracts; structural examples, not executable runtime configuration.",
+  "documentation": "PRESENTATIONS.md",
+  "placeCatalog": "presentations.json",
+  "patterns": {
+    "hierarchy-browser": {
+      "places": [
+        "browser"
+      ],
+      "bindings": [
+        "nodes",
+        "selection"
+      ],
+      "contract": "Preserve stable identity, expansion, and scoped selection through hierarchy updates."
+    },
+    "collection-detail": {
+      "places": [
+        "collection",
+        "detail"
+      ],
+      "bindings": [
+        "items",
+        "selection",
+        "record"
+      ],
+      "contract": "Resolve detail from the named selection scope; reconcile upstream changes and loading/empty/error states."
+    },
+    "tabbed-documents": {
+      "places": [
+        "group",
+        "viewer"
+      ],
+      "bindings": [
+        "openViews",
+        "activeView",
+        "resources"
+      ],
+      "contract": "Separate view identity from resource identity; preserve per-view state and define dirty-close and duplicate-open policy."
+    },
+    "contextual-tool": {
+      "places": [
+        "tool"
+      ],
+      "bindings": [
+        "context"
+      ],
+      "contract": "Declare follow or pinned target behavior; capture asynchronous command context at submission."
+    },
+    "docked-workspace": {
+      "places": [
+        "switcher",
+        "navigation",
+        "work",
+        "context",
+        "status"
+      ],
+      "bindings": [
+        "layoutState"
+      ],
+      "contract": "Relocate or collapse places without disposing their domain state; reconcile focus."
+    },
+    "synchronized-timeline": {
+      "places": [
+        "preview",
+        "timeline",
+        "transport",
+        "meters"
+      ],
+      "bindings": [
+        "sequence",
+        "clock",
+        "timeSelection"
+      ],
+      "contract": "Use one sequence clock with explicit time mappings; keep source playback independent."
+    }
+  },
+  "dataRelations": {
+    "contains": "Domain membership where hierarchical.",
+    "references": "Non-owning resource association.",
+    "selects": "Scoped entity selection.",
+    "presents": "View of an entity or representation.",
+    "follows": "Derived target from a named scope.",
+    "pinned-to": "Stable explicit target.",
+    "synchronized-with": "Shared time through declared mappings."
+  },
+  "connectionContract": "Connections describe event intent between place instances. Host adapters implement them; no events execute by loading this file.",
+  "recipes": {
+    "agentic-chat": {
+      "families": [
+        "workspace",
+        "collection",
+        "conversation"
+      ],
+      "coverage": "named",
+      "bindings": {
+        "projects": {
+          "hostContract": "Project hierarchy; selected project scopes conversations."
+        },
+        "projectSelection": {
+          "hostContract": "Selected project ID."
+        },
+        "conversations": {
+          "hostContract": "Conversations in the selected project."
+        },
+        "conversationSelection": {
+          "hostContract": "Selected conversation ID, scoped by project."
+        },
+        "conversation": {
+          "hostContract": "Selected conversation record with transcript and asset associations."
+        },
+        "assets": {
+          "hostContract": "Assets associated with the selected conversation or explicitly selected message."
+        },
+        "openViews": {
+          "hostContract": "Persistent attachment/artifact view instances with originating conversation ID."
+        },
+        "activeView": {
+          "hostContract": "Active asset view ID within this group."
+        },
+        "resources": {
+          "hostContract": "Asset resolver preserving resource identity and availability."
+        },
+        "draft": {
+          "hostContract": "Draft keyed by conversation ID; never retargeted by late navigation."
+        },
+        "runs": {
+          "hostContract": "Runs keyed by project, conversation, and run ID; late events route by those IDs."
+        },
+        "layout": {
+          "hostContract": "Docking and size preferences for this workspace instance."
+        }
+      },
+      "places": {
+        "areas": {
+          "type": "activity-bar"
+        },
+        "projects": {
+          "type": "resource-tree"
+        },
+        "conversations": {
+          "type": "conversation-list"
+        },
+        "chat": {
+          "type": "transcript"
+        },
+        "input": {
+          "type": "composer"
+        },
+        "attachments": {
+          "type": "attachment-list"
+        },
+        "assets": {
+          "type": "document-group"
+        },
+        "viewer": {
+          "type": "asset-viewer",
+          "within": "assets"
+        },
+        "runs": {
+          "type": "agent-activity"
+        },
+        "status": {
+          "type": "status-bar"
+        }
+      },
+      "patterns": [
+        {
+          "pattern": "hierarchy-browser",
+          "places": {
+            "browser": "projects"
+          },
+          "bindings": {
+            "nodes": "projects",
+            "selection": "projectSelection"
+          },
+          "id": "hierarchy-browser-1"
+        },
+        {
+          "pattern": "collection-detail",
+          "places": {
+            "collection": "conversations",
+            "detail": "chat"
+          },
+          "bindings": {
+            "items": "conversations",
+            "selection": "conversationSelection",
+            "record": "conversation"
+          },
+          "id": "collection-detail-2"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "attachments"
+          },
+          "bindings": {
+            "context": "assets"
+          },
+          "options": {
+            "mode": "Selected attachment activation requests opening; active document owns viewer."
+          },
+          "id": "contextual-tool-3"
+        },
+        {
+          "pattern": "tabbed-documents",
+          "places": {
+            "group": "assets",
+            "viewer": "viewer"
+          },
+          "bindings": {
+            "openViews": "openViews",
+            "activeView": "activeView",
+            "resources": "resources"
+          },
+          "options": {
+            "retention": "persist-across-conversation-selection",
+            "precedence": "Active view owns viewer after opening; collection selection only supplies an activation candidate."
+          },
+          "id": "tabbed-documents-4"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "input"
+          },
+          "bindings": {
+            "context": "draft"
+          },
+          "options": {
+            "mode": "per-conversation"
+          },
+          "id": "contextual-tool-5"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "runs"
+          },
+          "bindings": {
+            "context": "runs"
+          },
+          "options": {
+            "mode": "originating-conversation"
+          },
+          "id": "contextual-tool-6"
+        },
+        {
+          "pattern": "docked-workspace",
+          "places": {
+            "switcher": "areas",
+            "navigation": "projects",
+            "work": "chat",
+            "context": "assets",
+            "status": "status"
+          },
+          "bindings": {
+            "layoutState": "layout"
+          },
+          "id": "docked-workspace-7"
+        }
+      ],
+      "connections": [
+        {
+          "source": "attachments",
+          "event": "activate-resource",
+          "target": "assets",
+          "action": "open-document",
+          "payload": "Stable resource ID and representation intent; host validates availability."
+        }
+      ],
+      "invariants": [
+        "Switching conversation preserves drafts and open assets under declared scope.",
+        "Late run events update their original conversation.",
+        "Opening an asset does not change conversation selection."
+      ]
+    },
+    "messaging": {
+      "families": [
+        "workspace",
+        "collection",
+        "conversation"
+      ],
+      "coverage": "named",
+      "bindings": {
+        "containers": {
+          "hostContract": "Mailboxes or channels; hierarchy is used only when present in the domain."
+        },
+        "containerSelection": {
+          "hostContract": "Selected mailbox/channel ID."
+        },
+        "messages": {
+          "hostContract": "Message summaries in the selected container."
+        },
+        "messageSelection": {
+          "hostContract": "Selected message ID within that container."
+        },
+        "message": {
+          "hostContract": "Complete message resolved by ID, including metadata, body, and attachment associations."
+        },
+        "openViews": {
+          "hostContract": "Attachment view instances with originating message ID."
+        },
+        "activeView": {
+          "hostContract": "Active attachment view ID."
+        },
+        "resources": {
+          "hostContract": "Attachment resource resolver."
+        },
+        "reply": {
+          "hostContract": "Draft keyed by destination and parent message, not by visual pane."
+        },
+        "layout": {
+          "hostContract": "Workspace docking state."
+        }
+      },
+      "places": {
+        "areas": {
+          "type": "activity-bar"
+        },
+        "containers": {
+          "type": "navigator"
+        },
+        "messages": {
+          "type": "message-list"
+        },
+        "message": {
+          "type": "message-detail"
+        },
+        "attachments": {
+          "type": "attachment-list"
+        },
+        "files": {
+          "type": "document-group"
+        },
+        "viewer": {
+          "type": "asset-viewer",
+          "within": "files"
+        },
+        "reply": {
+          "type": "composer"
+        },
+        "status": {
+          "type": "status-bar"
+        }
+      },
+      "patterns": [
+        {
+          "pattern": "collection-detail",
+          "places": {
+            "collection": "containers",
+            "detail": "messages"
+          },
+          "bindings": {
+            "items": "containers",
+            "selection": "containerSelection",
+            "record": "messages"
+          },
+          "id": "collection-detail-1"
+        },
+        {
+          "pattern": "collection-detail",
+          "places": {
+            "collection": "messages",
+            "detail": "message"
+          },
+          "bindings": {
+            "items": "messages",
+            "selection": "messageSelection",
+            "record": "message"
+          },
+          "id": "collection-detail-2"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "attachments"
+          },
+          "bindings": {
+            "context": "message"
+          },
+          "options": {
+            "mode": "follow-selected-message"
+          },
+          "id": "contextual-tool-3"
+        },
+        {
+          "pattern": "tabbed-documents",
+          "places": {
+            "group": "files",
+            "viewer": "viewer"
+          },
+          "bindings": {
+            "openViews": "openViews",
+            "activeView": "activeView",
+            "resources": "resources"
+          },
+          "options": {
+            "retention": "persist-until-close"
+          },
+          "id": "tabbed-documents-4"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "reply"
+          },
+          "bindings": {
+            "context": "reply"
+          },
+          "options": {
+            "mode": "pinned-to-destination"
+          },
+          "id": "contextual-tool-5"
+        },
+        {
+          "pattern": "docked-workspace",
+          "places": {
+            "switcher": "areas",
+            "navigation": "containers",
+            "work": "message",
+            "context": "files",
+            "status": "status"
+          },
+          "bindings": {
+            "layoutState": "layout"
+          },
+          "id": "docked-workspace-6"
+        }
+      ],
+      "connections": [
+        {
+          "source": "attachments",
+          "event": "activate-resource",
+          "target": "files",
+          "action": "open-document",
+          "payload": "Stable resource ID and representation intent; host validates availability."
+        }
+      ],
+      "invariants": [
+        "Summary and detail reference the same message identity.",
+        "Changing message selection never retargets an existing reply draft.",
+        "Sending requires a separate explicit domain command."
+      ]
+    },
+    "ide": {
+      "families": [
+        "workspace",
+        "collection",
+        "conversation"
+      ],
+      "coverage": "named",
+      "bindings": {
+        "files": {
+          "hostContract": "Directory/file graph with stable resource identities."
+        },
+        "fileSelection": {
+          "hostContract": "Explorer selection, distinct from active editor."
+        },
+        "openViews": {
+          "hostContract": "Open file view instances; multiple views may share one buffer."
+        },
+        "activeView": {
+          "hostContract": "Active editor view in its group."
+        },
+        "resources": {
+          "hostContract": "Shared document/buffer resolver with undo history."
+        },
+        "context": {
+          "hostContract": "Explicitly follows active editor/document or pins a chosen resource; includes command target."
+        },
+        "layout": {
+          "hostContract": "Area selection, editor splits, docking, and sizes."
+        }
+      },
+      "places": {
+        "areas": {
+          "type": "activity-bar"
+        },
+        "explorer": {
+          "type": "resource-tree"
+        },
+        "editors": {
+          "type": "document-group"
+        },
+        "editor": {
+          "type": "editor",
+          "within": "editors"
+        },
+        "context": {
+          "type": "context-panel"
+        },
+        "settings": {
+          "type": "controls",
+          "within": "context"
+        },
+        "agent": {
+          "type": "transcript",
+          "within": "context"
+        },
+        "input": {
+          "type": "composer",
+          "within": "context"
+        },
+        "status": {
+          "type": "status-bar"
+        }
+      },
+      "patterns": [
+        {
+          "pattern": "hierarchy-browser",
+          "places": {
+            "browser": "explorer"
+          },
+          "bindings": {
+            "nodes": "files",
+            "selection": "fileSelection"
+          },
+          "id": "hierarchy-browser-1"
+        },
+        {
+          "pattern": "tabbed-documents",
+          "places": {
+            "group": "editors",
+            "viewer": "editor"
+          },
+          "bindings": {
+            "openViews": "openViews",
+            "activeView": "activeView",
+            "resources": "resources"
+          },
+          "options": {
+            "duplicateOpen": "Explicit policy per resource, representation, and group."
+          },
+          "id": "tabbed-documents-2"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "context"
+          },
+          "bindings": {
+            "context": "context"
+          },
+          "options": {
+            "mode": "follow-or-pinned"
+          },
+          "id": "contextual-tool-3"
+        },
+        {
+          "pattern": "docked-workspace",
+          "places": {
+            "switcher": "areas",
+            "navigation": "explorer",
+            "work": "editors",
+            "context": "context",
+            "status": "status"
+          },
+          "bindings": {
+            "layoutState": "layout"
+          },
+          "id": "docked-workspace-4"
+        }
+      ],
+      "connections": [
+        {
+          "source": "explorer",
+          "event": "activate-resource",
+          "target": "editors",
+          "action": "open-document",
+          "payload": "Stable resource ID and representation intent; host validates availability."
+        }
+      ],
+      "invariants": [
+        "Split views share buffers but retain independent cursor and scroll state.",
+        "Docking does not reset document undo or contextual conversation state.",
+        "Status and configuration commands have explicit targets."
+      ]
+    },
+    "media-authoring": {
+      "families": [
+        "workspace",
+        "collection",
+        "canvas",
+        "media-player"
+      ],
+      "coverage": "named",
+      "bindings": {
+        "assets": {
+          "hostContract": "Source assets organized into bins."
+        },
+        "assetSelection": {
+          "hostContract": "Selected source asset ID."
+        },
+        "asset": {
+          "hostContract": "Selected source metadata and media reference."
+        },
+        "sourcePlayback": {
+          "hostContract": "Independent source-monitor clock, range, and playback state."
+        },
+        "sequence": {
+          "hostContract": "Media sequence with clip instances, tracks, edits, and explicit source/destination ranges."
+        },
+        "sequenceClock": {
+          "hostContract": "Authoritative sequence transport timebase, position, rate, and playback state."
+        },
+        "timeSelection": {
+          "hostContract": "Editing time range, distinct from transport position."
+        },
+        "clipSelection": {
+          "hostContract": "Selected clip/track IDs and editable property context."
+        },
+        "audioRouting": {
+          "hostContract": "Sequence audio routing and level state; meters consume the evaluated signal."
+        },
+        "layout": {
+          "hostContract": "Docking and tool-area preferences."
+        }
+      },
+      "places": {
+        "areas": {
+          "type": "activity-bar"
+        },
+        "assets": {
+          "type": "asset-browser"
+        },
+        "source": {
+          "type": "source-monitor"
+        },
+        "preview": {
+          "type": "program-monitor"
+        },
+        "timeline": {
+          "type": "track-area"
+        },
+        "headers": {
+          "type": "track-controls",
+          "within": "timeline"
+        },
+        "transport": {
+          "type": "transport-controls"
+        },
+        "properties": {
+          "type": "inspector"
+        },
+        "mixer": {
+          "type": "mixer"
+        },
+        "meters": {
+          "type": "meters"
+        },
+        "status": {
+          "type": "status-bar"
+        }
+      },
+      "patterns": [
+        {
+          "pattern": "collection-detail",
+          "places": {
+            "collection": "assets",
+            "detail": "source"
+          },
+          "bindings": {
+            "items": "assets",
+            "selection": "assetSelection",
+            "record": "asset"
+          },
+          "id": "collection-detail-1"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "source"
+          },
+          "bindings": {
+            "context": "sourcePlayback"
+          },
+          "options": {
+            "mode": "independent-clock"
+          },
+          "id": "contextual-tool-2"
+        },
+        {
+          "pattern": "synchronized-timeline",
+          "places": {
+            "preview": "preview",
+            "timeline": "timeline",
+            "transport": "transport",
+            "meters": "meters"
+          },
+          "bindings": {
+            "sequence": "sequence",
+            "clock": "sequenceClock",
+            "timeSelection": "timeSelection"
+          },
+          "id": "synchronized-timeline-3"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "properties"
+          },
+          "bindings": {
+            "context": "clipSelection"
+          },
+          "options": {
+            "mode": "follow-selection"
+          },
+          "id": "contextual-tool-4"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "headers"
+          },
+          "bindings": {
+            "context": "clipSelection"
+          },
+          "options": {
+            "mode": "track-command-scope"
+          },
+          "id": "contextual-tool-5"
+        },
+        {
+          "pattern": "contextual-tool",
+          "places": {
+            "tool": "mixer"
+          },
+          "bindings": {
+            "context": "audioRouting"
+          },
+          "options": {
+            "mode": "sequence-audio-routing"
+          },
+          "id": "contextual-tool-6"
+        },
+        {
+          "pattern": "docked-workspace",
+          "places": {
+            "switcher": "areas",
+            "navigation": "assets",
+            "work": "timeline",
+            "context": "properties",
+            "status": "status"
+          },
+          "bindings": {
+            "layoutState": "layout"
+          },
+          "id": "docked-workspace-7"
+        }
+      ],
+      "connections": [],
+      "invariants": [
+        "Reusing source media creates distinct clip instances.",
+        "Preview and timeline follow one sequence clock; source preview stays independent.",
+        "Temporal conversion declares timebase and rounding.",
+        "Sequence edits and undo reconcile all affected views."
+      ]
+    }
+  },
+  "validationRequirements": [
+    "Place types must exist in the presentation catalog.",
+    "Pattern slots must match the named pattern declaration.",
+    "Binding IDs and place IDs must resolve within their recipe.",
+    "Place containment must be acyclic.",
+    "Any shared state property needs one authoritative owner or an explicit precedence rule.",
+    "Reference validation does not verify adapter behavior, focus, scheduling, or persistence."
+  ]
+}

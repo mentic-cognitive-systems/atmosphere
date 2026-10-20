@@ -1,0 +1,304 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Native CSS dialect: vocabulary -> intent -> relationships -> composition.
+   Cascade layers order rules; the presence concern governs spatial layers. */
+@layer vocabulary, lens, components, layout, presence, lattice, look, life;
+
+/* Bounded values, checked by the browser. These are local to this example. */
+@property --arrangement { syntax: "stack | alongside | focus"; inherits: true; initial-value: stack; }
+@property --navigation { syntax: "auto | embedded | on-demand"; inherits: true; initial-value: auto; }
+@property --path { syntax: "continuous | pages | slides"; inherits: true; initial-value: continuous; }
+@property --rhythm { syntax: "compact | comfortable | spacious"; inherits: true; initial-value: comfortable; }
+@property --identity { syntax: "persistent | flowing"; inherits: true; initial-value: persistent; }
+
+@layer vocabulary {
+  .SimpleAtmosphere {
+    container-name: experience;
+    --arrangement: stack; --navigation: auto; --path: continuous;
+    --rhythm: comfortable; --identity: persistent; --can-project: 0;
+    --space-unit: clamp(0.75rem, 1.4vw, 1.25rem);
+    --surface: #fffef9; --paper: #f4f2eb; --ink: #233b36;
+    --muted: #64736b; --accent: #225e4d; --wash: #e4ece4; --edge: #d4dcd1;
+    --code: #1f2e2a; --code-ink: #e3ece6; --code-muted: #8fab9c;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .SimpleAtmosphere[data-presence-ready] { --can-project: 1; }
+  /* The site header, when present, is a fixed strip the toolbar makes room for. */
+  .SimpleAtmosphere:has(> mq-site-header) { --site-header-offset: var(--mq-header-height, 20px); }
+  .try, .guide-section { --space-scale: 1; }
+  .composition {
+    container-name: composition;
+    --css-contract: fallback; --navigation-presence: embedded;
+    --navigation-reason: default; --space-scale: 1;
+  }
+  /* Positive detection: the adapter reads a value set by a real query. */
+  @container experience style(--arrangement: stack) or style(--arrangement: alongside) or style(--arrangement: focus) {
+    .composition { --css-contract: ready; }
+  }
+}
+
+@layer lens {
+  /* Recipes are CSS declarations. Explicit inline policies outrank them. */
+  [data-lens="reading"] { --arrangement: stack; --navigation: auto; --path: continuous; }
+  [data-lens="workspace"] { --arrangement: alongside; --navigation: auto; --path: continuous; }
+  [data-lens="presentation"] { --arrangement: focus; --navigation: auto; --path: slides; }
+}
+
+@layer components {
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  button, input, select, textarea { font: inherit; }
+  button, .chapter-links a, .source-link { padding: 0.65rem 0.9rem; }
+  button, summary { cursor: pointer; }
+  h1, h2, h3, p, blockquote, ol, ul, figure, pre { margin: 0; }
+  h1 { font-size: clamp(2.2rem, 5vw, 4.4rem); line-height: 1.06; }
+  h2 { font-size: clamp(1.4rem, 2.5vw, 2rem); line-height: 1.2; }
+  .scene > aside h2 { font-size: 1.2rem; }
+  textarea { display: block; width: 100%; margin-block: 0.65rem; padding: 0.8rem; resize: vertical; }
+  select { display: block; width: 100%; padding: 0.5rem; }
+  [hidden] { display: none !important; }
+  .composition-contract { padding: 1rem; }
+  .composition-contract > :not(summary) { margin-block-start: 1rem; }
+  .policy-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: 0.8rem; }
+  .policy-field { display: grid; align-content: start; gap: 0.35rem; }
+  .policy-controls button { align-self: end; }
+  [data-contract-output] { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.8rem; }
+  pre { padding: 1rem 1.1rem; overflow-x: auto; max-inline-size: 100%; tab-size: 2; }
+  table { inline-size: 100%; border-collapse: collapse; }
+  th, td { padding: 0.75rem 0.9rem; text-align: start; vertical-align: top; }
+  .table-scroll { overflow-x: auto; }
+  .table-scroll > table { min-inline-size: 42rem; }
+  .tailwind-line, .task { padding: 0.9rem 1.1rem; }
+  .section-nav a { padding: 0.45rem 0.85rem; }
+  .try-steps > li, .checklist > li, .fit > div, .callout { padding: 1rem 1.15rem; }
+  .compare > figure, .moves > li { padding: clamp(1rem, 2.5vw, 1.5rem); }
+  .badge { padding: 0.2rem 0.55rem; }
+  /* Counters number the steps; Look paints the badge they sit in. */
+  .try-steps, .moves { counter-reset: step; }
+  .try-steps > li, .moves > li { counter-increment: step; }
+  .try-steps > li::before, .moves > li > div::before { content: counter(step); display: grid; place-items: center; inline-size: 1.75rem; block-size: 1.75rem; }
+}
+
+@layer layout {
+  /* Relation -> responsibility -> slot. Targets are scoped semantic names.
+     This prototype has one primary subject, document, not a graph solver. */
+  [data-relation="navigates"][data-target="document"] { --responsibility: navigator; --place: var(--place-navigator, supporting); }
+  [data-relation="supports"][data-target="document"] { --responsibility: inspector; --place: var(--place-inspector, reflection); }
+  [data-place="stage"] { --responsibility: stage; --place: var(--place-stage, story); }
+  .scene {
+    --place-navigator: supporting; --place-stage: story; --place-inspector: reflection;
+    --scene-areas: "story" "supporting" "reflection";
+    --scene-columns: minmax(0, 1fr); --scene-width: 52rem;
+    display: grid; grid-template-areas: var(--scene-areas); grid-template-columns: var(--scene-columns);
+    align-items: start; gap: calc(var(--space-unit) * var(--space-scale));
+    width: min(100%, var(--scene-width)); margin-inline: auto;
+  }
+  .scene > :is([data-relation], [data-place]) { grid-area: var(--place); min-inline-size: 0; }
+  @container composition style(--arrangement: alongside) {
+    .scene {
+      --place-navigator: navigation; --place-stage: work; --place-inspector: inspection;
+      --scene-areas: "navigation work inspection";
+      --scene-columns: minmax(11rem, 0.8fr) minmax(0, 2fr) minmax(12rem, 1fr); --scene-width: 88rem;
+    }
+  }
+  @container composition style(--arrangement: focus) {
+    .scene {
+      --place-stage: focus; --scene-areas: "focus focus" "supporting reflection";
+      --scene-columns: repeat(2, minmax(0, 1fr)); --scene-width: 72rem;
+    }
+  }
+  /* Only the navigator's slot is released; other relationships keep theirs. */
+  @container composition style(--arrangement: stack) and style(--navigation-presence: on-demand) {
+    .scene { --scene-areas: "story" "reflection"; }
+  }
+  @container composition style(--arrangement: alongside) and style(--navigation-presence: on-demand) {
+    .scene { --scene-areas: "work inspection"; --scene-columns: minmax(0, 3fr) minmax(12rem, 1fr); }
+  }
+  @container composition style(--arrangement: focus) and style(--navigation-presence: on-demand) {
+    .scene { --scene-areas: "focus focus" "reflection reflection"; }
+  }
+  @container experience style(--rhythm: compact) { .composition, .try, .guide-section { --space-scale: 0.7; } }
+  @container experience style(--rhythm: spacious) { .composition, .try, .guide-section { --space-scale: 1.4; } }
+
+  .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 1rem clamp(1rem, 4vw, 3rem); }
+  /* The toolbar, not the site header's placeholder, holds the header's strip. */
+  .SimpleAtmosphere > mq-site-header { block-size: 0; }
+  .toolbar { padding-block-start: calc(1rem + var(--site-header-offset, 0px)); }
+  .wordmark { display: flex; align-items: baseline; gap: 0.5rem; margin-inline-end: auto; }
+  .experience-choices, .guide-options, .page-controls, .panel-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  .introduction { width: min(100% - 2rem, 88rem); margin: 3.5rem auto 2rem; display: grid; gap: 1rem; }
+  .introduction > p { max-width: 48rem; }
+  .section-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .section-nav a { display: inline-flex; align-items: baseline; gap: 0.5rem; }
+  .try { width: min(100% - 2rem, 88rem); margin: 0 auto 1.25rem; display: grid; gap: calc(var(--space-unit) * var(--space-scale)); scroll-margin-block-start: 8rem; }
+  .try > header { display: grid; gap: 0.4rem; }
+  .try-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 0.75rem; padding: 0; list-style: none; }
+  .try-steps > li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.75rem; align-items: start; }
+  .guide-options:has(> [hidden]) { display: none; }
+  .guide-section { width: min(100% - 2rem, 76rem); margin: clamp(3.5rem, 9vw, 6.5rem) auto 0; display: grid; gap: calc(var(--space-unit) * var(--space-scale) * 1.5); scroll-margin-block-start: 8rem; }
+  .guide-section > header { display: grid; gap: 0.75rem; max-inline-size: 50rem; }
+  .guide-section > h3 { margin-block-start: calc(var(--space-unit) * var(--space-scale)); }
+  .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1rem; align-items: start; }
+  .compare > figure { display: grid; gap: 0.85rem; min-inline-size: 0; }
+  .compare figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+  .compare ul, .fit ul { display: grid; gap: 0.4rem; padding-inline-start: 1.1rem; }
+  .moves { display: grid; gap: calc(var(--space-unit) * var(--space-scale)); padding: 0; list-style: none; }
+  .moves > li { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1rem 1.75rem; align-items: start; }
+  .moves > li > div { display: grid; gap: 0.6rem; }
+  .callout { display: grid; gap: 0.5rem; }
+  .checklist { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr)); gap: 0.75rem; padding: 0; list-style: none; }
+  .fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1rem; }
+  .fit > div { display: grid; gap: 0.6rem; align-content: start; }
+  .composition-space { container: available / inline-size; width: min(100% - 2rem, 88rem); margin-inline: auto; }
+  .scene > aside { padding: calc(var(--space-unit) * var(--space-scale)); }
+  [data-frame] { position: relative; }
+  [data-view] { display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; gap: calc(var(--space-unit) * var(--space-scale)); padding: calc(clamp(1.25rem, 4vw, 3rem) * var(--space-scale)); scroll-margin-block-start: 8rem; }
+  [data-view] > p { max-inline-size: 62ch; }
+  blockquote { padding-inline-start: 1rem; }
+  .chapter-links { display: grid; gap: 0.4rem; margin-block: 1rem; }
+  .chapter-links a { display: flex; gap: 0.7rem; text-align: start; }
+  .panel-heading { justify-content: space-between; }
+  [data-relation="supports"] { display: grid; gap: 0.65rem; }
+  .relationship { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
+  .relationship > span:not([aria-hidden]) { padding: 0.5rem 0.8rem; }
+  .page-controls { justify-content: center; margin: 1.25rem; }
+  .page-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; max-width: 76rem; margin: clamp(3.5rem, 9vw, 6.5rem) auto 0; padding: 1.5rem 1rem 2.5rem; }
+  .page-footer nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+  @container available (width < 55rem) {
+    @container composition style(--arrangement: alongside) {
+      .scene { --scene-areas: "work" "navigation" "inspection"; --scene-columns: minmax(0, 1fr); }
+    }
+    @container composition style(--arrangement: alongside) and style(--navigation-presence: on-demand) {
+      .scene { --scene-areas: "work" "inspection"; --scene-columns: minmax(0, 1fr); }
+    }
+  }
+  @container available (width < 36rem) {
+    @container composition style(--arrangement: focus) {
+      .scene { --scene-areas: "focus" "supporting" "reflection"; --scene-columns: minmax(0, 1fr); }
+    }
+    @container composition style(--arrangement: focus) and style(--navigation-presence: on-demand) {
+      .scene { --scene-areas: "focus" "reflection"; }
+    }
+  }
+  @media (max-width: 36rem) {
+    .toolbar { gap: 0.65rem; }
+    .experience-choices { order: 1; width: 100%; }
+    .experience-choices button { flex: 1; padding-inline: 0.4rem; }
+    .source-link { padding: 0; }
+    .introduction { margin-block-start: 2rem; }
+    .try, .guide-section { scroll-margin-block-start: 11rem; }
+  }
+}
+
+@layer presence {
+  [data-relation="navigates"] { --presence: var(--navigation-presence, embedded); --space: retain; }
+  [data-relation="supports"] { --presence: embedded; --space: retain; }
+  .toolbar { --presence: flowing; --space: retain; }
+  /* Capability is a fact supplied by the adapter; preferences stay in CSS. */
+  @container experience style(--can-project: 1) {
+    @container experience style(--navigation: auto) and style(--arrangement: focus) {
+      .composition { --navigation-presence: on-demand; --navigation-reason: focus; }
+    }
+    @container available (width < 55rem) {
+      @container experience style(--navigation: auto) and style(--arrangement: alongside) {
+        .composition { --navigation-presence: on-demand; --navigation-reason: space; }
+      }
+    }
+    @container experience style(--navigation: on-demand) {
+      .composition { --navigation-presence: on-demand; --navigation-reason: explicit; }
+    }
+  }
+  @container experience style(--navigation: embedded) {
+    .composition { --navigation-presence: embedded; --navigation-reason: explicit; }
+  }
+  @container composition style(--navigation-presence: on-demand) {
+    [data-relation="navigates"] { --space: release; }
+  }
+  @container experience style(--identity: persistent) {
+    .toolbar:has([data-relation="identifies"][data-target="experience"]) { --presence: pinned; position: sticky; top: 0; z-index: 2; }
+  }
+  [data-relation="navigates"][popover]:popover-open {
+    position: fixed; inset: 0 auto 0 0; width: min(22rem, 90vw);
+    max-width: none; max-height: none; height: 100dvh; margin: 0;
+  }
+}
+
+@layer lattice {
+  [data-frame], [data-relation="navigates"][popover] { overflow: auto; }
+  [data-view] + [data-view] { border-block-start: 1px solid var(--edge); }
+  @container experience style(--path: pages) or style(--path: slides) {
+    [data-frame] { block-size: clamp(30rem, 65svh, 40rem); }
+    [data-track] { display: flex; block-size: 100%; }
+    [data-view] { flex: 0 0 100%; min-inline-size: 0; scroll-snap-align: start; }
+  }
+  @container experience style(--path: slides) {
+    [data-frame] { scroll-snap-type: x mandatory; }
+    [data-track] { flex-direction: row; }
+  }
+  @container experience style(--path: pages) {
+    [data-frame] { scroll-snap-type: y proximity; }
+    [data-track] { flex-direction: column; }
+  }
+}
+
+@layer look {
+  body { background: var(--paper); color: var(--ink); font: 1rem/1.65 system-ui, sans-serif; }
+  a { color: var(--accent); text-underline-offset: 0.2em; }
+  .toolbar { background: var(--paper); border-block-end: 1px solid var(--edge); }
+  .wordmark { color: var(--ink); font-weight: 800; font-size: 1.35rem; text-decoration: none; letter-spacing: -0.06em; }
+  .wordmark span { color: var(--muted); font-size: 0.8rem; font-weight: 400; letter-spacing: 0; }
+  .eyebrow { color: var(--accent); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; }
+  h1, [data-view] h2 { letter-spacing: -0.04em; }
+  button, select, .chapter-links a { border: 1px solid var(--edge); border-radius: 0.6rem; color: var(--ink); background: var(--surface); }
+  .chapter-links a { text-decoration: none; }
+  button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: white; }
+  .chapter-links [aria-current] { background: var(--wash); border-color: var(--accent); }
+  button:disabled { opacity: 0.45; cursor: default; }
+  button:hover:not(:disabled):not([aria-pressed="true"]), .chapter-links a:hover { background: var(--wash); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .scene > :is([data-place], [data-relation]), .composition-contract { background: var(--surface); border: 1px solid var(--edge); border-radius: 1rem; }
+  [data-relation="navigates"][popover]::backdrop { background: rgb(20 40 30 / 18%); }
+  .scene > [popover]:popover-open { border-radius: 0 1rem 1rem 0; }
+  textarea { color: var(--ink); background: var(--paper); border: 1px solid var(--edge); border-radius: 0.6rem; }
+  blockquote { border-inline-start: 3px solid var(--accent); font-size: 1.2rem; }
+  code { color: var(--accent); font-size: 0.9em; }
+  .relationship > span:not([aria-hidden]) { background: var(--wash); border-radius: 0.6rem; font-size: 0.85rem; }
+  .aside-note, .status, .page-footer { color: var(--muted); font-size: 0.85rem; }
+  .source-link { font-size: 0.85rem; }
+  summary { font-weight: 650; }
+
+  code, pre { font-family: var(--mono); }
+  pre { background: var(--code); color: var(--code-ink); border-radius: 0.75rem; font-size: 0.8rem; line-height: 1.6; }
+  pre code { color: inherit; font-size: inherit; }
+  pre .c { color: var(--code-muted); }
+  [data-contract-output] { background: var(--paper); color: var(--ink); border: 1px solid var(--edge); }
+  .lede { font-size: clamp(1.08rem, 1.5vw, 1.3rem); line-height: 1.55; }
+  h3 { font-size: 1.12rem; line-height: 1.3; letter-spacing: -0.01em; }
+  .guide-section h2, .try h2 { font-size: clamp(1.7rem, 3.4vw, 2.6rem); letter-spacing: -0.04em; line-height: 1.12; }
+  .tailwind-line, .task { background: var(--surface); border: 1px solid var(--edge); border-inline-start: 4px solid var(--accent); border-radius: 0.8rem; }
+  .section-nav a { color: var(--ink); background: var(--surface); border: 1px solid var(--edge); border-radius: 999px; text-decoration: none; font-size: 0.9rem; }
+  .section-nav a span, .try-steps > li::before, .moves > li > div::before { color: var(--accent); font-weight: 750; }
+  .section-nav a:hover { background: var(--wash); }
+  .try-steps > li::before, .moves > li > div::before { color: white; background: var(--accent); border-radius: 50%; font-size: 0.85rem; }
+  .try-steps > li, .compare > figure, .moves > li, .checklist > li, .fit > div, .table-scroll { background: var(--surface); border: 1px solid var(--edge); border-radius: 1rem; }
+  .callout { background: var(--wash); border: 1px solid var(--accent); border-radius: 1rem; }
+  .compare figcaption { font-weight: 650; }
+  .badge { border-radius: 999px; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: var(--paper); border: 1px solid var(--edge); }
+  [data-approach="atmosphere"] { border-color: var(--accent); }
+  [data-approach="atmosphere"] .badge { color: white; background: var(--accent); border-color: var(--accent); }
+  .compare li, .fit li, .checklist > li, td { font-size: 0.95rem; }
+  thead th { background: var(--wash); color: var(--muted); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  tbody th { font-weight: 650; }
+  th, td { border-block-end: 1px solid var(--edge); }
+  tbody tr:last-child > * { border-block-end: 0; }
+  td code, th code { overflow-wrap: anywhere; }
+  .page-footer { border-block-start: 1px solid var(--edge); }
+}
+
+@layer life {
+  button { transition: background-color 180ms, color 180ms; }
+  [data-frame] { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    button { transition: none; }
+    [data-frame] { scroll-behavior: auto; }
+  }
+}
