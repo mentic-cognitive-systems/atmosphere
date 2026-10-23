@@ -110,6 +110,110 @@
   initial-value: 1.1px;
 }
 
+/* ==========================================================================
+   Hyperlink Styles - Semantic Classes
+   ========================================================================== */
+
+/* Base Reset (Optional but recommended for consistency) */
+a {
+  cursor: pointer;
+  color: inherit;
+  transition: all 0.25s ease;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, var(--accent, currentColor));
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-color: var(--accent, currentColor);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent, currentColor);
+  outline-offset: 0.18em;
+}
+
+/* 1. Pill or Box Highlight (Background) */
+.link-highlight {
+  color: #1a73e8;
+  background-color: #f1f3f4;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+.link-highlight:hover {
+  background-color: #e8f0fe;
+  color: #1557b0;
+}
+
+/* 2. Custom Border Bottom (Dashed/Dotted) */
+.link-border-dash {
+  color: #202124;
+  border-bottom: 2px dashed #1a73e8;
+  padding-bottom: 1px;
+}
+
+.link-border-dash:hover {
+  color: #1a73e8;
+  border-bottom-style: solid;
+}
+
+/* 3. Animated Slide-In Underline */
+.link-animated-underline {
+  color: #1a73e8;
+  position: relative;
+  display: inline-block;
+}
+
+.link-animated-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: #1a73e8;
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+
+.link-animated-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* 4. Bold Contrast Shift */
+.link-contrast-weight {
+  color: #e01e5a;
+  font-weight: 500;
+}
+
+.link-contrast-weight:hover {
+  color: #b21244;
+  font-weight: 700;
+}
+
+/* 5. External Icon or Arrow Shift */
+.link-arrow-shift {
+  color: #1a73e8;
+  display: inline-flex;
+  align-items: center;
+}
+
+.link-arrow-shift::after {
+  content: '→';
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.link-arrow-shift:hover::after {
+  transform: translateX(4px);
+}
+
+
+
 /* --- THEME DEFINITIONS (CSS Variables) --- */
 :root {
   --frame-border-color: var(--accent);

@@ -177,9 +177,71 @@ a rail's allocation; Layer owns its presence; Lattice owns its traversal.
 When those decisions meet, publish a small token or explicit state for the
 other concern to consume. The CSS mechanics stay inside that implementation.
 
-CSS cascade layers (`@layer`) order declarations. Atmosphere's **Layer**
-concern governs presence. The simple stylesheet uses named cascade layers to
-keep its concern sections readable in one file; those are distinct concepts.
+## Composition and Precedence
+
+**Concerns organize decisions. Cascade layers establish precedence.
+Attributes name choices; custom properties carry them into composition.**
+
+| Mechanism | Responsibility |
+|---|---|
+| Concern sheets: Layout, Layer, Lattice, Look, Life, Lens | Organize who owns a design decision |
+| `data-*` attributes | Declare semantic addresses, named choices, or application facts |
+| Custom properties | Carry policies, shared tokens, and resolved values |
+| Native CSS `@layer` | Establish precedence when declarations compete |
+
+Atmosphere's **Layer** concern governs presence and projection: what stays in
+place, floats, or appears on demand. A **cascade layer** orders CSS declarations;
+it does not create visual depth or promote an element into the browser's top
+layer. The six concerns describe responsibilities, with no universal priority
+order between them.
+
+An atmospheric precedence contract gives experience defaults a place to start,
+composition rules a place to interpret choices, and explicit author policies a
+place to refine them. For a new layered integration, this is a proposed pattern:
+
+```css
+@layer at.defaults, at.composition, at.policy;
+
+@layer at.defaults {
+  :where(.experience[data-lens="presentation"]) {
+    --arrangement: focus;
+    --navigation: auto;
+    --path: slides;
+  }
+}
+
+@layer at.policy {
+  :where(.experience[data-navigation="embedded"]) {
+    --navigation: embedded;
+  }
+}
+
+/* at.composition contains the concern rules that consume these choices. */
+```
+
+For `<section class="experience" data-lens="presentation"
+data-navigation="embedded">`, the Lens supplies defaults and the explicit
+navigation choice refines them on the same host. The proposed `data-navigation`
+binding above is an example of an application contract; an attribute only works
+when CSS or behavior consumes it. An author can also declare `--navigation`
+directly on that host. Use a public policy token to express intent and let its
+consumer resolve the mechanics and usable fallback.
+
+These layer names are guidance for new integrations, not a declaration of the
+current bundle structure. The simple example already uses cascade layers named
+for its sections, including `presence` for the Layer concern. The shared concern
+sheets remain unlayered. Adopting a common hierarchy requires a coordinated
+migration; adding a layer-order statement alone does not assign rules to layers.
+
+Cascade precedence applies to competing declarations on the **same element**.
+A custom property declared on a child takes precedence over an inherited value,
+even when the parent's declaration belongs to a later cascade layer. Define the
+policy on its owning host and avoid redeclaring it on descendants that should
+inherit it. Normal unlayered author declarations outrank normal layered ones;
+`!important` reverses layer order. See the
+[CSS cascade specification](https://www.w3.org/TR/css-cascade-5/#layer-order)
+and the [cascade architecture reference](./docs/VOCABULARY.md#6-css-architecture--cascade-layers)
+for integration and web-component boundaries.
 
 ## Make interactions between choices explicit
 

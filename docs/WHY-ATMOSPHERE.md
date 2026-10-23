@@ -20,30 +20,45 @@ A tailwind blows in the direction a moving object travels, giving it a transient
 ### What Tailwind Got Right
 Tailwind CSS solved real problems that plagued web development, and any modern alternative must acknowledge those wins:
 
-1. **Constrained token vocabularies.** You cannot easily write `margin: 13px`. A bounded token vocabulary, mechanically enforced, is worth more than voluminous design guidelines nobody reads.
+1. **Constrained token vocabularies.** A shared spacing, color, and type scale makes consistent choices easy. A bounded token vocabulary, mechanically enforced, is worth more than voluminous design guidelines nobody reads.
 2. **No naming tax.** Developers do not have to invent throwaway wrappers like `.hero-split-inner-wrap`. Naming takes time, produces fragile conventions under deadline pressure, and creates permanent public APIs that teams fear deleting.
 3. **Locality of reference.** You inspect the markup and immediately understand its visual intent without hunting through scattered stylesheets or untangling specificity wars.
 
-### What It Cost
-To achieve those wins, utility frameworks fused two concerns that belong apart: **what a thing is** and **how much room or style it receives at a specific call site**.
+### Where the Authoring Models Differ
+Utility-first authoring places many presentation decisions at the call site.
+That locality is useful, but composing the same subject across several
+experiences raises additional questions:
 
-* **Killed dynamics and cascade.** Once a visual value is baked into markup at authoring time, downstream sheets cannot compose with it. Theming becomes a find-and-replace problem. Prefixes like `dark:` or responsive prefixes proliferate combinatorially because the framework discarded the cascade that solves them naturally.
-* **Escape hatches admit the defect.** Arbitrary values (`p-[13px]`), `!important` variants, and `@apply` concede that baking hardcoded utilities into markup cannot handle fluid, compositional requirements.
-* **Verbosity as a permanent tax.** Dozens of classes are required to describe a simple card, repeated verbatim across every instance.
+* **Where does a choice belong?** Repeating responsive and state variants across
+  components can distribute one experience policy among many call sites.
+* **What does a choice mean?** A list of visual utilities describes mechanics;
+  semantic responsibilities such as navigator or inspector need their own names
+  and contracts.
+* **What stays shared?** Several views of the same subject need consistent
+  presentation rules and a common state owner, even as their geometry changes.
+
+Tailwind supports CSS variables, theme tokens, and native cascade layers; its
+utilities can respond to changing values. Those capabilities are useful during
+migration as well. See its documentation on
+[utility styling](https://tailwindcss.com/docs/styling-with-utility-classes) and
+[theme variables](https://tailwindcss.com/docs/theme).
 
 ### The Atmosphere Position
 
-> **A Tailwind utility is a constant. An Atmosphere local is a function of the composition.**
+> **Atmosphere places semantic choices at the authoring surface and gives CSS
+> ownership of how those choices resolve across experiences.**
 
-`p-4` is `padding: 1rem`. It was `1rem` when typed, it is `1rem` now, and it will remain `1rem` in every theme shipped. The value has already resolved. It is a dead end in the cascade—to change it, you must find and retype it, or override it with `!important`.
-
-`data-pad="open"` is a **step on a scale owned by the composition**. Change density to `compact`, and the padding tightens. Change Look to a spacious theme, and it expands. It never resolves prematurely in the markup; its job is to declare **how much**, letting the composition sheets determine **how much of what**.
+`data-pad="open"` requests a **step on a scale owned by the composition**.
+Its binding consumes shared tokens, so density or Look changes can alter the
+result while the request remains the same. The contract names an intention and
+gives a concern ownership of its resolution. Replacing utility classes with
+attributes only helps when those attributes have meaningful bindings and consumers.
 
 | Dimension | Tailwind | Atmosphere |
 |---|---|---|
-| **What is this?** | *(No answer — no semantics in markup)* | `class` / semantic element — an addressable entity |
-| **How is it composed?** | Class attribute at the call site | Concern sheets (`layout`, `lattice`, `layer`, `look`, `life`, `lens`) |
-| **How much of it?** | Class attribute at the call site | `data-*` locals at the call site |
+| **What is this?** | Application-defined HTML and component semantics | Explicit semantic addresses and responsibility contracts |
+| **How is it composed?** | Utilities and variants, with shared tokens and custom CSS | Concern-owned bindings and recipes |
+| **How much of it?** | Utility choices backed by a theme scale or custom values | Bounded locals resolved through composition tokens |
 
 Locality where locality helps; the cascade where the cascade helps.
 
@@ -134,12 +149,40 @@ A semantic address lets multiple concerns meet cleanly at a single element:
 * `data-state="active"` allows Life to animate or highlight the active item without knowing domain details.
 * `data-pad="open"` requests a proportional step on the layout spacing scale.
 
-The [README's semantic contract](../README.md#the-core-principle-semantic-addresses-are-the-composition-contract)
+The [README's semantic contract](../README.md#the-core-principle-meaning--responsibility--presentation)
 makes this the authoring principle: name identity, kind, place, required/optional
 parts, roles, real states, and bounded constraints separately. Scoped `data-part`
 addresses in light DOM and native public `part` addresses in shadow DOM let
 concerns compose against meaningful constituents. Names carry maintained
 contracts and actual consumers; they do not infer behavior on their own.
+
+### Semantic Choices Remain Live
+
+Attributes express meaningful choices and application facts. Custom properties
+carry policies, shared quantities, and resolved values. CSS interprets those
+inputs under current conditions. A control can change a policy on the owning
+host, and a theme can change inherited tokens, while the same component and
+controls continue working. JavaScript connects intent to those changes; CSS
+owns their presentation mechanics.
+
+This makes semantic names useful beyond readability: they are stable inputs to
+composition. Document their scope, supported values, defaults, and consumers.
+Keep requested policies distinct from computed outputs so a responsive result
+does not become its own input.
+
+### Ownership and Precedence
+
+**Concerns organize decisions. Cascade layers establish precedence.**
+Layout, Layer, Lattice, Look, Life, and Lens have distinct responsibilities,
+with no universal priority ladder between them. Native `@layer` orders competing
+declarations; Atmosphere's Layer concern owns presence and projection.
+
+Experience defaults, composition consumers, and explicit author policies have
+different purposes. Giving them deliberate precedence lets a Lens offer a
+coherent starting point that an author can refine. Cooperating concerns publish
+tokens with clear consumers. See
+[Composition and precedence](../README.md#composition-and-precedence) for the
+proposed cascade pattern and its integration boundaries.
 
 ### The Local Contract
 A local sets the **quantity** or **constraint** of something a concern already defines. It never introduces raw visual values (no hex codes, no pixel lengths, no durations).
@@ -195,7 +238,48 @@ JavaScript connects user intent to state mutations. To make presentations truly 
 * **Frame navigation** tracks the active view ID per frame.
 * **System adapters** synchronize this state with the DOM, URL (`#route?at=coord`), local storage, and controls.
 
-When a user switches from reading an article to inspecting a release dashboard, the application draft does not reset, and the selected task remains focused. For full details on the reactive model, see [STATE-MODEL.md](./STATE-MODEL.md).
+When a user switches from reading an article to inspecting a release dashboard,
+the application draft and selected task should remain intact. Preserve usable
+focus, with an explicit handoff when the new presentation hides the focused
+region.
+
+### A Public Surface for Encapsulated Behavior
+
+A LiveObject owns evolving state and the operations that preserve its
+invariants. Delegates expose supported capabilities through which components
+observe that state and request changes. Several presentations can share those
+capabilities while keeping the owner's implementation private.
+
+Treat delegates as first-class parts of the component contract, alongside
+semantic addresses, public parts, and CSS tokens. A supplied delegate can expose
+read-only snapshots, named commands, and subscriptions without exposing mutable
+records or private DOM. Its lifecycle includes replacement and unsubscription,
+so a view can disconnect without destroying its shared state owner.
+
+**Commands request work; change notifications report committed facts.** A
+documented event contract identifies the emitter, payload, listener scope, and
+whether an event requests an action or reports a result. Give each action one
+execution owner. Views observe committed changes and update their existing
+controls, preserving drafts and selection as they render.
+
+These are the behavioral foundations of composability. The migration guide
+proposes a concrete delegate interface and event protocol; the existing demos
+already demonstrate supplied models and subscriptions. The current
+`AtmosphereModel` remains an experimental DOM-backed composition wrapper, with
+an authoritative synchronous model and unified persistence partly proposed.
+See [STATE-MODEL.md](./STATE-MODEL.md) for that implementation boundary.
+
+### Continuity and Portability
+
+Keeping an existing model and its controls preserves work during presentation
+changes. Restoring that work into a replacement component or after a reload
+requires a separate snapshot and restoration contract: serializable values,
+stable identities, a schema version, and validation. The application owns that
+persistence; DOM nodes, delegate functions, and listeners remain runtime resources.
+
+State portability therefore needs an explicit interface as well as an owner.
+Restoring domain state does not by itself restore native focus, text selection,
+or unfinished asynchronous operations; their adapters need their own policies.
 
 ---
 
@@ -206,12 +290,20 @@ Atmosphere requires authors to adopt semantic HTML and understand a shared vocab
 * Theming and responsive reflow must adapt dynamically to user preferences and context.
 * Long-lived tasks require state and draft continuity across presentation changes.
 
+Existing components can become atmospheric incrementally. Preserve useful
+controls and behavior, then give one responsibility at a time semantic addresses,
+live tokens, and explicit state and event contracts. A component can contribute
+to an atmospheric composition before every surrounding component has migrated.
+The practical steps, including Tailwind coexistence, are in
+[Taking the Tailwind to the Atmosphere](./Give%20WebComponents%20Atmosphere.md#3-taking-the-tailwind-to-the-atmosphere).
+
 ---
 
 ## Navigation & References
 
 * [VOCABULARY.md](./VOCABULARY.md) — Comprehensive reference of concerns, dimensions, roles, and cascade architecture
 * [STATE-MODEL.md](./STATE-MODEL.md) — Reactive JavaScript state model, system adapters, and motion interop
+* [Give WebComponents Atmosphere](./Give%20WebComponents%20Atmosphere.md) — Existing-component migration, semantic CSS, LiveObject delegates, events, and portable state
 * [PRESENTATIONS.md](./PRESENTATIONS.md) — Presentation families, semantic places, and compound workspace recipes
 * [TUTORIAL-VISION.md](./TUTORIAL-VISION.md) — Proposed 8-step tutorial redesign and acceptance criteria
 * [README.md](../README.md) — Getting started and quickstart guide

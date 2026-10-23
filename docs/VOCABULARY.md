@@ -206,19 +206,104 @@ A local attribute sets the **quantity or structural constraint** of an existing 
 
 ## 6. CSS Architecture & Cascade Layers
 
-### Planned Cascade Layer Hierarchy
+### Concerns and Precedence
 
-Atmosphere's concern sheets act as conceptual layers. A planned migration will make this explicit via CSS `@layer`:
+**Concerns organize decisions. Cascade layers establish precedence.
+Attributes name choices; custom properties carry them into composition.**
+
+The six concern names identify ownership. Capital-L **Layer** owns presence and
+projection. Native `@layer` orders competing declarations; it establishes no
+visual depth, stacking context, or browser top-layer membership. A file named
+`at.layer.css` has no automatic relationship to a cascade layer.
+
+`data-*` attributes declare semantic addresses, named choices, and application
+facts. CSS bindings translate those choices into custom properties. Public
+policy properties carry author intent; shared tokens connect concerns; internal
+resolved properties publish results. Document which properties are author inputs
+and which are outputs. In the laboratory, rendered dimension attributes are
+adapter outputs, with requested values kept separately in `data-contract-*`.
+
+### Proposed precedence pattern
+
+For a new layered integration, establish precedence by the purpose of a
+declaration:
 
 ```css
-@layer at.reset, at.components, at.layout, at.lattice,
-       at.layer, at.look, at.life, at.lens, at.local;
+@layer at.defaults, at.composition, at.policy;
 ```
 
-### Precedence & Migration Invariants
-1. **All-or-Nothing Wrapping:** In CSS, unlayered author styles outrank layered styles regardless of specificity. Moving only some sheets into `@layer` would cause unlayered rules to improperly override layered rules. Migration must wrap all sheets simultaneously.
-2. **Locals Outrank Concerns:** `at.local` is placed last in the layer declaration so that local quantity choices override default component or layout rules cleanly without requiring `!important`.
-3. **Lens Handoff:** Token fallbacks (such as `var(--lens-enter-time, var(--enter-time))`) resolve values without cascade specificity conflicts.
+| Cascade layer | Purpose |
+|---|---|
+| `at.defaults` | Vocabulary defaults and Lens recipes that establish a starting experience |
+| `at.composition` | Component and concern rules that bind responsibilities, resolve conditions, and render the result |
+| `at.policy` | Explicit author choices and bounded local refinements through documented inputs |
+
+The [README example](../README.md#composition-and-precedence) shows a Lens default
+and an explicit navigation policy declared on the same host. Composition
+consumers interpret the resulting policy and provide capability fallbacks. A
+later policy layer does not itself enforce accessibility, capability constraints,
+or relationships between properties; those need explicit consumers and checks.
+
+Concern sections may be organized within these layers where useful. There is no
+required one-to-one mapping between files, concerns, and cascade layers. A Lens
+can contribute recipe defaults and experience-specific rendering rules in their
+respective layers. Ordering Life after Look should not substitute for deciding
+which concern owns a property. When concerns cooperate, publish tokens with
+clear consumers instead of relying on repeated overrides of the same property.
+
+This pattern replaces the earlier proposed universal ordering of the six
+concerns. It is guidance for new integrations, not an implemented bundle migration.
+`at.simple.css` currently uses `vocabulary, lens, components, layout, presence,
+lattice, look, life`; the shared concern sheets and laboratory contract remain
+unlayered.
+
+### Precedence and integration rules
+
+- **Establish order before contributions.** Declare the intended layer order
+  before the first rules or imports that create those layers. Assign rules with
+  `@layer` blocks or `@import … layer(…)`; an order statement alone does not wrap
+  linked stylesheets.
+- **Plan the migration boundary.** Normal unlayered author declarations outrank
+  normal layered author declarations, regardless of specificity. Wrapping only
+  selected shared sheets can reverse their existing relationships. Migrate the
+  cooperating sheets together, or explicitly account for remaining unlayered
+  rules and application overrides.
+- **Keep policies on their owning host.** Cascade layers resolve declarations
+  on the same element. A declaration directly on a child takes precedence over
+  an inherited custom-property value, regardless of the parent's layer. Avoid
+  descendant defaults that shadow an intentionally inherited policy.
+- **Refine through public inputs.** Local quantity bindings should contribute
+  bounded tokens consumed by the owning concern. Give an explicit choice priority
+  over its default without replacing unrelated rendering mechanics. Inline
+  normal policy declarations outrank normal stylesheet declarations on that host;
+  removing the inline declaration restores stylesheet resolution.
+- **Keep importance exceptional.** `!important` reverses cascade-layer order:
+  important declarations in earlier layers outrank those in later layers, and
+  layered important declarations outrank unlayered important declarations.
+  It cannot serve as the routine mechanism for explicit policy.
+- **Preserve token handoffs.** `var(--lens-enter-time, var(--enter-time))`
+  expresses a consumer's preference between two inputs. That fallback relationship
+  is separate from the cascade that determines each input's value.
+
+These rules follow the [CSS cascade specification](https://www.w3.org/TR/css-cascade-5/#layering).
+
+### Web-component boundaries
+
+A component declares its public inherited tokens, supported host choices, and
+native `part`/`exportparts` addresses. `data-part` remains a scoped application
+address in light DOM; it does not expose shadow internals. A host attribute needs
+a consumer, such as an internal `:host([data-navigation="embedded"])` binding.
+Components should avoid redeclaring public inherited tokens internally when
+those tokens are meant to accept host values; use fallback values at consumers
+or separate internal tokens as needed.
+
+Each shadow tree has its own cascade-layer ordering. Reusing `at.policy` inside
+a component does not connect its precedence to the document's `at.policy` layer.
+Normal outer-context declarations take precedence over normal inner-context
+declarations when both style the same element; important declarations reverse
+that context order. Layer names cannot override those encapsulation rules. See
+the specification's [encapsulation context](https://www.w3.org/TR/css-cascade-5/#cascade-context)
+and [layer naming](https://www.w3.org/TR/css-cascade-5/#layer-names) rules.
 
 ---
 
