@@ -346,6 +346,9 @@ and usable focus. Avoid parallel templates that need to be kept synchronized.
    [semantic vocabulary](./docs/VOCABULARY.md) for the broader architecture.
 4. Read [Giving Atmosphere a Body](./docs/STATE-MODEL.md) for state ownership and
    the proposed authoritative model API.
+5. Use [Give WebComponents Atmosphere](./docs/Give%20WebComponents%20Atmosphere.md)
+   to migrate an existing component: semantic CSS, Tailwind extraction, live
+   tokens, LiveObject delegates, events, and portable state.
 
 `at.components.css` defines reusable internal structures. The shared concern
 sheets implement Layout, Layer, Lattice, Look, Life, and Lens. `at.local.css`
